@@ -23,7 +23,6 @@ import org.springframework.web.client.RestTemplate;
 import ch.uzh.ifi.seal.soprafs16.Application;
 import ch.uzh.ifi.seal.soprafs16.model.User;
 
-
 @RunWith(SpringJUnit4ClassRunner.class)
 @SpringApplicationConfiguration(classes = Application.class)
 @WebAppConfiguration

@@ -41,3 +41,6 @@ $RECYCLE.BIN/
 .idea/
 .iml/
 !.idea/runConfigurations/
+
+ # Rafael Custom
+local.properties

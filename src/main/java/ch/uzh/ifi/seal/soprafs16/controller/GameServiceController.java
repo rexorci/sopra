@@ -34,7 +34,7 @@ public class GameServiceController
     @Autowired
     private GameRepository gameRepo;
 
-    private final String   CONTEXT = "/game";
+    private final String   CONTEXT = "/games";
 
     /*
      * Context: /game

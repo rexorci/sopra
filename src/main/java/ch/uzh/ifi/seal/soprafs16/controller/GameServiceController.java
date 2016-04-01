@@ -3,8 +3,6 @@ package ch.uzh.ifi.seal.soprafs16.controller;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.persistence.Column;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,7 +17,6 @@ import org.springframework.web.bind.annotation.RestController;
 
 import ch.uzh.ifi.seal.soprafs16.GameConstants;
 import ch.uzh.ifi.seal.soprafs16.constant.GameStatus;
-import ch.uzh.ifi.seal.soprafs16.constant.UserStatus;
 import ch.uzh.ifi.seal.soprafs16.model.Game;
 import ch.uzh.ifi.seal.soprafs16.model.Move;
 import ch.uzh.ifi.seal.soprafs16.model.Train;
@@ -38,7 +35,7 @@ public class GameServiceController extends GenericService {
 	@Autowired
 	private GameRepository gameRepo;
 
-	private final String CONTEXT = "/game";
+	private final String CONTEXT = "/games";
 
 	/*
 	 * Context: /game
@@ -49,7 +46,14 @@ public class GameServiceController extends GenericService {
 	public List<Game> listGames() {
 		logger.debug("listGames");
 		List<Game> result = new ArrayList<>();
-		gameRepo.findAll().forEach(result::add);
+//		gameRepo.findAll().forEach(result::add);
+
+        for (Game game : gameRepo.findAll()){
+            result.add(game);
+        }
+
+
+
 		return result;
 	}
 
@@ -72,13 +76,24 @@ public class GameServiceController extends GenericService {
 		// game.setName("timonsGame");
 
 		// game.setStatus(GameStatus.PENDING);
+
 		User owner = userRepo.findByToken(userToken);
+
 		// game.setCurrentPlayer(0);
 
 		if (owner != null) {
+            game.setName("timonsGame");
+            game.setStatus(GameStatus.PENDING);
+
+            owner.setGame(game);
+
 			// TODO Mapping into Game
-			game.setOwner(owner.getName());			
+			game.setOwner(owner.getName());
 			game = gameRepo.save(game);
+
+			List<User> players = new ArrayList<User>();
+			players.add(owner);
+			game.setUsers(players);
 
 			return CONTEXT + "/" + game.getId();
 		} else {
@@ -173,7 +188,7 @@ public class GameServiceController extends GenericService {
 
 		Game game = gameRepo.findOne(gameId);
 		if (game != null) {
-			return game.getPlayers();
+			return game.getUsers();
 		}
 
 		return null;
@@ -187,10 +202,10 @@ public class GameServiceController extends GenericService {
 		Game game = gameRepo.findOne(gameId);
 		User player = userRepo.findByToken(userToken);
 
-		if (game != null && player != null && game.getPlayers().size() < GameConstants.MAX_PLAYERS) {
-			game.getPlayers().add(player);
+		if (game != null && player != null && game.getUsers().size() < GameConstants.MAX_PLAYERS) {
+			game.getUsers().add(player);
 			logger.debug("Game: " + game.getName() + " - player added: " + player.getUsername());
-			return CONTEXT + "/" + gameId + "/player/" + (game.getPlayers().size() - 1);
+			return CONTEXT + "/" + gameId + "/player/" + (game.getUsers().size() - 1);
 		} else {
 			logger.error("Error adding player with token: " + userToken);
 		}
@@ -204,7 +219,7 @@ public class GameServiceController extends GenericService {
 
 		Game game = gameRepo.findOne(gameId);
 
-		return game.getPlayers().get(playerId);
+		return game.getUsers().get(playerId);
 	}
 
 	/*

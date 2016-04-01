@@ -7,7 +7,8 @@ import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
-import javax.persistence.ManyToMany;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 
 import ch.uzh.ifi.seal.soprafs16.constant.GameStatus;
@@ -39,8 +40,8 @@ public class Game implements Serializable {
     @OneToMany(mappedBy="game")
     private List<Move> moves;
     
-    @ManyToMany(mappedBy="games")
-    private List<User> players;
+    @OneToMany(mappedBy="game")
+    private List<User> users;
     
 	@Column//(nullable = false) 
 	private Train train;
@@ -77,12 +78,12 @@ public class Game implements Serializable {
 		this.moves = moves;
 	}
 
-	public List<User> getPlayers() {
-		return players;
+	public List<User> getUsers() {
+		return users;
 	}
 
-	public void setPlayers(List<User> players) {
-		this.players = players;
+	public void setUsers(List<User> users) {
+		this.users = users;
 	}
 
 	public GameStatus getStatus() {
@@ -102,7 +103,7 @@ public class Game implements Serializable {
 	}
    
 	public User getNextPlayer() {
-		return getPlayers().get((getCurrentPlayer() + 1) % getPlayers().size());
+		return getUsers().get((getCurrentPlayer() + 1) % getUsers().size());
 	}
 	
 	public Train getTrain() {

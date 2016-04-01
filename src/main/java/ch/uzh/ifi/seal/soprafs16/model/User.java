@@ -7,7 +7,9 @@ import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
 import javax.persistence.ManyToMany;
+import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 
 import ch.uzh.ifi.seal.soprafs16.constant.UserStatus;
@@ -36,8 +38,9 @@ public class User implements Serializable {
 	@Column(nullable = false) 
 	private UserStatus status;
 
-    @ManyToMany
-    private List<Game> games;
+    @ManyToOne
+	@JoinColumn(name="GAME_ID")
+    private Game game;
 	
     @OneToMany(mappedBy="user")
     private List<Move> moves;
@@ -66,12 +69,12 @@ public class User implements Serializable {
 		this.username = username;
 	}
 
-	public List<Game> getGames() {
-		return games;
+	public Game getGame() {
+		return game;
 	}
 
-	public void setGames(List<Game> games) {
-		this.games = games;
+	public void setGame(Game game) {
+		this.game = game;
 	}
 
 	public List<Move> getMoves() {

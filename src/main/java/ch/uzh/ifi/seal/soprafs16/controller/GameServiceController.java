@@ -89,6 +89,7 @@ public class GameServiceController extends GenericService {
 
 			// TODO Mapping into Game
 			game.setOwner(owner.getName());
+            game.setCurrentPlayer(0);
 			game = gameRepo.save(game);
 
 			List<User> players = new ArrayList<User>();

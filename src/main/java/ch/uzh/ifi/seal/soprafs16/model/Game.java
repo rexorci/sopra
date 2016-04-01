@@ -1,19 +1,22 @@
 package ch.uzh.ifi.seal.soprafs16.model;
 
+import com.fasterxml.jackson.annotation.JsonIdentityInfo;
+import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 import java.io.Serializable;
 import java.util.List;
 
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 
 import ch.uzh.ifi.seal.soprafs16.constant.GameStatus;
 
 @Entity
+@JsonIdentityInfo(generator=ObjectIdGenerators.IntSequenceGenerator.class, property="@gameId")
 public class Game implements Serializable {
 	
 	/**
@@ -37,7 +40,7 @@ public class Game implements Serializable {
 	@Column 
 	private Integer currentPlayer;
 
-    @OneToMany(mappedBy="game")
+    @OneToMany(mappedBy="game",fetch = FetchType.EAGER, cascade = CascadeType.ALL)
     private List<Move> moves;
     
     @OneToMany(mappedBy="game")

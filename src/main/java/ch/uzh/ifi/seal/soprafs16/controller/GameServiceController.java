@@ -3,6 +3,8 @@ package ch.uzh.ifi.seal.soprafs16.controller;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.persistence.Column;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,6 +18,8 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
 import ch.uzh.ifi.seal.soprafs16.GameConstants;
+import ch.uzh.ifi.seal.soprafs16.constant.GameStatus;
+import ch.uzh.ifi.seal.soprafs16.constant.UserStatus;
 import ch.uzh.ifi.seal.soprafs16.model.Game;
 import ch.uzh.ifi.seal.soprafs16.model.Move;
 import ch.uzh.ifi.seal.soprafs16.model.Train;
@@ -53,19 +57,35 @@ public class GameServiceController
 
     @RequestMapping(value = CONTEXT, method = RequestMethod.POST)
     @ResponseStatus(HttpStatus.OK)
-    public String addGame(@RequestBody Game game, @RequestParam("token") String userToken) {
+    public String addGame(@RequestBody Game game){//, @RequestParam("token") String userToken) {
         logger.debug("addGame: " + game);
 
-        User owner = userRepo.findByToken(userToken);
+//    	@Column(nullable = false) 
+//    	private String name;
+//    	
+//    	@Column(nullable = false) 
+//    	private String owner;
+//    	
+//    	@Column 
+//    	private GameStatus status;
+//    	
+//    	@Column 
+//    	private Integer currentPlayer;
+        game.setName("timonsGame");
+        
+        
+        //game.setStatus(GameStatus.PENDING);
+       // User owner = userRepo.findByToken(userToken);
+        game.setCurrentPlayer(0);
 
-        if (owner != null) {
+//        if (owner != null) {
             // TODO Mapping into Game
             game = gameRepo.save(game);
 
             return CONTEXT + "/" + game.getId();
-        }
+//        }
 
-        return null;
+//        return null;
     }
 
     /*

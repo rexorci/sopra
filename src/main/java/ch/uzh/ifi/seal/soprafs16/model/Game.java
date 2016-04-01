@@ -42,7 +42,7 @@ public class Game implements Serializable {
     @ManyToMany(mappedBy="games")
     private List<User> players;
     
-	@Column(nullable = false) 
+	@Column//(nullable = false) 
 	private Train train;
     ///
 	public Long getId() {

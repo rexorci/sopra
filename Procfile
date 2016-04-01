@@ -1,1 +1,6 @@
-  web: java -jar -Dserver.port=$PORT build/libs/*.jar
+{
+   "name" : "g1",
+    "owner" : "bl",
+    "status" : null,
+    "currentPlayer" : 1
+}

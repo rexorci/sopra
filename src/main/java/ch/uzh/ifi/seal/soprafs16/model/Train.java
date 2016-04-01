@@ -24,16 +24,16 @@ public class Train implements Serializable {
 	@GeneratedValue
 	private Long id;
 	
-//    @ManyToMany
-//    private List<Wagon> wagons;
-//    
-//	public List<Wagon> getWagons() {
-//		return wagons;
-//	}
-//
-//	public void setWagons(List<Wagon> wagons) {
-//		this.wagons = wagons;
-//	}
+    @ManyToMany
+    private List<Wagon> wagons;
+    
+	public List<Wagon> getWagons() {
+		return wagons;
+	}
+
+	public void setWagons(List<Wagon> wagons) {
+		this.wagons = wagons;
+	}
 
 	
 	

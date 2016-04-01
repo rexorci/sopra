@@ -24,24 +24,27 @@ public class Wagon implements Serializable {
 	@GeneratedValue
 	private Long id;
 	
-	@ManyToMany
-	private List<Item> items;
-
-	public List<Item> getItems() {
-		return items;
-	}
-
-	public void setItems(List<Item> items) {
-		this.items = items;
-	}
-
-	public void addItem(Item item) {
-		this.items.add(item);
-	}
+//	@ManyToMany
+//	private List<Item> items;
+//
+//	public List<Item> getItems() {
+//		return items;
+//	}
+//
+//	public void setItems(List<Item> items) {
+//		this.items = items;
+//	}
+//
+//	public void addItem(Item item) {
+//		this.items.add(item);
+//	}
+//	
+//	public void removeItem(Item item){
+//		items.remove(item);
+//	}
 	
-	public void removeItem(Item item){
-		items.remove(item);
-	}
+	
+	
 	// @Id
 	// @GeneratedValue
 	// private Long id;

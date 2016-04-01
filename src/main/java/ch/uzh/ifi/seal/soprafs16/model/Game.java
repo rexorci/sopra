@@ -42,6 +42,9 @@ public class Game implements Serializable {
     @ManyToMany(mappedBy="games")
     private List<User> players;
     
+	@Column(nullable = false) 
+	private Train train;
+    ///
 	public Long getId() {
 		return id;
 	}
@@ -100,5 +103,13 @@ public class Game implements Serializable {
    
 	public User getNextPlayer() {
 		return getPlayers().get((getCurrentPlayer() + 1) % getPlayers().size());
+	}
+	
+	public Train getTrain() {
+		return train;
+	}
+
+	public void setTrain(Train train) {
+		this.train = train;
 	}
 }

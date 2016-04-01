@@ -18,7 +18,9 @@ import org.springframework.web.bind.annotation.RestController;
 import ch.uzh.ifi.seal.soprafs16.GameConstants;
 import ch.uzh.ifi.seal.soprafs16.model.Game;
 import ch.uzh.ifi.seal.soprafs16.model.Move;
+import ch.uzh.ifi.seal.soprafs16.model.Train;
 import ch.uzh.ifi.seal.soprafs16.model.User;
+import ch.uzh.ifi.seal.soprafs16.model.Wagon;
 import ch.uzh.ifi.seal.soprafs16.model.repositories.GameRepository;
 import ch.uzh.ifi.seal.soprafs16.model.repositories.UserRepository;
 
@@ -108,18 +110,18 @@ public class GameServiceController
     /*
      * Context: /game/{game-id}/move
      */
-    @RequestMapping(value = CONTEXT + "/{gameId}/move")
-    @ResponseStatus(HttpStatus.OK)
-    public List<Move> listMoves(@PathVariable Long gameId) {
-        logger.debug("listMoves");
-
-        Game game = gameRepo.findOne(gameId);
-        if (game != null) {
-            return game.getMoves();
-        }
-
-        return null;
-    }
+//    @RequestMapping(value = CONTEXT + "/{gameId}/move")
+//    @ResponseStatus(HttpStatus.OK)
+//    public List<Move> listMoves(@PathVariable Long gameId) {
+//        logger.debug("listMoves");
+//
+//        Game game = gameRepo.findOne(gameId);
+//        if (game != null) {
+//            return game.getMoves();
+//        }
+//
+//        return null;
+//    }
 
     @RequestMapping(value = CONTEXT + "/{gameId}/move", method = RequestMethod.POST)
     @ResponseStatus(HttpStatus.OK)
@@ -142,9 +144,9 @@ public class GameServiceController
     }
 
     /*
-     * Context: /game/{game-id}/player
+     * Context: /game/{game-id}/players
      */
-    @RequestMapping(value = CONTEXT + "/{gameId}/player")
+    @RequestMapping(value = CONTEXT + "/{gameId}/players")
     @ResponseStatus(HttpStatus.OK)
     public List<User> listPlayers(@PathVariable Long gameId) {
         logger.debug("listPlayers");
@@ -157,7 +159,7 @@ public class GameServiceController
         return null;
     }
 
-    @RequestMapping(value = CONTEXT + "/{gameId}/player", method = RequestMethod.POST)
+    @RequestMapping(value = CONTEXT + "/{gameId}/players", method = RequestMethod.POST)
     @ResponseStatus(HttpStatus.OK)
     public String addPlayer(@PathVariable Long gameId, @RequestParam("token") String userToken) {
         logger.debug("addPlayer: " + userToken);
@@ -176,7 +178,7 @@ public class GameServiceController
         return null;
     }
 
-    @RequestMapping(value = CONTEXT + "/{gameId}/player/{playerId}")
+    @RequestMapping(value = CONTEXT + "/{gameId}/players/{playerId}")
     @ResponseStatus(HttpStatus.OK)
     public User getPlayer(@PathVariable Long gameId, @PathVariable Integer playerId) {
         logger.debug("getPlayer: " + gameId);
@@ -186,4 +188,25 @@ public class GameServiceController
         return game.getPlayers().get(playerId);
     }
 
+    /*
+     * Context: /game/{game-id}/train
+     */    
+    @RequestMapping(value = CONTEXT + "/{gameId}/train")
+     @ResponseStatus(HttpStatus.OK)
+     public List<Wagon> listWagons(@PathVariable Long gameId) {
+         //logger.debug("listPlayers");
+
+         Game game = gameRepo.findOne(gameId);
+         if (game != null) {
+             Train train = game.getTrain();
+             
+        	 return train.getWagons();
+         }
+
+         return null;
+     }
+    
+    /*
+     * Context: /game/{game-id}/train/wagons/2
+     */
 }

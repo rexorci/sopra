@@ -20,6 +20,7 @@ import org.springframework.web.bind.annotation.RestController;
 import ch.uzh.ifi.seal.soprafs16.constant.UserStatus;
 import ch.uzh.ifi.seal.soprafs16.model.User;
 import ch.uzh.ifi.seal.soprafs16.model.repositories.UserRepository;
+import ch.uzh.ifi.seal.soprafs16.service.ExampleService;
 
 
 @RestController
@@ -29,7 +30,7 @@ public class UserServiceController
 
     Logger                 logger  = LoggerFactory.getLogger(UserServiceController.class);
 
-    static final String    CONTEXT = "/user";
+    static final String    CONTEXT = "/users";
 
     @Autowired
     private UserRepository userRepo;
@@ -95,5 +96,21 @@ public class UserServiceController
             user.setStatus(UserStatus.OFFLINE);
             userRepo.save(user);
         }
+    }
+//    @RequestMapping("/greeting")
+//    public String greeting(@RequestParam(value="name", defaultValue="World") String name) {
+//        return "Hello dude";
+//    }
+//    
+//    @RequestMapping("/greeting")
+//    public String greeting(@RequestParam(value="name", defaultValue="World") String name) {
+//        return "Hello dude";
+//    }    
+    @RequestMapping(method = RequestMethod.GET, value = "/greeting")
+    @ResponseStatus(HttpStatus.OK)
+    public String greeting(@RequestParam(value="name", defaultValue="World") String name) {
+//    	ExampleService es = new UserServiceController();
+//    	es.doLogic((, b)
+        return "Hello dude you are in the " + name;
     }
 }

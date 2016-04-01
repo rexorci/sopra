@@ -38,7 +38,7 @@ public class GameServiceController extends GenericService {
 	private final String CONTEXT = "/games";
 
 	/*
-	 * Context: /game
+	 * Context: /games
 	 */
 
 	@RequestMapping(value = CONTEXT)
@@ -46,14 +46,7 @@ public class GameServiceController extends GenericService {
 	public List<Game> listGames() {
 		logger.debug("listGames");
 		List<Game> result = new ArrayList<>();
-//		gameRepo.findAll().forEach(result::add);
-
-        for (Game game : gameRepo.findAll()){
-            result.add(game);
-        }
-
-
-
+		gameRepo.findAll().forEach(result::add);
 		return result;
 	}
 
@@ -62,50 +55,29 @@ public class GameServiceController extends GenericService {
 	public String addGame(@RequestBody Game game, @RequestParam("token") String userToken) {
 		logger.debug("addGame: " + game);
 
-		// @Column(nullable = false)
-		// private String name;
-		//
-		// @Column(nullable = false)
-		// private String owner;
-		//
-		// @Column
-		// private GameStatus status;
-		//
-		// @Column
-		// private Integer currentPlayer;
-		// game.setName("timonsGame");
-
-		// game.setStatus(GameStatus.PENDING);
-
 		User owner = userRepo.findByToken(userToken);
 
-		// game.setCurrentPlayer(0);
-
 		if (owner != null) {
-            game.setName("timonsGame");
-            game.setStatus(GameStatus.PENDING);
+            // TODO Mapping into Game
 
             owner.setGame(game);
 
-			// TODO Mapping into Game
-			game.setOwner(owner.getName());
+            game.setName("timonsGame");
+            game.setStatus(GameStatus.PENDING);
             game.setCurrentPlayer(0);
+            game.setUsers(new ArrayList<>());
+            game.getUsers().add(owner);
+			game.setOwner(owner.getName());
 			game = gameRepo.save(game);
-
-			List<User> players = new ArrayList<User>();
-			players.add(owner);
-			game.setUsers(players);
 
 			return CONTEXT + "/" + game.getId();
 		} else {
 			return "no owner found";
 		}
-
-		// return null;
-	}
+    }
 
 	/*
-	 * Context: /game/{game-id}
+	 * Context: /games/{game-id}
 	 */
 	@RequestMapping(value = CONTEXT + "/{gameId}")
 	@ResponseStatus(HttpStatus.OK)
@@ -180,7 +152,7 @@ public class GameServiceController extends GenericService {
 	}
 
 	/*
-	 * Context: /game/{game-id}/players
+	 * Context: /games/{game-id}/players
 	 */
 	@RequestMapping(value = CONTEXT + "/{gameId}/players")
 	@ResponseStatus(HttpStatus.OK)
@@ -224,7 +196,7 @@ public class GameServiceController extends GenericService {
 	}
 
 	/*
-	 * Context: /game/{game-id}/train
+	 * Context: /games/{game-id}/train
 	 */
 	@RequestMapping(value = CONTEXT + "/{gameId}/train")
 	@ResponseStatus(HttpStatus.OK)
@@ -242,6 +214,6 @@ public class GameServiceController extends GenericService {
 	}
 
 	/*
-	 * Context: /game/{game-id}/train/wagons/2
+	 * Context: /games/{game-id}/train/wagons/2
 	 */
 }

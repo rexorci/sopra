@@ -1,27 +1,20 @@
 package ch.uzh.ifi.seal.soprafs16.model;
 
-import com.fasterxml.jackson.annotation.JsonBackReference;
-import com.fasterxml.jackson.annotation.JsonIdentityInfo;
-import com.fasterxml.jackson.annotation.ObjectIdGenerators;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import java.io.Serializable;
 import java.util.List;
 
-import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
-import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 
 import ch.uzh.ifi.seal.soprafs16.constant.UserStatus;
 
 @Entity
-@JsonIdentityInfo(generator=ObjectIdGenerators.IntSequenceGenerator.class, property="@userId")
 public class User implements Serializable {
 	
 	/**
@@ -45,8 +38,8 @@ public class User implements Serializable {
 	@Column(nullable = false) 
 	private UserStatus status;
 
-    @ManyToOne(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
-	@JoinColumn(name="GAME_ID")
+    @ManyToOne
+    @JsonIgnore
     private Game game;
 	
     @OneToMany(mappedBy="user")

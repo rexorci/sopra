@@ -77,6 +77,7 @@ public class GameServiceController extends GenericService {
 
 		if (owner != null) {
 			// TODO Mapping into Game
+			game.setOwner(owner.getName());			
 			game = gameRepo.save(game);
 
 			return CONTEXT + "/" + game.getId();

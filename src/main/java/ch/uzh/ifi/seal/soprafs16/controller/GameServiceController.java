@@ -73,7 +73,7 @@ public class GameServiceController extends GenericService {
 
         if (owner != null) {
             GameInitService gameInitService = new GameInitService();
-            gameInitService.initGame(game, owner, gameRepo, wagonRepo, wagonLevelRepo,itemRepo);
+            gameInitService.initGame(game, owner, gameRepo, wagonRepo, wagonLevelRepo, itemRepo);
 
             return CONTEXT + "/" + game.getId();
         } else {
@@ -93,7 +93,7 @@ public class GameServiceController extends GenericService {
 
         return game;
     }
-//endregion
+    //endregion
 
     //region start/stop game
     @RequestMapping(value = CONTEXT + "/{gameId}/start", method = RequestMethod.POST)
@@ -163,7 +163,7 @@ public class GameServiceController extends GenericService {
 
     //region /{gameId}/player ff
     /*
-	 * Context: /games/{game-id}/players
+     * Context: /games/{game-id}/players
 	 */
     @RequestMapping(value = CONTEXT + "/{gameId}/players")
     @ResponseStatus(HttpStatus.OK)
@@ -188,7 +188,10 @@ public class GameServiceController extends GenericService {
 
         if (game != null && player != null && game.getUsers().size() < GameConstants.MAX_PLAYERS) {
             game.getUsers().add(player);
+            player.setGame(game);
             logger.debug("Game: " + game.getName() + " - player added: " + player.getUsername());
+            gameRepo.save(game);
+            userRepo.save(player);
             return CONTEXT + "/" + gameId + "/player/" + (game.getUsers().size() - 1);
         } else {
             logger.error("Error adding player with token: " + userToken);
@@ -220,43 +223,24 @@ public class GameServiceController extends GenericService {
 
         return null;
     }
-
-//    @RequestMapping(value = CONTEXT + "/{gameId}/wagons", method = RequestMethod.POST)
-//    @ResponseStatus(HttpStatus.OK)
-//    public String addWagon(@PathVariable Long gameId) {
-//        Game game = gameRepo.findOne(gameId);
-//        if (game != null) {
-//            Wagon wagon = new Wagon();
-//            wagon.setGame(game);
-//            if (game.getWagons().size() == 0) {
-//                game.setWagons(new ArrayList<Wagon>());
-//            }
-//            game.getWagons().add(wagon);
-//            wagonRepo.save(wagon);
-//            return CONTEXT + "/" + gameId + "/wagon/" + (game.getWagons().size() - 1);
-//        } else {
-//            logger.error("Error adding wagon");
-//        }
-//        return null;
-//    }
     //endregion
 
     //region /{gameId}/wagons/{wagonId}/topLevel
     @RequestMapping(value = CONTEXT + "/{gameId}/wagons/{wagonId}/wagonLevel")
     @ResponseStatus(HttpStatus.OK)
-    public WagonLevel getWagonLevel(@PathVariable Long gameId, @PathVariable int wagonId,@RequestParam("levelType") LevelType levelType) {
+    public WagonLevel getWagonLevel(@PathVariable Long gameId, @PathVariable int wagonId, @RequestParam("levelType") LevelType levelType) {
         logger.debug("listWagons");
         Game game = gameRepo.findOne(gameId);
         if (game != null) {
-            if(levelType.equals(LevelType.BOTTOM)){
+            if (levelType.equals(LevelType.BOTTOM)) {
                 return game.getWagons().get(wagonId).getBottomLevel();
-            }else if(levelType.equals(LevelType.TOP)){
+            } else if (levelType.equals(LevelType.TOP)) {
                 return game.getWagons().get(wagonId).getTopLevel();
-            }else{
+            } else {
                 logger.error("wrong levelType");
                 return null;
             }
-        }else{
+        } else {
             logger.error("game is null");
             return null;
         }

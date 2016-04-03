@@ -127,38 +127,38 @@ public class GameServiceController extends GenericService {
     /*
      * Context: /game/{game-id}/move
 	 */
-    @RequestMapping(value = CONTEXT + "/{gameId}/move")
-    @ResponseStatus(HttpStatus.OK)
-    public List<Move> listMoves(@PathVariable Long gameId) {
-        logger.debug("listMoves");
-
-        Game game = gameRepo.findOne(gameId);
-        if (game != null) {
-            return game.getMoves();
-        }
-
-        return null;
-    }
-
-    @RequestMapping(value = CONTEXT + "/{gameId}/move", method = RequestMethod.POST)
-    @ResponseStatus(HttpStatus.OK)
-    public void addMove(@RequestBody Move move) {
-        logger.debug("addMove: " + move);
-        // TODO Mapping into Move + execution of move
-    }
-
-    @RequestMapping(value = CONTEXT + "/{gameId}/move/{moveId}")
-    @ResponseStatus(HttpStatus.OK)
-    public Move getMove(@PathVariable Long gameId, @PathVariable Integer moveId) {
-        logger.debug("getMove: " + gameId);
-
-        Game game = gameRepo.findOne(gameId);
-        if (game != null) {
-            return game.getMoves().get(moveId);
-        }
-
-        return null;
-    }
+//    @RequestMapping(value = CONTEXT + "/{gameId}/move")
+//    @ResponseStatus(HttpStatus.OK)
+//    public List<Move> listMoves(@PathVariable Long gameId) {
+//        logger.debug("listMoves");
+//
+//        Game game = gameRepo.findOne(gameId);
+//        if (game != null) {
+//            return game.getMoves();
+//        }
+//
+//        return null;
+//    }
+//
+//    @RequestMapping(value = CONTEXT + "/{gameId}/move", method = RequestMethod.POST)
+//    @ResponseStatus(HttpStatus.OK)
+//    public void addMove(@RequestBody Move move) {
+//        logger.debug("addMove: " + move);
+//        // TODO Mapping into Move + execution of move
+//    }
+//
+//    @RequestMapping(value = CONTEXT + "/{gameId}/move/{moveId}")
+//    @ResponseStatus(HttpStatus.OK)
+//    public Move getMove(@PathVariable Long gameId, @PathVariable Integer moveId) {
+//        logger.debug("getMove: " + gameId);
+//
+//        Game game = gameRepo.findOne(gameId);
+//        if (game != null) {
+//            return game.getMoves().get(moveId);
+//        }
+//
+//        return null;
+//    }
 //endregion
 
     //region /{gameId}/player ff

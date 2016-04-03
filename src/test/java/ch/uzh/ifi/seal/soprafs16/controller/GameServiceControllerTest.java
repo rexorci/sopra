@@ -36,6 +36,7 @@ import org.springframework.web.util.UriComponentsBuilder;
 import ch.uzh.ifi.seal.soprafs16.Application;
 import ch.uzh.ifi.seal.soprafs16.model.Game;
 import ch.uzh.ifi.seal.soprafs16.model.User;
+import ch.uzh.ifi.seal.soprafs16.model.Wagon;
 
 
 @RunWith(SpringJUnit4ClassRunner.class)
@@ -115,9 +116,9 @@ public class GameServiceControllerTest {
         user1.setUsername("owner");
 
         HttpEntity<User> httpEntityUser1 = new HttpEntity<User>(user1);
-        ResponseEntity<User> responseUser1 = template.exchange(base + "/users/", HttpMethod.POST, httpEntityUser1, User.class);
+        ResponseEntity<User> responseUser1 = template.exchange(base + "users/", HttpMethod.POST, httpEntityUser1, User.class);
 
-        ResponseEntity<User> userResponseEntity1 = template.getForEntity(base + "/users/" + responseUser1.getBody().getId(), User.class);
+        ResponseEntity<User> userResponseEntity1 = template.getForEntity(base + "users/" + responseUser1.getBody().getId(), User.class);
         User userResponse1 = userResponseEntity1.getBody();
         String token1 = userResponse1.getToken();
         //endregion
@@ -128,9 +129,9 @@ public class GameServiceControllerTest {
 
         HttpEntity<User> httpEntityUser2 = new HttpEntity<User>(user2);
 
-        ResponseEntity<User> responseUser2 = template.exchange(base + "/users/", HttpMethod.POST, httpEntityUser2, User.class);
+        ResponseEntity<User> responseUser2 = template.exchange(base + "users/", HttpMethod.POST, httpEntityUser2, User.class);
 
-        ResponseEntity<User> userResponseEntity2 = template.getForEntity(base + "/users/" + responseUser2.getBody().getId(), User.class);
+        ResponseEntity<User> userResponseEntity2 = template.getForEntity(base + "users/" + responseUser2.getBody().getId(), User.class);
         User userResponse2 = userResponseEntity2.getBody();
         String token2 = userResponse2.getToken();
         //endregion
@@ -139,40 +140,64 @@ public class GameServiceControllerTest {
         game.setName("game3");
 
         template.postForObject(base + "games?token=" + token1, game, String.class);
-        List<Game> games = template.getForObject(base + "/games", List.class);
+        List<Game> games = template.getForObject(base + "games", List.class);
 
         int id = games.size();
         //endregion
 
         //tests addPlayer
-        String resultAddPlayer = template.postForObject(base + "/games/{gameId}/players?token=" + token2, game, String.class, id);
+        String resultAddPlayer = template.postForObject(base + "games/{gameId}/players?token=" + token2, game, String.class, id);
         Assert.assertEquals("/games/" + id + "/player/" + 1, resultAddPlayer);
 
         //tests addPlayer with wrong token
-        String resultAddPlayerNull = template.postForObject(base + "/games/{gameId}/players?token=" + "wrongToken", game, String.class, id);
+        String resultAddPlayerNull = template.postForObject(base + "games/{gameId}/players?token=" + "wrongToken", game, String.class, id);
         Assert.assertNull(resultAddPlayerNull);
 
         //tests listPlayers
-        List<User> players = template.getForObject(base + "/games/{gameId}/players", List.class, id);
+        List<User> players = template.getForObject(base + "games/{gameId}/players", List.class, id);
         Assert.assertEquals(2, players.size());
 
         //tests listPlayers with wrong GameId
-        List<User> playersNull = template.getForObject(base + "/games/{gameId}/players", List.class, (long)0.1);
+        List<User> playersNull = template.getForObject(base + "games/{gameId}/players", List.class, (long) 0.1);
         Assert.assertNull(playersNull);
 
-
-
-        /*
-            public List<User> listPlayers(@PathVariable Long gameId) {
-        logger.debug("listPlayers");
-
-        Game game = gameRepo.findOne(gameId);
-        if (game != null) {
-            return game.getUsers();
-        }
-
-        return null;
+        //tests getPlayer
+        int playerId = players.size() - 1;
+        User player = template.getForObject(base + "games/{gameId}/players/{playerId}", User.class, id, playerId);
+        Assert.assertEquals(player.getToken(),token2);
     }
-         */
+
+    @Test
+    public void testWagons() throws Exception {
+        //region create User so that an owner can be assigned to game
+        User user1 = new User();
+        user1.setName("name2");
+        user1.setUsername("owner2");
+
+        HttpEntity<User> httpEntityUser1 = new HttpEntity<User>(user1);
+        ResponseEntity<User> responseUser1 = template.exchange(base + "users/", HttpMethod.POST, httpEntityUser1, User.class);
+
+        ResponseEntity<User> userResponseEntity1 = template.getForEntity(base + "users/" + responseUser1.getBody().getId(), User.class);
+        User userResponse1 = userResponseEntity1.getBody();
+        String token1 = userResponse1.getToken();
+        //endregion
+
+        //region createGame
+        Game game = new Game();
+        game.setName("game4");
+
+        template.postForObject(base + "games?token=" + token1, game, String.class);
+        List<Game> games = template.getForObject(base + "games", List.class);
+        int id = games.size();
+        //endregion
+
+        //tests that game has 4 wagons
+        List<Wagon> resultWagons = template.getForObject(base + "games/{gameId}/wagons",List.class,(long)id);
+        Assert.assertEquals(4, resultWagons.size());
+
+        //tests that game is null for wrong gameId
+        List<Wagon> resultWagonsNull = template.getForObject(base + "games/{gameId}/wagons",List.class,(long)0.1);
+        Assert.assertNull(resultWagonsNull);
     }
+
 }

@@ -37,6 +37,7 @@ import ch.uzh.ifi.seal.soprafs16.Application;
 import ch.uzh.ifi.seal.soprafs16.model.Game;
 import ch.uzh.ifi.seal.soprafs16.model.User;
 import ch.uzh.ifi.seal.soprafs16.model.Wagon;
+import ch.uzh.ifi.seal.soprafs16.model.WagonLevel;
 
 
 @RunWith(SpringJUnit4ClassRunner.class)
@@ -78,9 +79,7 @@ public class GameServiceControllerTest {
         String token = userResponse.getToken();
         //endregion
 
-        //tests listGames
         List<Game> gamesBefore = template.getForObject(base + "/games", List.class);
-        Assert.assertEquals(0, gamesBefore.size());
 
         //tests addGame
         Game game = new Game();
@@ -88,15 +87,16 @@ public class GameServiceControllerTest {
 
         String result = template.postForObject(base + "games?token=" + token, game, String.class);
 
-        Assert.assertEquals("/games/" + 1, result);
+        int expectedId = gamesBefore.size() + 1;
+        Assert.assertEquals("/games/" + expectedId, result);
 
         //tests listGames
         List<Game> gamesAfter = template.getForObject(base + "/games", List.class);
-        Assert.assertEquals(1, gamesAfter.size());
+        Assert.assertEquals(gamesBefore.size() + 1, gamesAfter.size());
 
 
         //tests getGame
-        Game gameResponse = template.getForObject(base + "/games/" + 1, Game.class);
+        Game gameResponse = template.getForObject(base + "/games/" + expectedId, Game.class);
         Assert.assertEquals(game.getName(), gameResponse.getName());
 
         //tests addGame with wrong token (owner)
@@ -171,8 +171,8 @@ public class GameServiceControllerTest {
     public void testWagons() throws Exception {
         //region create User so that an owner can be assigned to game
         User user1 = new User();
-        user1.setName("name2");
-        user1.setUsername("owner2");
+        user1.setName("name_WagonTest");
+        user1.setUsername("owner_WagonTest");
 
         HttpEntity<User> httpEntityUser1 = new HttpEntity<User>(user1);
         ResponseEntity<User> responseUser1 = template.exchange(base + "users/", HttpMethod.POST, httpEntityUser1, User.class);
@@ -184,7 +184,7 @@ public class GameServiceControllerTest {
 
         //region createGame
         Game game = new Game();
-        game.setName("game4");
+        game.setName("game_WagonTest");
 
         template.postForObject(base + "games?token=" + token1, game, String.class);
         List<Game> games = template.getForObject(base + "games", List.class);
@@ -198,6 +198,49 @@ public class GameServiceControllerTest {
         //tests that game is null for wrong gameId
         List<Wagon> resultWagonsNull = template.getForObject(base + "games/{gameId}/wagons",List.class,(long)0.1);
         Assert.assertNull(resultWagonsNull);
+    }
+
+    @Test
+    public void testWagonLevels() throws Exception {
+        //region create User so that an owner can be assigned to game
+        User user1 = new User();
+        user1.setName("name_wagonLevelsTest");
+        user1.setUsername("owner_wagonLevelsTest");
+
+        HttpEntity<User> httpEntityUser1 = new HttpEntity<User>(user1);
+        ResponseEntity<User> responseUser1 = template.exchange(base + "users/", HttpMethod.POST, httpEntityUser1, User.class);
+
+        ResponseEntity<User> userResponseEntity1 = template.getForEntity(base + "users/" + responseUser1.getBody().getId(), User.class);
+        User userResponse1 = userResponseEntity1.getBody();
+        String token1 = userResponse1.getToken();
+        //endregion
+
+        //region createGame
+        Game game = new Game();
+        game.setName("game_wagonLevelsTest");
+
+        template.postForObject(base + "games?token=" + token1, game, String.class);
+        List<Game> games = template.getForObject(base + "games", List.class);
+        int id = games.size();
+        //endregion
+
+        //tests that top and bottomLevel exist
+        WagonLevel resultWagonLevelTop = template.getForObject(base + "games/{gameId}/wagons/{wagonId}/topLevel",WagonLevel.class,(long)id,2);
+        WagonLevel resultWagonLevelBot = template.getForObject(base + "games/{gameId}/wagons/{wagonId}/bottomLevel",WagonLevel.class,(long)id,2);
+        Assert.assertNotNull(resultWagonLevelTop);
+        Assert.assertNotNull(resultWagonLevelBot);
+
+        //tests that top and bottomLevel are null because of wrong gameId
+        WagonLevel resultWagonLevelGameNullTop = template.getForObject(base + "games/{gameId}/wagons/{wagonId}/topLevel",WagonLevel.class,(long)0.1,2);
+        WagonLevel resultWagonLevelGameNullBot = template.getForObject(base + "games/{gameId}/wagons/{wagonId}/bottomLevel",WagonLevel.class,(long)0.1,2);
+        Assert.assertNull(resultWagonLevelGameNullTop);
+        Assert.assertNull(resultWagonLevelGameNullBot);
+
+        //tests that top and bottomLevel are null because of wrong wagonId
+        WagonLevel resultWagonLevelWagonNullTop = template.getForObject(base + "games/{gameId}/wagons/{wagonId}/topLevel",WagonLevel.class,(long)id,20);
+        WagonLevel resultWagonLevelWagonNullBot = template.getForObject(base + "games/{gameId}/wagons/{wagonId}/bottomLevel",WagonLevel.class,(long)id,20);
+        Assert.assertNull(resultWagonLevelWagonNullTop);
+        Assert.assertNull(resultWagonLevelWagonNullBot);
     }
 
 }

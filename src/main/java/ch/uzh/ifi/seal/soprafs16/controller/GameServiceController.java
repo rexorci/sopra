@@ -226,18 +226,38 @@ public class GameServiceController extends GenericService {
     //endregion
 
     //region /{gameId}/wagons/{wagonId}/topLevel
-    @RequestMapping(value = CONTEXT + "/{gameId}/wagons/{wagonId}/wagonLevel")
+    @RequestMapping(value = CONTEXT + "/{gameId}/wagons/{wagonId}/topLevel")
     @ResponseStatus(HttpStatus.OK)
-    public WagonLevel getWagonLevel(@PathVariable Long gameId, @PathVariable int wagonId, @RequestParam("levelType") LevelType levelType) {
-        logger.debug("listWagons");
+    public WagonLevel getWagonTopLevel(@PathVariable Long gameId, @PathVariable Integer wagonId) {
+        logger.debug("list topLevel of wagon " + wagonId);
         Game game = gameRepo.findOne(gameId);
         if (game != null) {
-            if (levelType.equals(LevelType.BOTTOM)) {
-                return game.getWagons().get(wagonId).getBottomLevel();
-            } else if (levelType.equals(LevelType.TOP)) {
+            Wagon wagon = game.getWagons().get(wagonId);
+            if (wagon != null) {
                 return game.getWagons().get(wagonId).getTopLevel();
             } else {
-                logger.error("wrong levelType");
+                logger.error("wagon not found");
+                return null;
+            }
+        } else {
+            logger.error("game is null");
+            return null;
+        }
+    }
+    //endregion
+
+    //region /{gameId}/wagons/{wagonId}/bottomLevel
+    @RequestMapping(value = CONTEXT + "/{gameId}/wagons/{wagonId}/bottomLevel")
+    @ResponseStatus(HttpStatus.OK)
+    public WagonLevel getWagonBottomLevel(@PathVariable Long gameId, @PathVariable Integer wagonId) {
+        logger.debug("list bottomLevel of wagon " + wagonId);
+        Game game = gameRepo.findOne(gameId);
+        if (game != null) {
+            Wagon wagon = game.getWagons().get(wagonId);
+            if (wagon != null) {
+                return game.getWagons().get(wagonId).getBottomLevel();
+            } else {
+                logger.error("wagon not found");
                 return null;
             }
         } else {

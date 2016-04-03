@@ -41,7 +41,7 @@ public class UserServiceController
         logger.debug("listUsers");
 
         List<User> result = new ArrayList<>();
-        userRepo.findAll().forEach(result::add);
+        userRepo.findAll().forEach( result::add);
 
         return result;
     }

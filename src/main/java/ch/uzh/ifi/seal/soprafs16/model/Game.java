@@ -13,98 +13,98 @@ import ch.uzh.ifi.seal.soprafs16.constant.GameStatus;
 
 @Entity
 public class Game implements Serializable {
-	
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = 1L;
-	
-	@Id
-	@GeneratedValue
-	private Long id;
-	
-	@Column(nullable = false) 
-	private String name;
-	
-	@Column(nullable = false) 
-	private String owner;
-	
-	@Column 
-	private GameStatus status;
-	
-	@Column 
-	private Integer currentPlayer;
 
-    @OneToMany(mappedBy="game")
+    /**
+     *
+     */
+    private static final long serialVersionUID = 1L;
+
+    @Id
+    @GeneratedValue
+    private Long id;
+
+    @Column(nullable = false)
+    private String name;
+
+    @Column(nullable = false)
+    private String owner;
+
+    @Column
+    private GameStatus status;
+
+    @Column
+    private Integer currentPlayer;
+
+    @OneToMany(mappedBy = "game")
     private List<Move> moves;
-    
-    @OneToMany(mappedBy="game")
+
+    @OneToMany(mappedBy = "game")
     private List<User> users;
-    
-	@Column//(nullable = false) 
-	private Train train;
-    ///
-	public Long getId() {
-		return id;
-	}
 
-	public void setId(Long id) {
-		this.id = id;
-	}
+    @OneToMany(mappedBy = "game")
+    private List<Wagon> wagons;
 
-	public String getName() {
-		return name;
-	}
+    public Long getId() {
+        return id;
+    }
 
-	public void setName(String name) {
-		this.name = name;
-	}
+    public void setId(Long id) {
+        this.id = id;
+    }
 
-	public String getOwner() {
-		return owner;
-	}
+    public String getName() {
+        return name;
+    }
 
-	public void setOwner(String owner) {
-		this.owner = owner;
-	}
+    public void setName(String name) {
+        this.name = name;
+    }
 
-	public List<Move> getMoves() {
-		return moves;
-	}
+    public String getOwner() {
+        return owner;
+    }
 
-	public void setMoves(List<Move> moves) {
-		this.moves = moves;
-	}
+    public void setOwner(String owner) {
+        this.owner = owner;
+    }
 
-	public List<User> getUsers() {
-		return users;
-	}
+    public List<Move> getMoves() {
+        return moves;
+    }
 
-	public void setUsers(List<User> users) {
-		this.users = users;
-	}
+    public void setMoves(List<Move> moves) {
+        this.moves = moves;
+    }
 
-	public GameStatus getStatus() {
-		return status;
-	}
+    public List<User> getUsers() {
+        return users;
+    }
 
-	public void setStatus(GameStatus status) {
-		this.status = status;
-	}
+    public void setUsers(List<User> users) {
+        this.users = users;
+    }
 
-	public Integer getCurrentPlayer() {
-		return currentPlayer;
-	}
+    public GameStatus getStatus() {
+        return status;
+    }
 
-	public void setCurrentPlayer(Integer currentPlayer) {
-		this.currentPlayer = currentPlayer;
-	}
-	
-	public Train getTrain() {
-		return train;
-	}
+    public void setStatus(GameStatus status) {
+        this.status = status;
+    }
 
-	public void setTrain(Train train) {
-		this.train = train;
-	}
+    public Integer getCurrentPlayer() {
+        return currentPlayer;
+    }
+
+    public void setCurrentPlayer(Integer currentPlayer) {
+        this.currentPlayer = currentPlayer;
+    }
+
+    public List<Wagon> getWagons() {
+        return wagons;
+    }
+
+    public void setWagons(List<Wagon> wagons) {
+        this.wagons = wagons;
+    }
 }

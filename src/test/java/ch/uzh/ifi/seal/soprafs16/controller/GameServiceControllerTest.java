@@ -199,25 +199,34 @@ public class GameServiceControllerTest {
         Assert.assertTrue(containsUserName(game.getWagons().get(wagonId1 - 1).getTopLevel().getUsers(), user1.getUsername()));
         Assert.assertTrue(containsUserName(game.getWagons().get(wagonId2 - 1).getBottomLevel().getUsers(), user2.getUsername()));
 
-        //tests modifyUser on topLevel/bottomLevel (switches wagonLevel for both users)
-        int userIdTop = game.getWagons().get(wagonId1 - 1).getTopLevel().getUsers().size();
-        User user1Modified = game.getWagons().get(wagonId1 - 1).getTopLevel().getUsers().get(userIdTop - 1);
+        //tests modifyUser on topLevel (switch from TopLevel to BotLevel
+//        int userIdTop1 = game.getWagons().get(wagonId1 - 1).getTopLevel().getUsers().size();
+//        User user1Modified = game.getWagons().get(wagonId1 - 1).getTopLevel().getUsers().get(userIdTop1 - 1);
+//        user1Modified.setWagonLevelIdNew(game.getWagons().get(wagonId1 - 1).getBottomLevel().getId());
+//
+//        template.put(base + "games/{gameId}/wagons/{wagonId}/topLevel/users/{userId}", user1Modified, gameId, wagonId1, userIdTop1);
+//        game = template.getForObject(base + "/games/" + gameId, Game.class);
+//        Assert.assertTrue(containsUserName(game.getWagons().get(wagonId1 - 1).getBottomLevel().getUsers(), user1.getUsername()));
 
-        user1Modified.setWagonLevel(game.getWagons().get(wagonId1 - 1).getBottomLevel());
+        //tests modifyUser on topLevel (move User 2 wagons forward)
+        int userIdTop1 = game.getWagons().get(wagonId1 - 1).getTopLevel().getUsers().size();
+        User user1Modified = game.getWagons().get(wagonId1 - 1).getTopLevel().getUsers().get(userIdTop1 - 1);
+        user1Modified.setWagonLevelIdNew(game.getWagons().get(wagonId1 - 1 - 2).getTopLevel().getId());
 
-
-        int userIdBot = game.getWagons().get(wagonId2 - 1).getBottomLevel().getUsers().size();
-        Wagon   wagonMod2 = game.getWagons().get(wagonId2-1);
-        WagonLevel wagonLevelMod2 = game.getWagons().get(wagonId2-1).getTopLevel();
-        wagonLevelMod2.setWagon(wagonMod2);
-        User user2Modified = game.getWagons().get(wagonId2 - 1).getBottomLevel().getUsers().get(userIdBot - 1);
-        user2Modified.setWagonLevel(wagonLevelMod2);
-
-        template.put(base + "games/{gameId}/wagons/{wagonId}/topLevel/users/{userId}", user1Modified, gameId, wagonId1, userIdTop);
-        template.put(base + "games/{gameId}/wagons/{wagonId}/bottomLevel/users/{userId}", user2Modified, gameId, wagonId2, userIdBot);
+        template.put(base + "games/{gameId}/wagons/{wagonId}/topLevel/users/{userId}", user1Modified, gameId, wagonId1, userIdTop1);
         game = template.getForObject(base + "/games/" + gameId, Game.class);
-      //  Assert.assertTrue(containsUserName(game.getWagons().get(wagonId1 - 1).getBottomLevel().getUsers(), user1.getUsername()));
-        Assert.assertTrue(containsUserName(game.getWagons().get(wagonId2 - 1).getTopLevel().getUsers(), user2.getUsername()));
+        Assert.assertTrue(containsUserName(game.getWagons().get(wagonId1 - 1 - 2).getTopLevel().getUsers(), user1.getUsername()));
+
+//        int userIdBot = game.getWagons().get(wagonId2 - 1).getBottomLevel().getUsers().size();
+//        Wagon   wagonMod2 = game.getWagons().get(wagonId2-1);
+//        WagonLevel wagonLevelMod2 = game.getWagons().get(wagonId2-1).getTopLevel();
+//        wagonLevelMod2.setWagon(wagonMod2);
+//        User user2Modified = game.getWagons().get(wagonId2 - 1).getBottomLevel().getUsers().get(userIdBot - 1);
+//        user2Modified.setWagonLevel(wagonLevelMod2);
+//
+//        template.put(base + "games/{gameId}/wagons/{wagonId}/bottomLevel/users/{userId}", user2Modified, gameId, wagonId2, userIdBot);
+//        game = template.getForObject(base + "/games/" + gameId, Game.class);
+//        Assert.assertTrue(containsUserName(game.getWagons().get(wagonId2 - 1).getTopLevel().getUsers(), user2.getUsername()));
     }
 
     private static boolean containsUserName(List<User> list, String username) {

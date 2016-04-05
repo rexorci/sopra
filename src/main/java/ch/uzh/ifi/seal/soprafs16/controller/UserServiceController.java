@@ -18,6 +18,7 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
 import ch.uzh.ifi.seal.soprafs16.constant.UserStatus;
+import ch.uzh.ifi.seal.soprafs16.model.Item;
 import ch.uzh.ifi.seal.soprafs16.model.User;
 import ch.uzh.ifi.seal.soprafs16.model.repositories.UserRepository;
 
@@ -27,9 +28,9 @@ import ch.uzh.ifi.seal.soprafs16.model.repositories.UserRepository;
 public class UserServiceController
         extends GenericService {
 
-    Logger                 logger  = LoggerFactory.getLogger(UserServiceController.class);
+    Logger logger = LoggerFactory.getLogger(UserServiceController.class);
 
-    static final String    CONTEXT = "/users";
+    static final String CONTEXT = "/users";
 
     @Autowired
     private UserRepository userRepo;
@@ -40,7 +41,7 @@ public class UserServiceController
         logger.debug("listUsers");
 
         List<User> result = new ArrayList<>();
-        userRepo.findAll().forEach( result::add);
+        userRepo.findAll().forEach(result::add);
 
         return result;
     }
@@ -53,6 +54,7 @@ public class UserServiceController
 
         user.setStatus(UserStatus.OFFLINE);
         user.setToken(UUID.randomUUID().toString());
+        user.setItems(new ArrayList<Item>());
         user = userRepo.save(user);
 
         return user;
@@ -96,7 +98,8 @@ public class UserServiceController
             userRepo.save(user);
         }
     }
-//    @RequestMapping("/greeting")
+
+    //    @RequestMapping("/greeting")
 //    public String greeting(@RequestParam(value="name", defaultValue="World") String name) {
 //        return "Hello dude";
 //    }
@@ -107,7 +110,7 @@ public class UserServiceController
 //    }    
     @RequestMapping(method = RequestMethod.GET, value = "/greeting")
     @ResponseStatus(HttpStatus.OK)
-    public String greeting(@RequestParam(value="name", defaultValue="World") String name) {
+    public String greeting(@RequestParam(value = "name", defaultValue = "World") String name) {
 //    	ExampleService es = new UserServiceController();
 //    	es.doLogic((, b)
         return "Hello dude you are in the " + name;

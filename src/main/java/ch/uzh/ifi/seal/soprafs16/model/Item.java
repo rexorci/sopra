@@ -30,6 +30,10 @@ public class Item implements Serializable {
     @JsonIgnore
     private WagonLevel wagonLevel;
 
+    @ManyToOne
+    @JsonIgnore
+    private User user;
+
     @Column
     private ItemType itemType;
 
@@ -50,6 +54,14 @@ public class Item implements Serializable {
 
     public void setWagonLevel(WagonLevel wagonLevel) {
         this.wagonLevel = wagonLevel;
+    }
+
+    public User getUser() {
+        return user;
+    }
+
+    public void setUser(User user) {
+        this.user = user;
     }
 
     public int getValue() {

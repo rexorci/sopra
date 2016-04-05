@@ -11,7 +11,6 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
-import javax.persistence.OneToOne;
 
 import ch.uzh.ifi.seal.soprafs16.constant.UserStatus;
 
@@ -49,6 +48,20 @@ public class User implements Serializable {
     @ManyToOne
     @JsonIgnore
     private WagonLevel wagonLevel;
+
+    @OneToMany
+    private List<Item> items;
+
+    //region helper Variables for Serialization
+//    @Column
+//    private Long gameIdOld;
+//    @Column
+//    private Long wagonLevelIdOld;
+//    @Column
+//    private Long gameIdNew;
+    @Column
+    private Long wagonLevelIdNew;
+    //endregion
 
     public Long getId() {
         return id;
@@ -105,7 +118,7 @@ public class User implements Serializable {
     public void setStatus(UserStatus status) {
         this.status = status;
     }
-
+    @JsonIgnore
     public WagonLevel getWagonLevel() {
         return wagonLevel;
     }
@@ -113,5 +126,48 @@ public class User implements Serializable {
     public void setWagonLevel(WagonLevel wagonLevel) {
         this.wagonLevel = wagonLevel;
     }
+
+    public List<Item> getItems() {
+        return items;
+    }
+
+    public void setItems(List<Item> items) {
+        this.items = items;
+    }
+
+    //region helper Variables
+//    public Long getGameIdOld() {
+//        return gameIdOld;
+//    }
+//
+//    public void setGameIdOld(Long gameIdOld) {
+//        this.gameIdOld = gameIdOld;
+//    }
+
+//    public Long getWagonLevelIdOld() {
+//        return wagonLevelIdOld;
+//    }
+//
+//    public void setWagonLevelIdOld(Long wagonLevelIdOld) {
+//        this.wagonLevelIdOld = wagonLevelIdOld;
+//    }
+
+//    public Long getGameIdNew() {
+//        return gameIdNew;
+//    }
+//
+//    public void setGameIdNew(Long gameIdNew) {
+//        this.gameIdNew = gameIdNew;
+//    }
+
+    public Long getWagonLevelIdNew() {
+        return wagonLevelIdNew;
+    }
+
+    public void setWagonLevelIdNew(Long wagonLevelIdNew) {
+        this.wagonLevelIdNew = wagonLevelIdNew;
+    }
+
+    //endregion
 
 }

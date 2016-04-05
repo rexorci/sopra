@@ -19,6 +19,8 @@ import ch.uzh.ifi.seal.soprafs16.GameConstants;
 import ch.uzh.ifi.seal.soprafs16.constant.GameStatus;
 import ch.uzh.ifi.seal.soprafs16.constant.LevelType;
 import ch.uzh.ifi.seal.soprafs16.model.Game;
+import ch.uzh.ifi.seal.soprafs16.model.Item;
+import ch.uzh.ifi.seal.soprafs16.model.Marshal;
 import ch.uzh.ifi.seal.soprafs16.model.Move;
 import ch.uzh.ifi.seal.soprafs16.model.User;
 import ch.uzh.ifi.seal.soprafs16.model.Wagon;
@@ -337,12 +339,39 @@ public class GameServiceController extends GenericService {
             if (wagon != null) {
                 User userExisting = wagon.getTopLevel().getUsers().get(userId - 1);
                 if (userExisting != null) {
-                    wagon.getTopLevel().getUsers().set(userId - 1, user);
-                    userExisting = user;
-                   // GameLogicService gls = new GameLogicService();
-                 //   gls.modifyNotifierUser(userExisting, user);
-                    userRepo.save(user);
-                    userRepo.save(userExisting);
+                    if (user.getWagonLevelIdNew() != null && user.getWagonLevelIdNew() != wagon.getTopLevel().getId()) {
+                        WagonLevel wagonLevelNew = wagonLevelRepo.findOne(user.getWagonLevelIdNew());
+                        if (wagonLevelNew != null) {
+
+                           // game.getUsers().remove(userExisting);
+
+                            //userExisting = user;
+                            //wagonLevelNew.getUsers().add(userExisting);
+                            userExisting.setWagonLevel(wagonLevelNew);
+
+                          //  wagon.getTopLevel().getUsers().remove(userExisting);
+                            game.getWagons().get(user.getWagonLevelIdNew().intValue()-1).getTopLevel().getUsers().add(userExisting);
+                            game.getWagons().get(wagon.getId().intValue()-1).getTopLevel().getUsers().remove(userExisting);
+//                            userExisting.setGame(game);
+//                            game.getUsers().add(userExisting);
+
+                            //wagonLevelNew.getWagon().setTopLevel(wagonLevelNew);
+
+                            // userRepo.save(user);
+//                            userRepo.save(userExisting);
+//                            wagonLevelRepo.save(wagon.getTopLevel());
+//                            wagonLevelRepo.save(wagonLevelNew);
+//                            wagonRepo.save(wagon);
+                            gameRepo.save(game);
+                        } else {
+                            return "wagonLevelIdNew is invalid";
+                        }
+                    }
+
+//                    wagon.getTopLevel().getUsers().set(userId - 1, user);
+//                    userExisting = user;
+                    // GameLogicService gls = new GameLogicService();
+                    //   gls.modifyNotifierUser(userExisting, user);
                     return "User successfully modified on: " + CONTEXT + "/" + gameId + "/wagons/" + wagonId + "/topLevel/users/" + userId;
                 } else {
                     return "no existing user found";
@@ -375,6 +404,110 @@ public class GameServiceController extends GenericService {
                 }
             } else {
                 return "no wagon found";
+            }
+        } else {
+            return "no game found";
+        }
+    }
+
+    @RequestMapping(value = CONTEXT + "/{gameId}/wagons/{wagonId}/bottomLevel/marshal", method = RequestMethod.POST)
+    @ResponseStatus(HttpStatus.OK)
+    public String addMarshalBottomLevel(@RequestBody Marshal marshal, @PathVariable Long gameId, @PathVariable Integer wagonId) {
+        logger.debug("add Marshal to: " + CONTEXT + "/" + gameId + "/wagons/" + wagonId + "/bottomLevel");
+
+        Game game = gameRepo.findOne(gameId);
+        if (game != null) {
+            Wagon wagon = game.getWagons().get(wagonId - 1);
+            if (wagon != null) {
+                if (marshal != null) {
+                    wagon.getBottomLevel().setMarshal(marshal);
+                    marshal.setWagonLevel(wagon.getBottomLevel());
+                    game.setMarshal(marshal);
+                    marshal.setGame(game);
+                    marshalRepo.save(marshal);
+                    return "Marshal successfully added to: " + CONTEXT + "/" + gameId + "/wagons/" + wagonId + "/bottomLevel";
+                } else {
+                    return "marshal is null";
+                }
+            } else {
+                return "no wagon found";
+            }
+        } else {
+            return "no game found";
+        }
+    }
+
+    @RequestMapping(value = CONTEXT + "/{gameId}/wagons/{wagonId}/topLevel/items", method = RequestMethod.POST)
+    @ResponseStatus(HttpStatus.OK)
+    public String addItemTopLevel(@RequestBody Item item, @PathVariable Long gameId, @PathVariable Integer wagonId) {
+        logger.debug("add item to: " + CONTEXT + "/" + gameId + "/wagons/" + wagonId + "/topLevel/items");
+
+        Game game = gameRepo.findOne(gameId);
+        if (game != null) {
+            Wagon wagon = game.getWagons().get(wagonId - 1);
+            if (wagon != null) {
+                if (item != null) {
+                    wagon.getTopLevel().getItems().add(item);
+                    item.setWagonLevel(wagon.getTopLevel());
+                    // wagonLevelRepo.save(wagon.getTopLevel());
+                    itemRepo.save(item);
+                    return "Item successfully added to: " + CONTEXT + "/" + gameId + "/wagons/" + wagonId + "/topLevel/items";
+                } else {
+                    return "item is null";
+                }
+            } else {
+                return "no wagon found";
+            }
+        } else {
+            return "no game found";
+        }
+    }
+
+    @RequestMapping(value = CONTEXT + "/{gameId}/wagons/{wagonId}/bottomLevel/items", method = RequestMethod.POST)
+    @ResponseStatus(HttpStatus.OK)
+    public String addItemBottomLevel(@RequestBody Item item, @PathVariable Long gameId, @PathVariable Integer wagonId) {
+        logger.debug("add item to: " + CONTEXT + "/" + gameId + "/wagons/" + wagonId + "/bottomLevel/items");
+
+        Game game = gameRepo.findOne(gameId);
+        if (game != null) {
+            Wagon wagon = game.getWagons().get(wagonId - 1);
+            if (wagon != null) {
+                if (item != null) {
+                    wagon.getBottomLevel().getItems().add(item);
+                    item.setWagonLevel(wagon.getBottomLevel());
+                    // wagonLevelRepo.save(wagon.getTopLevel());
+                    itemRepo.save(item);
+                    return "Item successfully added to: " + CONTEXT + "/" + gameId + "/wagons/" + wagonId + "/bottomLevel/items";
+                } else {
+                    return "item is null";
+                }
+            } else {
+                return "no wagon found";
+            }
+        } else {
+            return "no game found";
+        }
+    }
+
+    @RequestMapping(value = CONTEXT + "/{gameId}/users/{userId}/items", method = RequestMethod.POST)
+    @ResponseStatus(HttpStatus.OK)
+    public String addItemUser(@RequestBody Item item, @PathVariable Long gameId, @PathVariable Integer userId) {
+        logger.debug("add Item to: " + CONTEXT + "/" + gameId + "/users/" + userId + "/items");
+
+        Game game = gameRepo.findOne(gameId);
+        if (game != null) {
+            User user = game.getUsers().get(userId - 1);
+            if (userId != null) {
+                if (item != null) {
+                    user.getItems().add(item);
+                    item.setUser(user);
+                    itemRepo.save(item);
+                    return "Item successfully added to: " + CONTEXT + "/" + gameId + "/users/" + userId + "/items";
+                } else {
+                    return "item is null";
+                }
+            } else {
+                return "no user found";
             }
         } else {
             return "no game found";

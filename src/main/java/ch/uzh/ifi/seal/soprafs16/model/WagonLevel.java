@@ -1,6 +1,9 @@
 package ch.uzh.ifi.seal.soprafs16.model;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 
 import java.io.Serializable;
 import java.util.List;
@@ -51,6 +54,7 @@ public class WagonLevel implements Serializable {
         this.id = id;
     }
 
+    //@JsonIgnore
     public Wagon getWagon() {
         return wagon;
     }

@@ -31,11 +31,17 @@ public class WagonLevel implements Serializable {
     @JsonIgnore
     private Wagon wagon;
 
-    @OneToMany//(mappedBy = "wagonLevel")
+    @OneToMany
     private List<Item> items;
 
     @Column
     private LevelType levelType;
+
+    @OneToOne
+    private Marshal marshal;
+
+    @OneToMany
+    private List<User> users;
 
     public Long getId() {
         return id;
@@ -61,12 +67,27 @@ public class WagonLevel implements Serializable {
         this.levelType = levelType;
     }
 
-
     public List<Item> getItems() {
         return items;
     }
 
     public void setItems(List<Item> items) {
         this.items = items;
+    }
+
+    public Marshal getMarshal() {
+        return marshal;
+    }
+
+    public void setMarshal(Marshal marshal) {
+        this.marshal = marshal;
+    }
+
+    public List<User> getUsers() {
+        return users;
+    }
+
+    public void setUsers(List<User> users) {
+        this.users = users;
     }
 }

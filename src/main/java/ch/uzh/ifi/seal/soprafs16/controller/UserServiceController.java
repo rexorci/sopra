@@ -20,7 +20,6 @@ import org.springframework.web.bind.annotation.RestController;
 import ch.uzh.ifi.seal.soprafs16.constant.UserStatus;
 import ch.uzh.ifi.seal.soprafs16.model.User;
 import ch.uzh.ifi.seal.soprafs16.model.repositories.UserRepository;
-import ch.uzh.ifi.seal.soprafs16.service.ExampleService;
 
 
 @RestController

@@ -11,93 +11,107 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
+import javax.persistence.OneToOne;
 
 import ch.uzh.ifi.seal.soprafs16.constant.UserStatus;
 
 @Entity
 public class User implements Serializable {
-	
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = 1L;
 
-	@Id
-	@GeneratedValue
-	private Long id;
-	
-	@Column(nullable = false) 
-	private String name;
-	
-	@Column(nullable = false, unique = true) 
-	private String username;
-	
-	@Column(nullable = false, unique = true) 
-	private String token;
-	
-	@Column(nullable = false) 
-	private UserStatus status;
+    /**
+     *
+     */
+    private static final long serialVersionUID = 1L;
+
+    @Id
+    @GeneratedValue
+    private Long id;
+
+    @Column(nullable = false)
+    private String name;
+
+    @Column(nullable = false, unique = true)
+    private String username;
+
+    @Column(nullable = false, unique = true)
+    private String token;
+
+    @Column(nullable = false)
+    private UserStatus status;
 
     @ManyToOne
     @JsonIgnore
     private Game game;
-	
-    @OneToMany(mappedBy="user")
-    private List<Move> moves;
 
-	public Long getId() {
-		return id;
-	}
+//    @OneToMany(mappedBy = "user")
+//    private List<Move> moves;
 
-	public void setId(Long id) {
-		this.id = id;
-	}
+    @ManyToOne
+    @JsonIgnore
+    private WagonLevel wagonLevel;
 
-	public String getName() {
-		return name;
-	}
+    public Long getId() {
+        return id;
+    }
 
-	public void setName(String name) {
-		this.name = name;
-	}
+    public void setId(Long id) {
+        this.id = id;
+    }
 
-	public String getUsername() {
-		return username;
-	}
+    public String getName() {
+        return name;
+    }
 
-	public void setUsername(String username) {
-		this.username = username;
-	}
+    public void setName(String name) {
+        this.name = name;
+    }
 
-	public Game getGame() {
-		return game;
-	}
+    public String getUsername() {
+        return username;
+    }
 
-	public void setGame(Game game) {
-		this.game = game;
-	}
+    public void setUsername(String username) {
+        this.username = username;
+    }
 
-	public List<Move> getMoves() {
-		return moves;
-	}
+    public Game getGame() {
+        return game;
+    }
 
-	public void setMoves(List<Move> moves) {
-		this.moves = moves;
-	}
+    public void setGame(Game game) {
+        this.game = game;
+    }
 
-	public String getToken() {
-		return token;
-	}
+//    public List<Move> getMoves() {
+//        return moves;
+//    }
+//
+//    public void setMoves(List<Move> moves) {
+//        this.moves = moves;
+//    }
 
-	public void setToken(String token) {
-		this.token = token;
-	}
+    public String getToken() {
+        return token;
+    }
 
-	public UserStatus getStatus() {
-		return status;
-	}
+    public void setToken(String token) {
+        this.token = token;
+    }
 
-	public void setStatus(UserStatus status) {
-		this.status = status;
-	}
+    public UserStatus getStatus() {
+        return status;
+    }
+
+    public void setStatus(UserStatus status) {
+        this.status = status;
+    }
+
+    public WagonLevel getWagonLevel() {
+        return wagonLevel;
+    }
+
+    public void setWagonLevel(WagonLevel wagonLevel) {
+        this.wagonLevel = wagonLevel;
+    }
+
 }

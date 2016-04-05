@@ -330,58 +330,78 @@ public class GameServiceController extends GenericService {
 
     @RequestMapping(value = CONTEXT + "/{gameId}/wagons/{wagonId}/topLevel/users/{userId}", method = RequestMethod.PUT)
     @ResponseStatus(HttpStatus.OK)
-    public String modifyUserTopLevel(@RequestBody User user, @PathVariable Long gameId, @PathVariable Integer wagonId, @PathVariable Integer userId) {
+    public String modifyUserTopLevel(@RequestBody User user, @PathVariable Long gameId, @PathVariable Long wagonId, @PathVariable Long userId) {
         logger.debug("modify user: " + CONTEXT + "/" + gameId + "/wagons/" + wagonId + "/topLevel/users/" + userId);
-
         Game game = gameRepo.findOne(gameId);
-        if (game != null) {
-            Wagon wagon = game.getWagons().get(wagonId - 1);
-            if (wagon != null) {
-                User userExisting = wagon.getTopLevel().getUsers().get(userId - 1);
-                if (userExisting != null) {
-                    if (user.getWagonLevelIdNew() != null && user.getWagonLevelIdNew() != wagon.getTopLevel().getId()) {
-                        WagonLevel wagonLevelNew = wagonLevelRepo.findOne(user.getWagonLevelIdNew());
-                        if (wagonLevelNew != null) {
+        Wagon wagon = wagonRepo.findOne(wagonId);
+        WagonLevel wagonLevel = wagonLevelRepo.findOne(wagon.getTopLevel().getId());
+        User user1 = userRepo.findOne(userId);
 
-                           // game.getUsers().remove(userExisting);
+       WagonLevel wagonLevelNew = wagonLevelRepo.findOne(user.getWagonLevelIdNew());
+     //   user1.setWagonLevel(wagonLevelNew);
+        wagonLevel.getUsers().remove(user1);
+      //  wagonLevelNew.getUsers().add(user1);
 
-                            //userExisting = user;
-                            //wagonLevelNew.getUsers().add(userExisting);
-                            userExisting.setWagonLevel(wagonLevelNew);
+//        userRepo.save(user1);
+//        wagonLevelRepo.save(wagonLevelNew);
+//        wagonLevelRepo.save(wagonLevel);
+//        wagonRepo.save(wagon);
+        gameRepo.save(game);
+        wagonLevelNew.getUsers().add(user1);
+        user1.setWagonLevel(wagonLevelNew);
 
-                          //  wagon.getTopLevel().getUsers().remove(userExisting);
-                            game.getWagons().get(user.getWagonLevelIdNew().intValue()-1).getTopLevel().getUsers().add(userExisting);
-                            game.getWagons().get(wagon.getId().intValue()-1).getTopLevel().getUsers().remove(userExisting);
-//                            userExisting.setGame(game);
-//                            game.getUsers().add(userExisting);
-
-                            //wagonLevelNew.getWagon().setTopLevel(wagonLevelNew);
-
-                            // userRepo.save(user);
-//                            userRepo.save(userExisting);
-//                            wagonLevelRepo.save(wagon.getTopLevel());
-//                            wagonLevelRepo.save(wagonLevelNew);
-//                            wagonRepo.save(wagon);
-                            gameRepo.save(game);
-                        } else {
-                            return "wagonLevelIdNew is invalid";
-                        }
-                    }
-
-//                    wagon.getTopLevel().getUsers().set(userId - 1, user);
-//                    userExisting = user;
-                    // GameLogicService gls = new GameLogicService();
-                    //   gls.modifyNotifierUser(userExisting, user);
-                    return "User successfully modified on: " + CONTEXT + "/" + gameId + "/wagons/" + wagonId + "/topLevel/users/" + userId;
-                } else {
-                    return "no existing user found";
-                }
-            } else {
-                return "no wagon found";
-            }
-        } else {
-            return "no game found";
-        }
+        gameRepo.save(game);
+        return "great success";
+        //////
+//        Game game = gameRepo.findOne(gameId);
+//        if (game != null) {
+//            Wagon wagon = game.getWagons().get(wagonId - 1);
+//            if (wagon != null) {
+//                User userExisting = wagon.getTopLevel().getUsers().get(userId - 1);
+//                if (userExisting != null) {
+//                    if (user.getWagonLevelIdNew() != null && user.getWagonLevelIdNew() != wagon.getTopLevel().getId()) {
+//                        WagonLevel wagonLevelNew = wagonLevelRepo.findOne(user.getWagonLevelIdNew());
+//                        if (wagonLevelNew != null) {
+//
+//                           // game.getUsers().remove(userExisting);
+//
+//                            //userExisting = user;
+//                            //wagonLevelNew.getUsers().add(userExisting);
+//                            userExisting.setWagonLevel(wagonLevelNew);
+//
+//                          //  wagon.getTopLevel().getUsers().remove(userExisting);
+//                            game.getWagons().get(user.getWagonLevelIdNew().intValue()-1).getTopLevel().getUsers().add(userExisting);
+//                            game.getWagons().get(wagon.getId().intValue()-1).getTopLevel().getUsers().remove(userExisting);
+////                            userExisting.setGame(game);
+////                            game.getUsers().add(userExisting);
+//
+//                            //wagonLevelNew.getWagon().setTopLevel(wagonLevelNew);
+//
+//                            // userRepo.save(user);
+////                            userRepo.save(userExisting);
+////                            wagonLevelRepo.save(wagon.getTopLevel());
+////                            wagonLevelRepo.save(wagonLevelNew);
+////                            wagonRepo.save(wagon);
+//                            gameRepo.save(game);
+//                        } else {
+//                            return "wagonLevelIdNew is invalid";
+//                        }
+//                    }
+//
+////                    wagon.getTopLevel().getUsers().set(userId - 1, user);
+////                    userExisting = user;
+//                    // GameLogicService gls = new GameLogicService();
+//                    //   gls.modifyNotifierUser(userExisting, user);
+//                    return "User successfully modified on: " + CONTEXT + "/" + gameId + "/wagons/" + wagonId + "/topLevel/users/" + userId;
+//                } else {
+//                    return "no existing user found";
+//                }
+//            } else {
+//                return "no wagon found";
+//            }
+//        } else {
+//            return "no game found";
+//        }
     }
 
     @RequestMapping(value = CONTEXT + "/{gameId}/wagons/{wagonId}/bottomLevel/users/{userId}", method = RequestMethod.PUT)

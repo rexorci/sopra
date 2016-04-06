@@ -37,7 +37,8 @@ public class ControllerHelperService {
 
         game.setWagons(new ArrayList<Wagon>());
 
-        for (int i = 0; i < 4; i++) {
+        int wagons = 4;
+        for (int i = 0; i < wagons; i++) {
             Wagon wagon = new Wagon();
             wagon.setGame(game);
             game.getWagons().add(wagon);
@@ -58,6 +59,14 @@ public class ControllerHelperService {
             botLevel.setWagon(wagon);
             botLevel.setUsers(new ArrayList<User>());
             wagonLevelRepo.save(botLevel);
+
+            //place all users in last wagon
+            if (i == wagons - 1) {
+                for (User u : game.getUsers()) {
+                    botLevel.getUsers().add(u);
+                    u.setWagonLevel(botLevel);
+                }
+            }
         }
 
         //place Marshal
@@ -67,6 +76,8 @@ public class ControllerHelperService {
         game.getWagons().get(0).getBottomLevel().setMarshal(marshal);
         marshal.setWagonLevel(game.getWagons().get(0).getBottomLevel());
         marshalRepo.save(marshal);
+
+
     }
 
 //    public void deleteGame(Game game, UserRepository userRepo, WagonRepository wagonRepo, MarshalRepository marshalRepo){

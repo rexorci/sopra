@@ -54,7 +54,7 @@ public class GameInitServiceTest {
         User owner = new User();
         owner.setName("owner1");
         owner.setId((long) 7);
-        game = gameInitService.initGame(game, owner, gameRepo, wagonRepo, wagonLevelRepo, itemRepo, marshalRepo);
+        game = gameInitService.startGame(game, owner, gameRepo, wagonRepo, wagonLevelRepo, itemRepo, marshalRepo);
         Assert.assertEquals((long)owner.getId(), (long)game.getCurrentPlayer());
         Assert.assertEquals(GameStatus.PENDING, game.getStatus());
         Assert.assertTrue(game.getWagons().size() == 3 || game.getWagons().size() == 4);

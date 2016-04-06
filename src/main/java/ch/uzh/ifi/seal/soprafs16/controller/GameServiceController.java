@@ -16,12 +16,11 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
 import ch.uzh.ifi.seal.soprafs16.GameConstants;
+import ch.uzh.ifi.seal.soprafs16.constant.CharacterType;
 import ch.uzh.ifi.seal.soprafs16.constant.GameStatus;
-import ch.uzh.ifi.seal.soprafs16.constant.LevelType;
 import ch.uzh.ifi.seal.soprafs16.model.Game;
 import ch.uzh.ifi.seal.soprafs16.model.Item;
 import ch.uzh.ifi.seal.soprafs16.model.Marshal;
-import ch.uzh.ifi.seal.soprafs16.model.Move;
 import ch.uzh.ifi.seal.soprafs16.model.User;
 import ch.uzh.ifi.seal.soprafs16.model.Wagon;
 import ch.uzh.ifi.seal.soprafs16.model.WagonLevel;
@@ -31,6 +30,7 @@ import ch.uzh.ifi.seal.soprafs16.model.repositories.MarshalRepository;
 import ch.uzh.ifi.seal.soprafs16.model.repositories.UserRepository;
 import ch.uzh.ifi.seal.soprafs16.model.repositories.WagonLevelRepository;
 import ch.uzh.ifi.seal.soprafs16.model.repositories.WagonRepository;
+import ch.uzh.ifi.seal.soprafs16.service.ControllerHelperService;
 import ch.uzh.ifi.seal.soprafs16.service.GameInitService;
 import ch.uzh.ifi.seal.soprafs16.service.GameLogicService;
 
@@ -70,20 +70,40 @@ public class GameServiceController extends GenericService {
         return result;
     }
 
+    @RequestMapping(value = CONTEXT, params = {"status"})
+    @ResponseStatus(HttpStatus.OK)
+    public List<Game> listGamesFiltered(@RequestParam("status") String statusFilter) {
+        logger.debug("listGamesFiltered");
+        List<Game> result = new ArrayList<>();
+        for (Game game : gameRepo.findAll()) {
+            if (game.getStatus().toString().equals(statusFilter)) {
+                result.add(game);
+            }
+        }
+        return result;
+    }
+
     @RequestMapping(value = CONTEXT, method = RequestMethod.POST)
     @ResponseStatus(HttpStatus.OK)
-    public String addGame(@RequestBody Game game, @RequestParam("token") String userToken) {
+    public Long addGame(@RequestBody Game game, @RequestParam("token") String userToken) {
         logger.debug("addGame: " + game);
 
         User owner = userRepo.findByToken(userToken);
 
         if (owner != null) {
-            GameInitService gameInitService = new GameInitService();
-            gameInitService.initGame(game, owner, gameRepo, wagonRepo, wagonLevelRepo, itemRepo, marshalRepo);
+            game.setStatus(GameStatus.PENDING);
+            owner.setGame(game);
+            game.setUsers(new ArrayList<User>());
+            game.getUsers().add(owner);
+            game.setOwner(owner.getName());
+            gameRepo.save(game);
 
-            return CONTEXT + "/" + game.getId();
+            //GameInitService gameInitService = new GameInitService();
+            // gameInitService.startGame(game, owner, gameRepo, wagonRepo, wagonLevelRepo, itemRepo, marshalRepo);
+
+            return game.getId();
         } else {
-            return "no owner found";
+            return null;
         }
     }
 
@@ -101,6 +121,37 @@ public class GameServiceController extends GenericService {
     }
     //endregion
 
+    /*
+    * Context: /games/{game-id}
+    */
+    @RequestMapping(value = CONTEXT + "/{gameId}", method = RequestMethod.DELETE)
+    @ResponseStatus(HttpStatus.OK)
+    public Long deleteGame(@PathVariable Long gameId, @RequestParam("token") String userToken) {
+        logger.debug("deleteGame: " + gameId);
+        Game game = gameRepo.findOne(gameId);
+        User user = userRepo.findByToken(userToken);
+        if (game != null && user != null) {
+            String ownerString = game.getOwner();
+            if (user.getName().equals(game.getOwner())) {
+//                ControllerHelperService chs = new ControllerHelperService();
+//                chs.deleteGame(game, userRepo, wagonRepo, marshalRepo);
+
+                for (User u : game.getUsers()) {
+                    u.setGame(null);
+                    userRepo.save(u);
+                }
+                gameRepo.delete(game);
+                return gameId;
+            } else {
+                logger.debug("deleteGame: game " + gameId + " - user is not owner of game");
+                return null;
+            }
+        } else {
+            logger.debug("deleteGame: game " + gameId + " - user or game is null");
+            return null;
+        }
+    }
+
     //region start/stop game
     @RequestMapping(value = CONTEXT + "/{gameId}/start", method = RequestMethod.POST)
     @ResponseStatus(HttpStatus.OK)
@@ -110,8 +161,9 @@ public class GameServiceController extends GenericService {
         Game game = gameRepo.findOne(gameId);
         User owner = userRepo.findByToken(userToken);
 
-        if (owner != null && game != null && game.getOwner().equals(owner.getUsername())) {
-            // TODO: Start game
+        if (owner != null && game != null && game.getOwner().equals(owner.getName())) {
+            ControllerHelperService chs = new ControllerHelperService();
+            chs.startGame(game, owner, wagonRepo, wagonLevelRepo, marshalRepo);
         }
     }
 
@@ -124,7 +176,6 @@ public class GameServiceController extends GenericService {
         User owner = userRepo.findByToken(userToken);
 
         if (owner != null && game != null && game.getOwner().equals(owner.getUsername())) {
-            // TODO: Stop game
         }
     }
     //endregion
@@ -186,23 +237,89 @@ public class GameServiceController extends GenericService {
 
     @RequestMapping(value = CONTEXT + "/{gameId}/users", method = RequestMethod.POST)
     @ResponseStatus(HttpStatus.OK)
-    public String addPlayer(@PathVariable Long gameId, @RequestParam("token") String userToken) {
+    public Long addPlayer(@PathVariable Long gameId, @RequestParam("token") String userToken) {
         logger.debug("addUser: " + userToken);
 
         Game game = gameRepo.findOne(gameId);
         User user = userRepo.findByToken(userToken);
-
-        if (game != null && user != null && game.getUsers().size() < GameConstants.MAX_PLAYERS) {
+        if (game != null && user != null && game.getUsers().size() < GameConstants.MAX_PLAYERS && game.getStatus() == GameStatus.PENDING) {
             game.getUsers().add(user);
             user.setGame(game);
             logger.debug("Game: " + game.getName() + " - user added: " + user.getUsername());
             gameRepo.save(game);
             userRepo.save(user);
-            return CONTEXT + "/" + gameId + "/user/" + (game.getUsers().size() - 1);
+            //return CONTEXT + "/" + gameId + "/user/" + (game.getUsers().size() - 1);
+            return (long) (game.getUsers().size() - 1);
         } else {
             logger.error("Error adding user with token: " + userToken);
+            return null;
         }
-        return null;
+    }
+
+    @RequestMapping(value = CONTEXT + "/{gameId}/users", method = RequestMethod.DELETE)
+    @ResponseStatus(HttpStatus.OK)
+    public Long removePlayer(@PathVariable Long gameId, @RequestParam("token") String userToken) {
+        logger.debug("addUser: " + userToken);
+
+        Game game = gameRepo.findOne(gameId);
+        User user = userRepo.findByToken(userToken);
+        if (game != null && user != null) {
+            if (game.getOwner().equals(user.getName())) {
+                //user is Owner of game
+//                ControllerHelperService chs = new ControllerHelperService();
+//                chs.deleteGame(game, userRepo, wagonRepo, marshalRepo);
+                for (User u : game.getUsers()) {
+                    u.setGame(null);
+                    userRepo.save(u);
+                }
+                gameRepo.delete(game);
+            } else {
+                user.setGame(null);
+                gameRepo.save(game);
+                userRepo.save(user);
+            }
+            return gameId;
+        } else {
+            logger.error("Error removing user with token: " + userToken);
+            return null;
+        }
+    }
+
+    @RequestMapping(value = CONTEXT + "/{gameId}/users", method = RequestMethod.PUT)
+    @ResponseStatus(HttpStatus.OK)
+    public User modifyUserCharacter(@PathVariable Long gameId, @RequestParam("token") String userToken, @RequestParam("character") String character) {
+        Game game = gameRepo.findOne(gameId);
+        User user = userRepo.findByToken(userToken);
+        if (user != null && game != null) {
+            try {
+                CharacterType characterType = CharacterType.valueOf(character);
+                for (User u : game.getUsers()) {
+                    if (u.getCharacterType() != null && u.getId() != user.getId()) {
+                        if (u.getCharacterType().equals(characterType)) {
+                            return null;
+                        }
+                    }
+                }
+                user.setCharacterType(characterType);
+                return user;
+            } catch (IllegalArgumentException iae) {
+                return null;
+            }
+        } else {
+            return null;
+        }
+//        logger.debug("modify user: " + CONTEXT + "/" + gameId + "/wagons/" + wagonId + "/topLevel/users/" + userId);
+//        Game game = gameRepo.findOne(gameId);
+//        Wagon wagon = wagonRepo.findOne(wagonId);
+//        WagonLevel wagonLevel = wagonLevelRepo.findOne(wagon.getTopLevel().getId());
+//        User userOld = userRepo.findOne(userId);
+//
+//        GameLogicService gls = new GameLogicService();
+//        gls.modifyUser(userOld, user, wagonLevel, game, wagonLevelRepo, gameRepo);
+
+
+        // return "success";
+
     }
 
 //    @RequestMapping(value = CONTEXT + "/{gameId}/users/{userId}")
@@ -335,73 +452,20 @@ public class GameServiceController extends GenericService {
         Game game = gameRepo.findOne(gameId);
         Wagon wagon = wagonRepo.findOne(wagonId);
         WagonLevel wagonLevel = wagonLevelRepo.findOne(wagon.getTopLevel().getId());
-        User user1 = userRepo.findOne(userId);
+        User userOld = userRepo.findOne(userId);
 
-       WagonLevel wagonLevelNew = wagonLevelRepo.findOne(user.getWagonLevelIdNew());
-     //   user1.setWagonLevel(wagonLevelNew);
-        wagonLevel.getUsers().remove(user1);
-      //  wagonLevelNew.getUsers().add(user1);
+        GameLogicService gls = new GameLogicService();
+        gls.modifyUser(userOld, user, wagonLevel, game, wagonLevelRepo, gameRepo);
+//        WagonLevel wagonLevelNew = wagonLevelRepo.findOne(user.getWagonLevelIdNew());
+//        wagonLevel.getUsers().remove(user1);
+//        gameRepo.save(game);
+//        wagonLevelNew.getUsers().add(user1);
+//        user1.setWagonLevel(wagonLevelNew);
+//
+//        gameRepo.save(game);
 
-//        userRepo.save(user1);
-//        wagonLevelRepo.save(wagonLevelNew);
-//        wagonLevelRepo.save(wagonLevel);
-//        wagonRepo.save(wagon);
-        gameRepo.save(game);
-        wagonLevelNew.getUsers().add(user1);
-        user1.setWagonLevel(wagonLevelNew);
+        return "User successfully modified on: " + CONTEXT + "/" + gameId + "/wagons/" + wagonId + "/topLevel/users/" + userId;
 
-        gameRepo.save(game);
-        return "great success";
-        //////
-//        Game game = gameRepo.findOne(gameId);
-//        if (game != null) {
-//            Wagon wagon = game.getWagons().get(wagonId - 1);
-//            if (wagon != null) {
-//                User userExisting = wagon.getTopLevel().getUsers().get(userId - 1);
-//                if (userExisting != null) {
-//                    if (user.getWagonLevelIdNew() != null && user.getWagonLevelIdNew() != wagon.getTopLevel().getId()) {
-//                        WagonLevel wagonLevelNew = wagonLevelRepo.findOne(user.getWagonLevelIdNew());
-//                        if (wagonLevelNew != null) {
-//
-//                           // game.getUsers().remove(userExisting);
-//
-//                            //userExisting = user;
-//                            //wagonLevelNew.getUsers().add(userExisting);
-//                            userExisting.setWagonLevel(wagonLevelNew);
-//
-//                          //  wagon.getTopLevel().getUsers().remove(userExisting);
-//                            game.getWagons().get(user.getWagonLevelIdNew().intValue()-1).getTopLevel().getUsers().add(userExisting);
-//                            game.getWagons().get(wagon.getId().intValue()-1).getTopLevel().getUsers().remove(userExisting);
-////                            userExisting.setGame(game);
-////                            game.getUsers().add(userExisting);
-//
-//                            //wagonLevelNew.getWagon().setTopLevel(wagonLevelNew);
-//
-//                            // userRepo.save(user);
-////                            userRepo.save(userExisting);
-////                            wagonLevelRepo.save(wagon.getTopLevel());
-////                            wagonLevelRepo.save(wagonLevelNew);
-////                            wagonRepo.save(wagon);
-//                            gameRepo.save(game);
-//                        } else {
-//                            return "wagonLevelIdNew is invalid";
-//                        }
-//                    }
-//
-////                    wagon.getTopLevel().getUsers().set(userId - 1, user);
-////                    userExisting = user;
-//                    // GameLogicService gls = new GameLogicService();
-//                    //   gls.modifyNotifierUser(userExisting, user);
-//                    return "User successfully modified on: " + CONTEXT + "/" + gameId + "/wagons/" + wagonId + "/topLevel/users/" + userId;
-//                } else {
-//                    return "no existing user found";
-//                }
-//            } else {
-//                return "no wagon found";
-//            }
-//        } else {
-//            return "no game found";
-//        }
     }
 
     @RequestMapping(value = CONTEXT + "/{gameId}/wagons/{wagonId}/bottomLevel/users/{userId}", method = RequestMethod.PUT)

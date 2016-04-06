@@ -4,6 +4,13 @@ import org.springframework.stereotype.Service;
 
 import ch.uzh.ifi.seal.soprafs16.model.Game;
 import ch.uzh.ifi.seal.soprafs16.model.User;
+import ch.uzh.ifi.seal.soprafs16.model.Wagon;
+import ch.uzh.ifi.seal.soprafs16.model.WagonLevel;
+import ch.uzh.ifi.seal.soprafs16.model.repositories.GameRepository;
+import ch.uzh.ifi.seal.soprafs16.model.repositories.MarshalRepository;
+import ch.uzh.ifi.seal.soprafs16.model.repositories.UserRepository;
+import ch.uzh.ifi.seal.soprafs16.model.repositories.WagonLevelRepository;
+import ch.uzh.ifi.seal.soprafs16.model.repositories.WagonRepository;
 
 /**
  * Created by Christoph on 05/04/16.
@@ -20,35 +27,20 @@ public class GameLogicService {
         return game.getUsers().get((game.getCurrentPlayer() + 1) % game.getUsers().size());
     }
 
-    public void modifyNotifierUser(User oldUser, User newUser) {
-        if (newUser.getGame() == null) {
-            if (oldUser.getGame() != null) {
-                oldUser.getGame().getUsers().remove(oldUser);
-            }
-        } else {
-            if (oldUser.getGame() != null) {
-                if (oldUser.getGame().getId() != newUser.getGame().getId()) {
-                    oldUser.getGame().getUsers().remove(oldUser);
-                    newUser.getGame().getUsers().add(newUser);
-                }
-            }else{
-                newUser.getGame().getUsers().add(newUser);
-            }
-        }
+    public void modifyUser(User userOld, User userNew, WagonLevel wagonLevelOld, Game game, WagonLevelRepository wagonLevelRepo, GameRepository gameRepo) {
 
-        if (newUser.getWagonLevel() == null) {
-            if (oldUser.getWagonLevel() != null) {
-                oldUser.getWagonLevel().getUsers().remove(oldUser);
-            }
-        } else {
-            if (oldUser.getWagonLevel() != null) {
-                if (oldUser.getWagonLevel().getId() != newUser.getWagonLevel().getId()) {
-                    oldUser.getWagonLevel().getUsers().remove(oldUser);
-                    newUser.getWagonLevel().getUsers().add(newUser);
-                }
-            }else{
-                newUser.getGame().getUsers().add(newUser);
-            }
+        userOld.setName(userNew.getName());
+        userOld.setUsername(userNew.getUsername());
+        userOld.setStatus(userNew.getStatus());
+
+        if (wagonLevelOld.getId() != userNew.getWagonLevelIdNew()) {
+            WagonLevel wagonLevelNew = wagonLevelRepo.findOne(userNew.getWagonLevelIdNew());
+            wagonLevelOld.getUsers().remove(userOld);
+            gameRepo.save(game);//this save is mandatory!
+
+            wagonLevelNew.getUsers().add(userOld);
+            userNew.setWagonLevel(wagonLevelNew);
         }
+        gameRepo.save(game);
     }
 }

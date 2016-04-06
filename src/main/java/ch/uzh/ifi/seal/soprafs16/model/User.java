@@ -12,6 +12,7 @@ import javax.persistence.Id;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 
+import ch.uzh.ifi.seal.soprafs16.constant.CharacterType;
 import ch.uzh.ifi.seal.soprafs16.constant.UserStatus;
 
 @Entity
@@ -51,6 +52,9 @@ public class User implements Serializable {
 
     @OneToMany
     private List<Item> items;
+
+    @Column
+    private CharacterType characterType;
 
     //region helper Variables for Serialization
 //    @Column
@@ -170,4 +174,11 @@ public class User implements Serializable {
 
     //endregion
 
+    public CharacterType getCharacterType() {
+        return characterType;
+    }
+
+    public void setCharacterType(CharacterType characterType) {
+        this.characterType = characterType;
+    }
 }

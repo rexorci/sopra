@@ -46,18 +46,32 @@ public class UserServiceController
         return result;
     }
 
+    @RequestMapping(method = RequestMethod.GET, params = {"token"})
+    @ResponseStatus(HttpStatus.OK)
+    public Long getUserId(@RequestParam("token") String token) {
+        logger.debug("getUserId");
+        User user = userRepo.findByToken(token);
+        if (user != null) {
+            return user.getId();
+        } else {
+            return null;
+        }
+
+    }
+
     @RequestMapping(method = RequestMethod.POST)
     @ResponseStatus(HttpStatus.CREATED)
     @ResponseBody
-    public User addUser(@RequestBody User user) {
+    public String addUser(@RequestBody User user) {
         logger.debug("addUser: " + user);
 
         user.setStatus(UserStatus.OFFLINE);
-        user.setToken(UUID.randomUUID().toString());
+        String token = UUID.randomUUID().toString();
+        user.setToken(token);
         user.setItems(new ArrayList<Item>());
         user = userRepo.save(user);
 
-        return user;
+        return token;
     }
 
 
@@ -113,6 +127,6 @@ public class UserServiceController
     public String greeting(@RequestParam(value = "name", defaultValue = "World") String name) {
 //    	ExampleService es = new UserServiceController();
 //    	es.doLogic((, b)
-        return "Hello dude you are in the " + name;
+        return "Hello";
     }
 }

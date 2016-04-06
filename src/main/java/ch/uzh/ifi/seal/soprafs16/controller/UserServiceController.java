@@ -22,7 +22,6 @@ import ch.uzh.ifi.seal.soprafs16.model.Item;
 import ch.uzh.ifi.seal.soprafs16.model.User;
 import ch.uzh.ifi.seal.soprafs16.model.repositories.UserRepository;
 
-
 @RestController
 @RequestMapping(UserServiceController.CONTEXT)
 public class UserServiceController
@@ -35,6 +34,7 @@ public class UserServiceController
     @Autowired
     private UserRepository userRepo;
 
+    //users - GET
     @RequestMapping(method = RequestMethod.GET)
     @ResponseStatus(HttpStatus.OK)
     public List<User> listUsers() {
@@ -46,6 +46,7 @@ public class UserServiceController
         return result;
     }
 
+    //users - GET
     @RequestMapping(method = RequestMethod.GET, params = {"token"})
     @ResponseStatus(HttpStatus.OK)
     public Long getUserId(@RequestParam("token") String token) {
@@ -56,9 +57,18 @@ public class UserServiceController
         } else {
             return null;
         }
-
     }
 
+    //users - GET
+    @RequestMapping(method = RequestMethod.GET, value = "{userId}")
+    @ResponseStatus(HttpStatus.OK)
+    public User getUser(@PathVariable Long userId) {
+        logger.debug("getUser: " + userId);
+
+        return userRepo.findOne(userId);
+    }
+
+    //users - POST
     @RequestMapping(method = RequestMethod.POST)
     @ResponseStatus(HttpStatus.CREATED)
     @ResponseBody
@@ -74,15 +84,7 @@ public class UserServiceController
         return token;
     }
 
-
-    @RequestMapping(method = RequestMethod.GET, value = "{userId}")
-    @ResponseStatus(HttpStatus.OK)
-    public User getUser(@PathVariable Long userId) {
-        logger.debug("getUser: " + userId);
-
-        return userRepo.findOne(userId);
-    }
-
+    //users/{userId}/login - POST
     @RequestMapping(method = RequestMethod.POST, value = "{userId}/login")
     @ResponseStatus(HttpStatus.OK)
     public User login(@PathVariable Long userId) {
@@ -100,6 +102,7 @@ public class UserServiceController
         return null;
     }
 
+    //users/{userId}/logout - POST
     @RequestMapping(method = RequestMethod.POST, value = "{userId}/logout")
     @ResponseStatus(HttpStatus.OK)
     public void logout(@PathVariable Long userId, @RequestParam("token") String userToken) {
@@ -111,22 +114,5 @@ public class UserServiceController
             user.setStatus(UserStatus.OFFLINE);
             userRepo.save(user);
         }
-    }
-
-    //    @RequestMapping("/greeting")
-//    public String greeting(@RequestParam(value="name", defaultValue="World") String name) {
-//        return "Hello dude";
-//    }
-//    
-//    @RequestMapping("/greeting")
-//    public String greeting(@RequestParam(value="name", defaultValue="World") String name) {
-//        return "Hello dude";
-//    }    
-    @RequestMapping(method = RequestMethod.GET, value = "/greeting")
-    @ResponseStatus(HttpStatus.OK)
-    public String greeting(@RequestParam(value = "name", defaultValue = "World") String name) {
-//    	ExampleService es = new UserServiceController();
-//    	es.doLogic((, b)
-        return "Hello";
     }
 }

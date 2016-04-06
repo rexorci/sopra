@@ -54,7 +54,6 @@ public class WagonLevel implements Serializable {
         this.id = id;
     }
 
-    //@JsonIgnore
     public Wagon getWagon() {
         return wagon;
     }

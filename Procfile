@@ -1,6 +1,1 @@
-{
-   "name" : "g1",
-    "owner" : "bl",
-    "status" : null,
-    "currentPlayer" : 1
-}
+web: java -jar -Dserver.port=$PORT build/libs/*.jar

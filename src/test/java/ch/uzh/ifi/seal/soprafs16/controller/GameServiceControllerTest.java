@@ -48,7 +48,8 @@ public class GameServiceControllerTest {
     @Before
     public void setUp()
             throws Exception {
-        this.base = new URL("http://localhost:" + port + "/");
+//        this.base = new URL("http://localhost:" + port + "/");
+        this.base = new URL("https://sopra-fs16-group12.herokuapp.com/");
         this.template = new TestRestTemplate();
     }
 

@@ -48,8 +48,7 @@ public class GameServiceControllerTest {
     @Before
     public void setUp()
             throws Exception {
-        //this.base = new URL("http://localhost:" + port + "/");
-        this.base = new URL("https://sopra-fs16-group12.herokuapp.com/");
+        this.base = new URL("http://localhost:" + port + "/");
         this.template = new TestRestTemplate();
     }
 
@@ -65,14 +64,8 @@ public class GameServiceControllerTest {
         //region create Game - GameServiceController.addGame()
         Game game1 = new Game();
         game1.setName("game1_lobbyTest");
-       // Long gameId1 = template.postForObject(base + "games?token=" + token1, game1, Long.class);
-
-        HttpEntity<Game> game1HttpEntity = new HttpEntity<Game>(game1);
-        HttpEntity<Long> gameId1Http = template.exchange(base + "games?token=" + token1, HttpMethod.POST,game1HttpEntity,Long.class);
-
-         Assert.assertNotNull(gameId1Http.getBody());
-        Long gameId1 = gameId1Http.getBody();
-        // Assert.assertNotNull(gameId1);
+        Long gameId1 = template.postForObject(base + "games?token=" + token1, game1, Long.class);
+        Assert.assertNotNull(gameId1);
         //endregion
         //region all pending Games - GameServiceController.listGames() with filter
         String filter = "status=PENDING";

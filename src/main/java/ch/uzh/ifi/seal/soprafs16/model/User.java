@@ -56,6 +56,8 @@ public class User implements Serializable {
     @Column
     private CharacterType characterType;
 
+    public User (){}
+
     public Long getId() {
         return id;
     }

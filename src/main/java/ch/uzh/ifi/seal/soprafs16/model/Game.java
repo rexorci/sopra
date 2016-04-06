@@ -51,6 +51,8 @@ public class Game implements Serializable {
     @OneToOne
     private Marshal marshal;
 
+    public Game(){}
+
     public Long getId() {
         return id;
     }

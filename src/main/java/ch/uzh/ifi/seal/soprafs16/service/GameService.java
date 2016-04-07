@@ -23,8 +23,8 @@ import ch.uzh.ifi.seal.soprafs16.model.repositories.WagonRepository;
  * Created by Christoph on 06/04/16.
  */
 
-@Service("controllerHelperService")
-public class ControllerHelperService {
+@Service("gameService")
+public class GameService {
 
     /**
      * @param game

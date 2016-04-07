@@ -7,6 +7,7 @@ import java.io.Serializable;
 import java.util.List;
 
 import javax.persistence.Column;
+import javax.persistence.ElementCollection;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
@@ -14,6 +15,7 @@ import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
 
 import ch.uzh.ifi.seal.soprafs16.constant.GameStatus;
+import ch.uzh.ifi.seal.soprafs16.constant.PhaseType;
 
 @Entity
 public class Game implements Serializable {
@@ -40,9 +42,6 @@ public class Game implements Serializable {
     private Integer currentPlayer;
 
     @OneToMany(mappedBy = "game")
-    private List<Move> moves;
-
-    @OneToMany(mappedBy = "game")
     private List<User> users;
 
     @OneToMany(mappedBy = "game")
@@ -50,6 +49,24 @@ public class Game implements Serializable {
 
     @OneToOne
     private Marshal marshal;
+
+    @Column
+    private Integer currentRound;
+
+    @Column
+    private Integer currentTurn;
+
+    @Column
+    private PhaseType currentPhase;
+
+    @Column
+    private String roundPattern;
+
+    @OneToMany(mappedBy = "game")
+    private List<Action> actions;
+
+    @ElementCollection
+    private List<String> log;
 
     public Long getId() {
         return id;
@@ -73,14 +90,6 @@ public class Game implements Serializable {
 
     public void setOwner(String owner) {
         this.owner = owner;
-    }
-
-    public List<Move> getMoves() {
-        return moves;
-    }
-
-    public void setMoves(List<Move> moves) {
-        this.moves = moves;
     }
 
     public List<User> getUsers() {
@@ -121,5 +130,53 @@ public class Game implements Serializable {
 
     public void setMarshal(Marshal marshal) {
         this.marshal = marshal;
+    }
+
+    public Integer getCurrentRound() {
+        return currentRound;
+    }
+
+    public void setCurrentRound(Integer currentRound) {
+        this.currentRound = currentRound;
+    }
+
+    public Integer getCurrentTurn() {
+        return currentTurn;
+    }
+
+    public void setCurrentTurn(Integer currentTurn) {
+        this.currentTurn = currentTurn;
+    }
+
+    public PhaseType getCurrentPhase() {
+        return currentPhase;
+    }
+
+    public void setCurrentPhase(PhaseType currentPhase) {
+        this.currentPhase = currentPhase;
+    }
+
+    public String getRoundPattern() {
+        return roundPattern;
+    }
+
+    public void setRoundPattern(String roundPattern) {
+        this.roundPattern = roundPattern;
+    }
+
+    public List<Action> getActions() {
+        return actions;
+    }
+
+    public void setActions(List<Action> actions) {
+        this.actions = actions;
+    }
+
+    public List<String> getLog() {
+        return log;
+    }
+
+    public void setLog(List<String> log) {
+        this.log = log;
     }
 }

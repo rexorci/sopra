@@ -33,6 +33,7 @@ public class User implements Serializable {
     @Column(nullable = false, unique = true)
     private String username;
 
+    @JsonIgnore
     @Column(nullable = false, unique = true)
     private String token;
 
@@ -42,9 +43,6 @@ public class User implements Serializable {
     @ManyToOne
     @JsonIgnore
     private Game game;
-
-//    @OneToMany(mappedBy = "user")
-//    private List<Move> moves;
 
     @ManyToOne
     @JsonIgnore
@@ -88,14 +86,6 @@ public class User implements Serializable {
         this.game = game;
     }
 
-//    public List<Move> getMoves() {
-//        return moves;
-//    }
-//
-//    public void setMoves(List<Move> moves) {
-//        this.moves = moves;
-//    }
-
     public String getToken() {
         return token;
     }
@@ -112,7 +102,6 @@ public class User implements Serializable {
         this.status = status;
     }
 
-    @JsonIgnore
     public WagonLevel getWagonLevel() {
         return wagonLevel;
     }

@@ -28,7 +28,7 @@ import ch.uzh.ifi.seal.soprafs16.model.repositories.MarshalRepository;
 import ch.uzh.ifi.seal.soprafs16.model.repositories.UserRepository;
 import ch.uzh.ifi.seal.soprafs16.model.repositories.WagonLevelRepository;
 import ch.uzh.ifi.seal.soprafs16.model.repositories.WagonRepository;
-import ch.uzh.ifi.seal.soprafs16.service.ControllerHelperService;
+import ch.uzh.ifi.seal.soprafs16.service.GameService;
 
 @RestController
 public class GameServiceController extends GenericService {
@@ -52,6 +52,7 @@ public class GameServiceController extends GenericService {
 
     private final String CONTEXT = "/games";
 
+    //games - GET
     @RequestMapping(value = CONTEXT)
     @ResponseStatus(HttpStatus.OK)
     public List<Game> listGames() {
@@ -144,7 +145,7 @@ public class GameServiceController extends GenericService {
         User owner = userRepo.findByToken(userToken);
 
         if (owner != null && game != null && game.getOwner().equals(owner.getName())) {
-            ControllerHelperService chs = new ControllerHelperService();
+            GameService chs = new GameService();
             chs.startGame(game, owner, wagonRepo, wagonLevelRepo, marshalRepo);
         }
     }
@@ -183,6 +184,32 @@ public class GameServiceController extends GenericService {
         }
     }
 
+    //games/{game-id}/users - PUT
+    @RequestMapping(value = CONTEXT + "/{gameId}/users", method = RequestMethod.PUT)
+    @ResponseStatus(HttpStatus.OK)
+    public User modifyUserCharacter(@PathVariable Long gameId, @RequestParam("token") String userToken, @RequestParam("character") String character) {
+        Game game = gameRepo.findOne(gameId);
+        User user = userRepo.findByToken(userToken);
+        if (user != null && game != null) {
+            try {
+                CharacterType characterType = CharacterType.valueOf(character);
+                for (User u : game.getUsers()) {
+                    if (u.getCharacterType() != null && u.getId() != user.getId()) {
+                        if (u.getCharacterType().equals(characterType)) {
+                            return null;
+                        }
+                    }
+                }
+                user.setCharacterType(characterType);
+                return user;
+            } catch (IllegalArgumentException iae) {
+                return null;
+            }
+        } else {
+            return null;
+        }
+    }
+
     //games/{game-id}/users - DELETE
     @RequestMapping(value = CONTEXT + "/{gameId}/users", method = RequestMethod.DELETE)
     @ResponseStatus(HttpStatus.OK)
@@ -206,32 +233,6 @@ public class GameServiceController extends GenericService {
             return gameId;
         } else {
             logger.error("Error removing user with token: " + userToken);
-            return null;
-        }
-    }
-
-    //games/{game-id}/users - PUT
-    @RequestMapping(value = CONTEXT + "/{gameId}/users", method = RequestMethod.PUT)
-    @ResponseStatus(HttpStatus.OK)
-    public User modifyUserCharacter(@PathVariable Long gameId, @RequestParam("token") String userToken, @RequestParam("character") String character) {
-        Game game = gameRepo.findOne(gameId);
-        User user = userRepo.findByToken(userToken);
-        if (user != null && game != null) {
-            try {
-                CharacterType characterType = CharacterType.valueOf(character);
-                for (User u : game.getUsers()) {
-                    if (u.getCharacterType() != null && u.getId() != user.getId()) {
-                        if (u.getCharacterType().equals(characterType)) {
-                            return null;
-                        }
-                    }
-                }
-                user.setCharacterType(characterType);
-                return user;
-            } catch (IllegalArgumentException iae) {
-                return null;
-            }
-        } else {
             return null;
         }
     }
@@ -264,41 +265,7 @@ public class GameServiceController extends GenericService {
         }
     }
 
-    //region /{gameId}/move ff
-    /*
-     * Context: /game/{game-id}/move
-	 */
-//    @RequestMapping(value = CONTEXT + "/{gameId}/move")
-//    @ResponseStatus(HttpStatus.OK)
-//    public List<Move> listMoves(@PathVariable Long gameId) {
-//        logger.debug("listMoves");
-//
-//        Game game = gameRepo.findOne(gameId);
-//        if (game != null) {
-//            return game.getMoves();
-//        }
-//
-//        return null;
-//    }
-//
-//    @RequestMapping(value = CONTEXT + "/{gameId}/move", method = RequestMethod.POST)
-//    @ResponseStatus(HttpStatus.OK)
-//    public void addMove(@RequestBody Move move) {
-//        logger.debug("addMove: " + move);
-//        // TODO Mapping into Move + execution of move
-//    }
-//
-//    @RequestMapping(value = CONTEXT + "/{gameId}/move/{moveId}")
-//    @ResponseStatus(HttpStatus.OK)
-//    public Move getMove(@PathVariable Long gameId, @PathVariable Integer moveId) {
-//        logger.debug("getMove: " + gameId);
-//
-//        Game game = gameRepo.findOne(gameId);
-//        if (game != null) {
-//            return game.getMoves().get(moveId);
-//        }
-//
-//        return null;
-//    }
-//endregion
+    //games/{gameId}/action - GET
+    //games/{gameId}/action - POST
+
 }

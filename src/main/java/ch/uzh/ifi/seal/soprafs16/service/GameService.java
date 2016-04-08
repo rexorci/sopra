@@ -30,7 +30,7 @@ public class GameService {
      * @param game
      * @return
      */
-    public void startGame(Game game, User owner, WagonRepository wagonRepo, WagonLevelRepository wagonLevelRepo, MarshalRepository marshalRepo) {
+    public Long startGame(Game game, User owner, WagonRepository wagonRepo, WagonLevelRepository wagonLevelRepo, MarshalRepository marshalRepo) {
         game.setStatus(GameStatus.RUNNING);
 
         game.setCurrentPlayer(owner.getId().intValue());
@@ -77,6 +77,7 @@ public class GameService {
         marshal.setWagonLevel(game.getWagons().get(0).getBottomLevel());
         marshalRepo.save(marshal);
 
+        return game.getId();
 
     }
 

@@ -201,6 +201,7 @@ public class GameServiceController extends GenericService {
                     }
                 }
                 user.setCharacterType(characterType);
+                userRepo.save(user);
                 return user;
             } catch (IllegalArgumentException iae) {
                 return null;

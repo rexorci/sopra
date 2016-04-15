@@ -223,11 +223,13 @@ public class GameServiceController extends GenericService {
             if (game.getOwner().equals(user.getName())) {
                 for (User u : game.getUsers()) {
                     u.setGame(null);
+                    u.setCharacterType(null);
                     userRepo.save(u);
                 }
                 gameRepo.delete(game);
             } else {
                 user.setGame(null);
+                user.setCharacterType(null);
                 gameRepo.save(game);
                 userRepo.save(user);
             }

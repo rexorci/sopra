@@ -16,7 +16,6 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
 import ch.uzh.ifi.seal.soprafs16.GameConstants;
-import ch.uzh.ifi.seal.soprafs16.constant.CharacterType;
 import ch.uzh.ifi.seal.soprafs16.constant.GameStatus;
 import ch.uzh.ifi.seal.soprafs16.constant.LevelType;
 import ch.uzh.ifi.seal.soprafs16.model.Game;
@@ -24,7 +23,9 @@ import ch.uzh.ifi.seal.soprafs16.model.User;
 import ch.uzh.ifi.seal.soprafs16.model.WagonLevel;
 import ch.uzh.ifi.seal.soprafs16.model.characters.*;
 import ch.uzh.ifi.seal.soprafs16.model.characters.Character;
+import ch.uzh.ifi.seal.soprafs16.model.repositories.CardRepository;
 import ch.uzh.ifi.seal.soprafs16.model.repositories.CharacterRepository;
+import ch.uzh.ifi.seal.soprafs16.model.repositories.DeckRepository;
 import ch.uzh.ifi.seal.soprafs16.model.repositories.GameRepository;
 import ch.uzh.ifi.seal.soprafs16.model.repositories.ItemRepository;
 import ch.uzh.ifi.seal.soprafs16.model.repositories.MarshalRepository;
@@ -53,6 +54,10 @@ public class GameServiceController extends GenericService {
     private MarshalRepository marshalRepo;
     @Autowired
     private CharacterRepository characterRepo;
+    @Autowired
+    private CardRepository cardRepo;
+    @Autowired
+    private DeckRepository deckRepo;
     //endregion
 
     private final String CONTEXT = "/games";
@@ -151,7 +156,7 @@ public class GameServiceController extends GenericService {
 
         if (owner != null && game != null && game.getOwner().equals(owner.getName()) && game.getStatus() != GameStatus.RUNNING) {
             GameService chs = new GameService();
-            chs.startGame(game, owner, userRepo, wagonRepo, wagonLevelRepo, marshalRepo,characterRepo);
+            chs.startGame(game, owner, userRepo, wagonRepo, wagonLevelRepo, marshalRepo, characterRepo, deckRepo, cardRepo);
         }
     }
 
@@ -245,21 +250,6 @@ public class GameServiceController extends GenericService {
             } catch (IllegalArgumentException iae) {
                 return null;
             }
-//            try {
-//                CharacterType characterType = CharacterType.valueOf(character);
-//                for (User u : game.getUsers()) {
-//                    if (u.getCharacterType() != null && u.getId() != user.getId()) {
-//                        if (u.getCharacterType().equals(characterType)) {
-//                            return null;
-//                        }
-//                    }
-//                }
-//                user.setCharacterType(characterType);
-//                userRepo.save(user);
-//                return user;
-//            } catch (IllegalArgumentException iae) {
-//                return null;
-//            }
         } else {
             return null;
         }

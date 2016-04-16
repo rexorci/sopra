@@ -4,9 +4,9 @@ import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 
-import ch.uzh.ifi.seal.soprafs16.constant.CharacterType;
 import ch.uzh.ifi.seal.soprafs16.constant.GameStatus;
 import ch.uzh.ifi.seal.soprafs16.constant.LevelType;
+import ch.uzh.ifi.seal.soprafs16.constant.SourceType;
 import ch.uzh.ifi.seal.soprafs16.model.Game;
 import ch.uzh.ifi.seal.soprafs16.model.Item;
 import ch.uzh.ifi.seal.soprafs16.model.Marshal;
@@ -15,10 +15,9 @@ import ch.uzh.ifi.seal.soprafs16.model.Wagon;
 import ch.uzh.ifi.seal.soprafs16.model.WagonLevel;
 import ch.uzh.ifi.seal.soprafs16.model.cards.PlayerDeck;
 import ch.uzh.ifi.seal.soprafs16.model.cards.handCards.BulletCard;
-import ch.uzh.ifi.seal.soprafs16.model.characters.*;
+import ch.uzh.ifi.seal.soprafs16.model.repositories.CardRepository;
 import ch.uzh.ifi.seal.soprafs16.model.repositories.CharacterRepository;
-import ch.uzh.ifi.seal.soprafs16.model.repositories.GameRepository;
-import ch.uzh.ifi.seal.soprafs16.model.repositories.ItemRepository;
+import ch.uzh.ifi.seal.soprafs16.model.repositories.DeckRepository;
 import ch.uzh.ifi.seal.soprafs16.model.repositories.MarshalRepository;
 import ch.uzh.ifi.seal.soprafs16.model.repositories.UserRepository;
 import ch.uzh.ifi.seal.soprafs16.model.repositories.WagonLevelRepository;
@@ -35,7 +34,8 @@ public class GameService {
      * @param game
      * @return
      */
-    public Long startGame(Game game, User owner, UserRepository userRepo, WagonRepository wagonRepo, WagonLevelRepository wagonLevelRepo, MarshalRepository marshalRepo, CharacterRepository characterRepo) {
+    public Long startGame(Game game, User owner, UserRepository userRepo, WagonRepository wagonRepo, WagonLevelRepository wagonLevelRepo, MarshalRepository marshalRepo,
+                          CharacterRepository characterRepo, DeckRepository deckRepo, CardRepository cardRepo) {
         game.setStatus(GameStatus.RUNNING);
 
         game.setCurrentPlayer(owner.getId().intValue());
@@ -83,19 +83,27 @@ public class GameService {
         marshalRepo.save(marshal);
 
 
-        //test for character
-        User u = game.getUsers().get(0);
-        ch.uzh.ifi.seal.soprafs16.model.characters.Character newChar = new Belle();
-        u.setCharacter(newChar);
-        characterRepo.save(newChar);
-        userRepo.save(u);
         //give Cards to Users
-//        for (User u: game.getUsers()) {
-//            PlayerDeck<BulletCard> bulletsDeck = new PlayerDeck<BulletCard>();
-//            BulletCard bulletCard = new BulletCard();
-//            bulletCard.setSourceType();
-//        }
+        for (User user : game.getUsers()) {
+            PlayerDeck<BulletCard> bulletsDeck = new PlayerDeck<BulletCard>();
 
+            bulletsDeck.setUser(user);
+            user.setBulletsDeck(bulletsDeck);
+            deckRepo.save(bulletsDeck);
+            userRepo.save(user);
+            if (!user.getCharacter().equals(null)) {
+                for (int i = 0; i < 6; i++) {
+                    BulletCard bulletCard = new BulletCard();
+                    SourceType st = SourceType.valueOf(user.getCharacterType().toUpperCase());
+                    bulletCard.setSourceType(st);
+                    bulletsDeck.getCards().add(bulletCard);
+                    bulletCard.setDeck(bulletsDeck);
+                    cardRepo.save(bulletCard);
+                }
+            } else {
+                return (long) -1;
+            }
+        }
         return game.getId();
     }
 

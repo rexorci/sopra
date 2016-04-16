@@ -21,12 +21,9 @@ import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import ch.uzh.ifi.seal.soprafs16.Application;
-import ch.uzh.ifi.seal.soprafs16.constant.CharacterType;
 import ch.uzh.ifi.seal.soprafs16.constant.GameStatus;
 import ch.uzh.ifi.seal.soprafs16.model.Game;
 import ch.uzh.ifi.seal.soprafs16.model.User;
-import ch.uzh.ifi.seal.soprafs16.model.Wagon;
-import ch.uzh.ifi.seal.soprafs16.model.WagonLevel;
 
 
 @RunWith(SpringJUnit4ClassRunner.class)
@@ -145,25 +142,41 @@ public class GameServiceControllerTest {
         HttpEntity<User> userResponse7 = template.exchange(builder7.build().encode().toUri(), HttpMethod.PUT, null, User.class);
         Assert.assertEquals(characterType7, userResponse7.getBody().getCharacterType());
         //endregion
+
+    }
+
+    @Test
+    public void testStartGame(){
         //region start game - GameServiceController.startGame
         //region helper
-        User user8 = new User();
-        user8.setName("name8_lobbyTest");
-        user8.setUsername("username8_lobbyTest");
-        String token8 = template.postForObject(base + "users", user8, String.class);
-        User user9 = new User();
-        user9.setName("name9_lobbyTest");
-        user9.setUsername("username9_lobbyTest");
-        String token9 = template.postForObject(base + "users", user9, String.class);
+        User user1 = new User();
+        user1.setName("name1_startGameTest");
+        user1.setUsername("username1_startGameTest");
+        String token1 = template.postForObject(base + "users", user1, String.class);
+        User user2 = new User();
+        user2.setName("name2_startGameTest");
+        user2.setUsername("username9_startGameTest");
+        String token2 = template.postForObject(base + "users", user2, String.class);
 
-        Game game8_9 = new Game();
-        game8_9.setName("game8_9_lobbyTest");
-        Long gameId8_9 = template.postForObject(base + "games?token=" + token8, game8_9, Long.class);
-        Long userIdGameJoined9 = template.postForObject(base + "games/" + gameId8_9 + "/users?token=" + token9, null, Long.class);
+        Game game1_2 = new Game();
+        game1_2.setName("game1_2_startGameTest");
+        Long gameId1_2= template.postForObject(base + "games?token=" + token1, game1_2, Long.class);
+        Long userIdGameJoined9 = template.postForObject(base + "games/" + gameId1_2 + "/users?token=" + token2, null, Long.class);
+
+        String characterType1 = "Cheyenne";
+        UriComponentsBuilder builder1 = UriComponentsBuilder.fromHttpUrl(base + "games/" + gameId1_2 + "/users")
+                .queryParam("token", token1)
+                .queryParam("character", characterType1.toString());
+        HttpEntity<User> userResponse1 = template.exchange(builder1.build().encode().toUri(), HttpMethod.PUT, null, User.class);
+        String characterType2 = "Ghost";
+        UriComponentsBuilder builder2 = UriComponentsBuilder.fromHttpUrl(base + "games/" + gameId1_2 + "/users")
+                .queryParam("token", token2)
+                .queryParam("character", characterType2.toString());
+        HttpEntity<User> userResponse2 = template.exchange(builder2.build().encode().toUri(), HttpMethod.PUT, null, User.class);
         //endregion
-        template.postForObject(base + "games/" + gameId8_9 + "/start?token=" + token8, null, Void.class);
-        Game game8_9Response = template.getForObject(base + "games/" + gameId8_9, Game.class);
-        Assert.assertEquals(GameStatus.RUNNING, game8_9Response.getStatus());
+        template.postForObject(base + "games/" + gameId1_2 + "/start?token=" + token1, null, Void.class);
+        Game game1_2Response = template.getForObject(base + "games/" + gameId1_2, Game.class);
+        Assert.assertEquals(6, game1_2Response.getUsers().get(0).getBulletsDeck().getCards().size());
         //endregion
     }
 

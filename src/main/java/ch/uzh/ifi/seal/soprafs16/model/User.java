@@ -13,13 +13,10 @@ import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
 
-import ch.uzh.ifi.seal.soprafs16.constant.CharacterType;
 import ch.uzh.ifi.seal.soprafs16.constant.UserStatus;
 import ch.uzh.ifi.seal.soprafs16.model.cards.PlayerDeck;
 import ch.uzh.ifi.seal.soprafs16.model.cards.handCards.BulletCard;
 import ch.uzh.ifi.seal.soprafs16.model.cards.handCards.HandCard;
-import ch.uzh.ifi.seal.soprafs16.model.characters.*;
-import ch.uzh.ifi.seal.soprafs16.model.characters.Character;
 
 @Entity
 public class User implements Serializable {
@@ -57,9 +54,6 @@ public class User implements Serializable {
     @OneToMany
     private List<Item> items;
 
-    //    @Column
-//    private CharacterType characterType;
-//
     @Column
     private String characterType;
 
@@ -156,15 +150,6 @@ public class User implements Serializable {
     public String getCharacterType() {
         return characterType;
     }
-
-
-//    public CharacterType getCharacterType() {
-//        return characterType;
-//    }
-//
-//    public void setCharacterType(CharacterType characterType) {
-//        this.characterType = characterType;
-//    }
 
     public PlayerDeck<HandCard> getHandDeck() {
         return handDeck;

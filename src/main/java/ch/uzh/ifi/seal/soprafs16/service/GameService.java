@@ -4,6 +4,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 
+import ch.uzh.ifi.seal.soprafs16.constant.CharacterType;
 import ch.uzh.ifi.seal.soprafs16.constant.GameStatus;
 import ch.uzh.ifi.seal.soprafs16.constant.LevelType;
 import ch.uzh.ifi.seal.soprafs16.model.Game;
@@ -12,6 +13,10 @@ import ch.uzh.ifi.seal.soprafs16.model.Marshal;
 import ch.uzh.ifi.seal.soprafs16.model.User;
 import ch.uzh.ifi.seal.soprafs16.model.Wagon;
 import ch.uzh.ifi.seal.soprafs16.model.WagonLevel;
+import ch.uzh.ifi.seal.soprafs16.model.cards.PlayerDeck;
+import ch.uzh.ifi.seal.soprafs16.model.cards.handCards.BulletCard;
+import ch.uzh.ifi.seal.soprafs16.model.characters.*;
+import ch.uzh.ifi.seal.soprafs16.model.repositories.CharacterRepository;
 import ch.uzh.ifi.seal.soprafs16.model.repositories.GameRepository;
 import ch.uzh.ifi.seal.soprafs16.model.repositories.ItemRepository;
 import ch.uzh.ifi.seal.soprafs16.model.repositories.MarshalRepository;
@@ -30,7 +35,7 @@ public class GameService {
      * @param game
      * @return
      */
-    public Long startGame(Game game, User owner, WagonRepository wagonRepo, WagonLevelRepository wagonLevelRepo, MarshalRepository marshalRepo) {
+    public Long startGame(Game game, User owner, UserRepository userRepo, WagonRepository wagonRepo, WagonLevelRepository wagonLevelRepo, MarshalRepository marshalRepo, CharacterRepository characterRepo) {
         game.setStatus(GameStatus.RUNNING);
 
         game.setCurrentPlayer(owner.getId().intValue());
@@ -77,8 +82,21 @@ public class GameService {
         marshal.setWagonLevel(game.getWagons().get(0).getBottomLevel());
         marshalRepo.save(marshal);
 
-        return game.getId();
 
+        //test for character
+        User u = game.getUsers().get(0);
+        ch.uzh.ifi.seal.soprafs16.model.characters.Character newChar = new Belle();
+        u.setCharacter(newChar);
+        characterRepo.save(newChar);
+        userRepo.save(u);
+        //give Cards to Users
+//        for (User u: game.getUsers()) {
+//            PlayerDeck<BulletCard> bulletsDeck = new PlayerDeck<BulletCard>();
+//            BulletCard bulletCard = new BulletCard();
+//            bulletCard.setSourceType();
+//        }
+
+        return game.getId();
     }
 
 //    public void deleteGame(Game game, UserRepository userRepo, WagonRepository wagonRepo, MarshalRepository marshalRepo){

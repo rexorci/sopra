@@ -138,7 +138,7 @@ public class GameServiceControllerTest {
         game7.setName("game7_lobbyTest");
         Long gameId7 = template.postForObject(base + "games?token=" + token7, game7, Long.class);
         //endregion
-        CharacterType characterType7 = CharacterType.CHEYENNE;
+        String characterType7 = "Cheyenne";
         UriComponentsBuilder builder7 = UriComponentsBuilder.fromHttpUrl(base + "games/" + gameId1 + "/users")
                 .queryParam("token", token7)
                 .queryParam("character", characterType7.toString());

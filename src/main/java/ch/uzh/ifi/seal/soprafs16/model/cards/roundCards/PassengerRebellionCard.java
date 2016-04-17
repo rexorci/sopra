@@ -6,11 +6,14 @@ import javax.persistence.Entity;
 
 
 @Entity
-public class PassengerRebellion extends RoundCard implements Serializable {
+public class PassengerRebellionCard extends RoundCard implements Serializable {
 
     /**
      *
      */
     private static final long serialVersionUID = 1L;
 
+    public String getStringPattern(){
+        return "NTNRN";
+    }
 }

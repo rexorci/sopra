@@ -29,6 +29,7 @@ import ch.uzh.ifi.seal.soprafs16.model.repositories.DeckRepository;
 import ch.uzh.ifi.seal.soprafs16.model.repositories.GameRepository;
 import ch.uzh.ifi.seal.soprafs16.model.repositories.ItemRepository;
 import ch.uzh.ifi.seal.soprafs16.model.repositories.MarshalRepository;
+import ch.uzh.ifi.seal.soprafs16.model.repositories.TurnRepository;
 import ch.uzh.ifi.seal.soprafs16.model.repositories.UserRepository;
 import ch.uzh.ifi.seal.soprafs16.model.repositories.WagonLevelRepository;
 import ch.uzh.ifi.seal.soprafs16.model.repositories.WagonRepository;
@@ -58,6 +59,8 @@ public class GameServiceController extends GenericService {
     private CardRepository cardRepo;
     @Autowired
     private DeckRepository deckRepo;
+    @Autowired
+    private TurnRepository turnRepo;
     //endregion
 
     private final String CONTEXT = "/games";
@@ -156,9 +159,7 @@ public class GameServiceController extends GenericService {
 
         if (owner != null && game != null && game.getOwner().equals(owner.getName()) && game.getStatus() != GameStatus.RUNNING) {
             GameService chs = new GameService();
-            chs.startGame(game, owner, userRepo, wagonRepo, wagonLevelRepo, marshalRepo, characterRepo, deckRepo, cardRepo);
-            Game gameTest = gameRepo.findOne(gameId);
-            String s = "a";
+            chs.startGame(game, owner,gameRepo, userRepo, wagonRepo, wagonLevelRepo, marshalRepo, deckRepo, cardRepo, itemRepo,turnRepo);
         }
     }
 

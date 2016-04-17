@@ -16,6 +16,10 @@ import javax.persistence.OneToOne;
 
 import ch.uzh.ifi.seal.soprafs16.constant.GameStatus;
 import ch.uzh.ifi.seal.soprafs16.constant.PhaseType;
+import ch.uzh.ifi.seal.soprafs16.model.cards.GameDeck;
+import ch.uzh.ifi.seal.soprafs16.model.cards.handCards.ActionCard;
+import ch.uzh.ifi.seal.soprafs16.model.cards.handCards.BulletCard;
+import ch.uzh.ifi.seal.soprafs16.model.cards.roundCards.RoundCard;
 
 @Entity
 public class Game implements Serializable {
@@ -67,6 +71,15 @@ public class Game implements Serializable {
 
     @ElementCollection
     private List<String> log;
+
+    @OneToOne
+    private GameDeck<RoundCard> roundCardDeck;
+
+    @OneToOne
+    private GameDeck<BulletCard> neutralBulletsDeck;
+
+    @OneToOne
+    private GameDeck<ActionCard> commonDeck;
 
     public Long getId() {
         return id;
@@ -178,5 +191,29 @@ public class Game implements Serializable {
 
     public void setLog(List<String> log) {
         this.log = log;
+    }
+
+    public GameDeck<ActionCard> getCommonDeck() {
+        return commonDeck;
+    }
+
+    public void setCommonDeck(GameDeck<ActionCard> commonDeck) {
+        this.commonDeck = commonDeck;
+    }
+
+    public GameDeck<RoundCard> getRoundCardDeck() {
+        return roundCardDeck;
+    }
+
+    public void setRoundCardDeck(GameDeck<RoundCard> roundCardDeck) {
+        this.roundCardDeck = roundCardDeck;
+    }
+
+    public GameDeck<BulletCard> getNeutralBulletsDeck() {
+        return neutralBulletsDeck;
+    }
+
+    public void setNeutralBulletsDeck(GameDeck<BulletCard> neutralBulletsDeck) {
+        this.neutralBulletsDeck = neutralBulletsDeck;
     }
 }

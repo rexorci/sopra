@@ -24,6 +24,7 @@ import ch.uzh.ifi.seal.soprafs16.Application;
 import ch.uzh.ifi.seal.soprafs16.constant.GameStatus;
 import ch.uzh.ifi.seal.soprafs16.model.Game;
 import ch.uzh.ifi.seal.soprafs16.model.User;
+import ch.uzh.ifi.seal.soprafs16.model.WagonLevel;
 
 
 @RunWith(SpringJUnit4ClassRunner.class)
@@ -146,7 +147,7 @@ public class GameServiceControllerTest {
     }
 
     @Test
-    public void testStartGame(){
+    public void testStartGame() {
         //region start game - GameServiceController.startGame
         //region helper
         User user1 = new User();
@@ -160,7 +161,7 @@ public class GameServiceControllerTest {
 
         Game game1_2 = new Game();
         game1_2.setName("game1_2_startGameTest");
-        Long gameId1_2= template.postForObject(base + "games?token=" + token1, game1_2, Long.class);
+        Long gameId1_2 = template.postForObject(base + "games?token=" + token1, game1_2, Long.class);
         Long userIdGameJoined9 = template.postForObject(base + "games/" + gameId1_2 + "/users?token=" + token2, null, Long.class);
 
         String characterType1 = "Cheyenne";
@@ -176,13 +177,23 @@ public class GameServiceControllerTest {
         //endregion
         template.postForObject(base + "games/" + gameId1_2 + "/start?token=" + token1, null, Void.class);
         Game game1_2Response = template.getForObject(base + "games/" + gameId1_2, Game.class);
+        //region Assertions
+        //is the the current player (startplayer) placed in the last wagon
+        WagonLevel lastWagonLevel = game1_2Response.getWagons().get((game1_2Response.getWagons().size() - 1)).getBottomLevel();
+        Assert.assertTrue(containsUserId(lastWagonLevel.getUsers(), game1_2Response.getUsers().get(game1_2Response.getCurrentPlayer()).getId()));
+        //does the bulletsdeck contain 6 bullets
         Assert.assertEquals(6, game1_2Response.getUsers().get(0).getBulletsDeck().getCards().size());
+        //does every Player have a 250$ bag
+        for (User u : game1_2Response.getUsers()) {
+            Assert.assertEquals(250,u.getItems().get(0).getValue());
+        }
+        //endregion
         //endregion
     }
 
     @Test
     public void testPrototypeLogic() throws Exception {
-      //region helper
+        //region helper
         User user1 = new User();
         user1.setName("name1_prototypeTest");
         user1.setUsername("username1_prototypeTest");
@@ -192,13 +203,14 @@ public class GameServiceControllerTest {
         user2.setUsername("username2_prototypeTest");
         String token2 = template.postForObject(base + "users", user2, String.class);
 
-        Game game1_2 = new Game();game1_2.setName("game1_2_lobbyTest");
+        Game game1_2 = new Game();
+        game1_2.setName("game1_2_lobbyTest");
         Long gameId1_2 = template.postForObject(base + "games?token=" + token1, game1_2, Long.class);
         template.postForObject(base + "games/" + gameId1_2 + "/users?token=" + token2, null, Long.class);
         template.postForObject(base + "games/" + gameId1_2 + "/start?token=" + token1, null, Void.class);
         //endregion
 
-        Game game1_2Response =  template.postForObject(base + "games/" + gameId1_2 + "/switchLevel?token=" + token1, null, Game.class);
+        Game game1_2Response = template.postForObject(base + "games/" + gameId1_2 + "/switchLevel?token=" + token1, null, Game.class);
         Assert.assertNotNull(game1_2Response);
     }
 
@@ -206,6 +218,15 @@ public class GameServiceControllerTest {
     private static boolean containsUserName(List<User> list, String username) {
         for (User user : list) {
             if (user.getUsername().equals(username)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private static boolean containsUserId(List<User> list, Long userId) {
+        for (User user : list) {
+            if (user.getId() == userId) {
                 return true;
             }
         }

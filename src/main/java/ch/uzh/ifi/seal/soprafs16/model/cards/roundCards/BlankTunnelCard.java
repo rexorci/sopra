@@ -6,11 +6,14 @@ import javax.persistence.Entity;
 
 
 @Entity
-public class Blank extends RoundCard implements Serializable {
+public class BlankTunnelCard extends RoundCard implements Serializable {
 
     /**
      *
      */
     private static final long serialVersionUID = 1L;
 
+    public String getStringPattern(){
+        return "NTNTN";
+    }
 }

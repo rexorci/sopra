@@ -157,6 +157,8 @@ public class GameServiceController extends GenericService {
         if (owner != null && game != null && game.getOwner().equals(owner.getName()) && game.getStatus() != GameStatus.RUNNING) {
             GameService chs = new GameService();
             chs.startGame(game, owner, userRepo, wagonRepo, wagonLevelRepo, marshalRepo, characterRepo, deckRepo, cardRepo);
+            Game gameTest = gameRepo.findOne(gameId);
+            String s = "a";
         }
     }
 

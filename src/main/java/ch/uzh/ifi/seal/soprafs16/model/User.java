@@ -11,6 +11,7 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
+import javax.smartcardio.Card;
 
 import ch.uzh.ifi.seal.soprafs16.constant.CharacterType;
 import ch.uzh.ifi.seal.soprafs16.constant.UserStatus;
@@ -32,6 +33,9 @@ public class User implements Serializable {
 
     @Column(nullable = false, unique = true)
     private String username;
+
+    @Column(nullable = false)
+    private List<Card>  handDeck;
 
     @JsonIgnore
     @Column(nullable = false, unique = true)
@@ -124,5 +128,13 @@ public class User implements Serializable {
 
     public void setCharacterType(CharacterType characterType) {
         this.characterType = characterType;
+    }
+
+    public List<Card> getHandDeck() {
+        return handDeck;
+    }
+
+    public void setHandDeck(List<Card> handDeck) {
+        this.handDeck = handDeck;
     }
 }

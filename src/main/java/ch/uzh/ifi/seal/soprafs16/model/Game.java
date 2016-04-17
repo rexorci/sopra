@@ -1,4 +1,6 @@
 package ch.uzh.ifi.seal.soprafs16.model;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
@@ -13,6 +15,7 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
+import javax.smartcardio.Card;
 
 import ch.uzh.ifi.seal.soprafs16.constant.GameStatus;
 import ch.uzh.ifi.seal.soprafs16.constant.PhaseType;
@@ -59,11 +62,11 @@ public class Game implements Serializable {
     @Column
     private PhaseType currentPhase;
 
-    @Column
-    private String roundPattern;
+    @OneToOne
+    private GameDeck<RoundCard> roundCardDeck;
 
-    @OneToMany(mappedBy = "game")
-    private List<Action> actions;
+    @OneToOne
+    private GameDeck<ActionCard> commonDeck;
 
     @ElementCollection
     private List<String> log;
@@ -113,6 +116,7 @@ public class Game implements Serializable {
     }
 
     public void setCurrentPlayer(Integer currentPlayer) {
+        LoggerFactory.getLogger("Game").debug("setCurrentPlayer: " + currentPlayer);
         this.currentPlayer = currentPlayer;
     }
 
@@ -156,27 +160,33 @@ public class Game implements Serializable {
         this.currentPhase = currentPhase;
     }
 
-    public String getRoundPattern() {
-        return roundPattern;
-    }
-
-    public void setRoundPattern(String roundPattern) {
-        this.roundPattern = roundPattern;
-    }
-
-    public List<Action> getActions() {
-        return actions;
-    }
-
-    public void setActions(List<Action> actions) {
-        this.actions = actions;
-    }
-
     public List<String> getLog() {
         return log;
     }
 
     public void setLog(List<String> log) {
         this.log = log;
+    }
+
+    public GameDeck<ActionCard> getCommonDeck() {
+        return commonDeck;
+    }
+
+    public void setCommonDeck(GameDeck<ActionCard> commonDeck) {
+        this.commonDeck = commonDeck;
+    }
+
+    public GameDeck<RoundCard> getRoundCardDeck() {
+        return roundCardDeck;
+    }
+
+    public void setRoundCardDeck(GameDeck<RoundCard> roundCardDeck) {
+        this.roundCardDeck = roundCardDeck;
+    }
+
+    public Turn.Type getCurrentTurnType(){
+        return getRoundCardDeck().get(getCurrentRound())
+                .getPattern()[getCurrentTurn()]
+                .getType();
     }
 }

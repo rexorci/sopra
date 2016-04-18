@@ -3,6 +3,7 @@ package ch.uzh.ifi.seal.soprafs16.controller;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.IntegrationTest;
 import org.springframework.boot.test.SpringApplicationConfiguration;
@@ -14,17 +15,35 @@ import org.springframework.web.client.RestTemplate;
 import static org.junit.Assert.assertEquals;
 
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.UUID;
 
 import ch.uzh.ifi.seal.soprafs16.Application;
+import ch.uzh.ifi.seal.soprafs16.constant.GameStatus;
 import ch.uzh.ifi.seal.soprafs16.constant.PhaseType;
-import ch.uzh.ifi.seal.soprafs16.model.ActionCard;
-import ch.uzh.ifi.seal.soprafs16.model.GameDeck;
+import ch.uzh.ifi.seal.soprafs16.constant.UserStatus;
 import ch.uzh.ifi.seal.soprafs16.model.Game;
-import ch.uzh.ifi.seal.soprafs16.model.RoundCard;
-import ch.uzh.ifi.seal.soprafs16.model.Turn;
+import ch.uzh.ifi.seal.soprafs16.model.Item;
 import ch.uzh.ifi.seal.soprafs16.model.User;
+import ch.uzh.ifi.seal.soprafs16.model.cards.GameDeck;
+import ch.uzh.ifi.seal.soprafs16.model.cards.handCards.ActionCard;
+import ch.uzh.ifi.seal.soprafs16.model.cards.roundCards.RoundCard;
+import ch.uzh.ifi.seal.soprafs16.model.repositories.CardRepository;
+import ch.uzh.ifi.seal.soprafs16.model.repositories.CharacterRepository;
+import ch.uzh.ifi.seal.soprafs16.model.repositories.DeckRepository;
+import ch.uzh.ifi.seal.soprafs16.model.repositories.GameRepository;
+import ch.uzh.ifi.seal.soprafs16.model.repositories.ItemRepository;
+import ch.uzh.ifi.seal.soprafs16.model.repositories.MarshalRepository;
+import ch.uzh.ifi.seal.soprafs16.model.repositories.TurnRepository;
+import ch.uzh.ifi.seal.soprafs16.model.repositories.UserRepository;
+import ch.uzh.ifi.seal.soprafs16.model.repositories.WagonLevelRepository;
+import ch.uzh.ifi.seal.soprafs16.model.repositories.WagonRepository;
+import ch.uzh.ifi.seal.soprafs16.model.turns.NormalTurn;
+import ch.uzh.ifi.seal.soprafs16.model.turns.ReverseTurn;
+import ch.uzh.ifi.seal.soprafs16.model.turns.SpeedupTurn;
+import ch.uzh.ifi.seal.soprafs16.model.turns.Turn;
 
 /**
  * Created by Nico on 13.04.2016.
@@ -36,44 +55,72 @@ import ch.uzh.ifi.seal.soprafs16.model.User;
 @WebAppConfiguration
 @IntegrationTest({"server.port=0"})
 public class GameLogicServiceTest {
-    @Value("${local.server.port}")
-    private int port;
-    private Long gameId;
+    //region Repositories
+    @Autowired
+    private UserRepository userRepo;
+    @Autowired
+    private GameRepository gameRepo;
+    @Autowired
+    private WagonRepository wagonRepo;
+    @Autowired
+    private WagonLevelRepository wagonLevelRepo;
+    @Autowired
+    private ItemRepository itemRepo;
+    @Autowired
+    private MarshalRepository marshalRepo;
+    @Autowired
+    private CharacterRepository characterRepo;
+    @Autowired
+    private CardRepository cardRepo;
+    @Autowired
+    private DeckRepository deckRepo;
+    @Autowired
+    private TurnRepository turnRepo;
+    @Autowired
+    private GameLogicService gls;
 
     private Game tester;
-    private URL base;
-    private RestTemplate template;
-
-    @Before
-    public void setUp()
-            throws Exception {
-        this.base = new URL("http://localhost:" + port + "/");
-        this.template = new TestRestTemplate();
-    }
+    private Long gameId;
 
     @Before
     public void init() {
         tester = new Game();
-        gameId = template.postForObject(base + "games", tester, Long.class);
 
-        List<User> users = new LinkedList<>();
+        ArrayList<User> users = new ArrayList<>();
         GameDeck<RoundCard> roundCardDeck = new GameDeck<>();
+        deckRepo.save(roundCardDeck);
+        GameDeck<ActionCard> commonDeck = new GameDeck<>();
+        deckRepo.save(roundCardDeck);
 
-        users.add(new User());
-        users.add(new User());
-        users.add(new User());
-        users.add(new User());
+        User owner = new User();
+        owner.setStatus(UserStatus.ONLINE);
+        String token = UUID.randomUUID().toString();
+        owner.setToken(token);
+        owner.setItems(new ArrayList<Item>());
+        owner.setName("GLSTest1Owner" + Math.random() * 999);
+        owner.setUsername("GLSTest1Owner" + Math.random() * 999);
+        owner = userRepo.save(owner);
 
-        Turn t[] = {new Turn(Turn.Type.NORMAL), new Turn(Turn.Type.SPEEDUP), new Turn(Turn.Type.REVERSE)};
+        owner.setGame(tester);
+        users.add(owner);
 
-        RoundCard rc = new RoundCard();
-        rc.setPattern(t);
+        tester.setStatus(GameStatus.PENDING);
+        tester.setOwner(owner.getName());
+        tester.setName("GameLogicServiceTest");
 
-        roundCardDeck.add(rc);
-        roundCardDeck.add(rc);
-        roundCardDeck.add(rc);
-        roundCardDeck.add(rc);
-        roundCardDeck.add(rc);
+        gameRepo.save(tester);
+
+        for(int i = 0; i < 4; i++){
+            User user = new User();
+            user.setName("a" + tester.getId() + i);
+            user.setUsername("a" + tester.getId() + i);
+            user.setGame(tester);
+            user.setToken(UUID.randomUUID().toString());
+            user.setStatus(UserStatus.ONLINE);
+            userRepo.save(user);
+            users.add(user);
+        }
+        gameRepo.save(tester);
 
         tester.setUsers(users);
         tester.setCurrentPhase(PhaseType.PLANNING);
@@ -81,137 +128,214 @@ public class GameLogicServiceTest {
         tester.setRoundCardDeck(roundCardDeck);
         tester.setCurrentRound(0);
         tester.setCurrentTurn(0);
-        tester.setCommonDeck(new GameDeck<>());
+        tester.setStatus(GameStatus.RUNNING);
+        tester.setCommonDeck(commonDeck);
+        tester.setOwner(owner.getName());
+
+        // Create RoundCards
+        for(int i = 0; i < 5; i++) {
+            Turn normal = new NormalTurn();
+            Turn speedup = new SpeedupTurn();
+            Turn reverse = new ReverseTurn();
+            turnRepo.save(normal);
+            turnRepo.save(speedup);
+            turnRepo.save(reverse);
+
+            ArrayList<Turn> turns = new ArrayList<>();
+
+            turns.add(normal);
+            turns.add(speedup);
+            turns.add(reverse);
+
+            RoundCard rc = new RoundCard();
+            rc.setPattern(turns);
+            rc.setDeck(roundCardDeck);
+            cardRepo.save(rc);
+
+            normal.setRoundCard(rc);
+            speedup.setRoundCard(rc);
+            reverse.setRoundCard(rc);
+
+            roundCardDeck.add(rc);
+            cardRepo.save(rc);
+        }
+        deckRepo.save(roundCardDeck);
+        deckRepo.save(commonDeck);
+
+        tester.setStatus(GameStatus.PENDING);
+        gameRepo.save(tester);
+
+        gameId = tester.getId();
     }
 
     @Test
     public void gls_nextPlayerIsCorrect() {
-        GameLogicService gls = new GameLogicService(tester);// 4 responses for Normal Turn
-
-        gls.update();
-        template.put(base + "games/" + gameId, tester);
-        Game serverGame = template.getForObject(base + "games/" + gameId, Game.class);
-        assertEquals(0, (long) serverGame.getCurrentPlayer());
-        gls.update();
-        template.put(base + "games/" + gameId, tester);
+        // 4 responses for Normal Turn
+        tester = gameRepo.findOne(gameId);
+        gls.update(tester.getId());
+        tester = gameRepo.findOne(gameId);
+        assertEquals(0, (long) tester.getCurrentPlayer());
+        gls.update(tester.getId());
+        tester = gameRepo.findOne(gameId);
         assertEquals(1, (long) tester.getCurrentPlayer());
-        gls.update();
-        template.put(base + "games/" + gameId, tester);
+        gls.update(tester.getId());
+        tester = gameRepo.findOne(gameId);
         assertEquals(2, (long) tester.getCurrentPlayer());
-        gls.update();
-        template.put(base + "games/" + gameId, tester);
+        gls.update(tester.getId());
+        tester = gameRepo.findOne(gameId);
         assertEquals(3, (long) tester.getCurrentPlayer());
 
         // 8 responses for Speed-Up-Turn
-        gls.update();
+        gls.update(tester.getId());
+        tester = gameRepo.findOne(gameId);
         assertEquals(0, (long) tester.getCurrentPlayer());
-        gls.update();
+        gls.update(tester.getId());
+        tester = gameRepo.findOne(gameId);
         assertEquals(0, (long) tester.getCurrentPlayer());
-        gls.update();
+        gls.update(tester.getId());
+        tester = gameRepo.findOne(gameId);
         assertEquals(1, (long) tester.getCurrentPlayer());
-        gls.update();
+        gls.update(tester.getId());
+        tester = gameRepo.findOne(gameId);
         assertEquals(1, (long) tester.getCurrentPlayer());
-        gls.update();
+        gls.update(tester.getId());
+        tester = gameRepo.findOne(gameId);
         assertEquals(2, (long) tester.getCurrentPlayer());
-        gls.update();
+        gls.update(tester.getId());
+        tester = gameRepo.findOne(gameId);
         assertEquals(2, (long) tester.getCurrentPlayer());
-        gls.update();
+        gls.update(tester.getId());
+        tester = gameRepo.findOne(gameId);
         assertEquals(3, (long) tester.getCurrentPlayer());
-        gls.update();
+        gls.update(tester.getId());
+        tester = gameRepo.findOne(gameId);
         assertEquals(3, (long) tester.getCurrentPlayer());
-        gls.update();
+        gls.update(tester.getId());
+        tester = gameRepo.findOne(gameId);
         // eighth response triggers turn change
         assertEquals(0, (long) tester.getCurrentPlayer());
-        gls.update();
+        gls.update(tester.getId());
+        tester = gameRepo.findOne(gameId);
         assertEquals(3, (long) tester.getCurrentPlayer());
-        gls.update();
+        gls.update(tester.getId());
+        tester = gameRepo.findOne(gameId);
         assertEquals(2, (long) tester.getCurrentPlayer());
-        gls.update();
+        gls.update(tester.getId());
+        tester = gameRepo.findOne(gameId);
         // 4th response triggers turn change
         assertEquals(1, (long) tester.getCurrentPlayer());
-        
+
     }
 
     @Test
     public void gls_TurnIsCorrect() {
-        GameLogicService gls = new GameLogicService(tester);
+        tester = gameRepo.findOne(gameId);
         assertEquals(0, (long) tester.getCurrentTurn());
         // initial update call
-        gls.update();
+        gls.update(tester.getId());
 
         // 4 responses for Normal Turn
-        gls.update();
+        gls.update(tester.getId());
+        tester = gameRepo.findOne(gameId);
         assertEquals(0, (long) tester.getCurrentTurn());
-        gls.update();
+        gls.update(tester.getId());
+        tester = gameRepo.findOne(gameId);
         assertEquals(0, (long) tester.getCurrentTurn());
-        gls.update();
+        gls.update(tester.getId());
+        tester = gameRepo.findOne(gameId);
         assertEquals(0, (long) tester.getCurrentTurn());
-        gls.update();
+        gls.update(tester.getId());
         // 4th response triggers turn change
+        tester = gameRepo.findOne(gameId);
         assertEquals(1, (long) tester.getCurrentTurn());
 
         // 8 responses for Speed-Up-Turn
-        gls.update();
+        gls.update(tester.getId());
+        tester = gameRepo.findOne(gameId);
         assertEquals(1, (long) tester.getCurrentTurn());
-        gls.update();
+        gls.update(tester.getId());
+        tester = gameRepo.findOne(gameId);
         assertEquals(1, (long) tester.getCurrentTurn());
-        gls.update();
+        gls.update(tester.getId());
+        tester = gameRepo.findOne(gameId);
         assertEquals(1, (long) tester.getCurrentTurn());
-        gls.update();
+        gls.update(tester.getId());
+        tester = gameRepo.findOne(gameId);
         assertEquals(1, (long) tester.getCurrentTurn());
-        gls.update();
+        gls.update(tester.getId());
+        tester = gameRepo.findOne(gameId);
         assertEquals(1, (long) tester.getCurrentTurn());
-        gls.update();
+        gls.update(tester.getId());
+        tester = gameRepo.findOne(gameId);
         assertEquals(1, (long) tester.getCurrentTurn());
-        gls.update();
+        gls.update(tester.getId());
+        tester = gameRepo.findOne(gameId);
         assertEquals(1, (long) tester.getCurrentTurn());
-        gls.update();
+        gls.update(tester.getId());
+        tester = gameRepo.findOne(gameId);
         // eighth response triggers turn change
         assertEquals(2, (long) tester.getCurrentTurn());
 
 
         // 4 Responses for Normal-Turn
-        gls.update();
+        gls.update(tester.getId());
+        tester = gameRepo.findOne(gameId);
         assertEquals(2, (long) tester.getCurrentTurn());
-        gls.update();
+        gls.update(tester.getId());
+        tester = gameRepo.findOne(gameId);
         assertEquals(2, (long) tester.getCurrentTurn());
-        gls.update();
+        gls.update(tester.getId());
+        tester = gameRepo.findOne(gameId);
         assertEquals(2, (long) tester.getCurrentTurn());
-        gls.update();
+        gls.update(tester.getId());
         // 4th response triggers turn change
-        //assertEquals(0, (long) tester.getCurrentTurn());
+        //assertEquals(0, (long) tester.getCurrentTurnType());
     }
 
     @Test
     public void gls_PhaseIsCorrect() {
-        GameLogicService gls = new GameLogicService(tester);
         // initial call to update
-        gls.update();
+        gls.update(tester.getId());
 
         // simulate 16 ActionResponses (first round)
         for (int i = 0; i < 16; i++) {
+            tester = gameRepo.findOne(gameId);
             assertEquals(PhaseType.PLANNING, tester.getCurrentPhase());
-            gls.update();
+            gls.update(tester.getId());
         }
+        tester = gameRepo.findOne(gameId);
         assertEquals(PhaseType.EXECUTION, tester.getCurrentPhase());
     }
+
     @Test
     public void gls_RoundIsCorrect() {
-        GameLogicService gls = new GameLogicService(tester);
         // initial call to update
-        gls.update();
+        gls.update(tester.getId());
+        tester = gameRepo.findOne(gameId);
         assertEquals(0, (long)tester.getCurrentRound());
         // simulate 16 ActionResponses (first round)
-        for (int i = 0; i < 16; i++) {
-            gls.update();
-        }
+        for(int y = 0; y < 5; y++) {
+            for (int i = 0; i < 16; i++) {
+                gls.update(tester.getId());
+            }
 
-        while(tester.getCommonDeck().size() > 0){
-            assertEquals(0, (long)tester.getCurrentRound());
-            gls.update();
+            // ActionResponses for ActionCards
+            for (int i = 0; i < 16; i++) {
+                tester = gameRepo.findOne(gameId);
+                assertEquals(y, (long) tester.getCurrentRound());
+                gls.update(tester.getId());
+                tester = gameRepo.findOne(gameId);
+            }
+            // last update call for ActionCard - Actions
         }
-        // last update call for ActionCard - Actions
-        gls.update();
-        assertEquals(1, (long)tester.getCurrentRound());
+    }
+
+    @Test
+    public void gls_GameFinishesCorrectly(){
+        tester.setCurrentRound(4);
+        tester.setCurrentPhase(PhaseType.EXECUTION);
+        tester.setCurrentTurn(2);
+        gls.update(tester.getId());
+        gameRepo.save(tester);
     }
 }

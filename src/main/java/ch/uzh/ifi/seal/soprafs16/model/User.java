@@ -11,10 +11,12 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
-import javax.smartcardio.Card;
+import javax.persistence.OneToOne;
 
-import ch.uzh.ifi.seal.soprafs16.constant.CharacterType;
 import ch.uzh.ifi.seal.soprafs16.constant.UserStatus;
+import ch.uzh.ifi.seal.soprafs16.model.cards.PlayerDeck;
+import ch.uzh.ifi.seal.soprafs16.model.cards.handCards.BulletCard;
+import ch.uzh.ifi.seal.soprafs16.model.cards.handCards.HandCard;
 
 @Entity
 public class User implements Serializable {
@@ -33,9 +35,6 @@ public class User implements Serializable {
 
     @Column(nullable = false, unique = true)
     private String username;
-
-    @Column(nullable = false)
-    private List<Card>  handDeck;
 
     @JsonIgnore
     @Column(nullable = false, unique = true)
@@ -56,7 +55,20 @@ public class User implements Serializable {
     private List<Item> items;
 
     @Column
-    private CharacterType characterType;
+    private String characterType;
+
+    @OneToOne
+    @JsonIgnore
+    private ch.uzh.ifi.seal.soprafs16.model.characters.Character character;
+
+    @OneToOne
+    private PlayerDeck<HandCard> handDeck;
+
+    @OneToOne
+    private PlayerDeck<HandCard> hiddenDeck;
+
+    @OneToOne
+    private PlayerDeck<BulletCard> bulletsDeck;
 
     public Long getId() {
         return id;
@@ -122,19 +134,44 @@ public class User implements Serializable {
         this.items = items;
     }
 
-    public CharacterType getCharacterType() {
+    public ch.uzh.ifi.seal.soprafs16.model.characters.Character getCharacter() {
+        return character;
+    }
+
+    public void setCharacter(ch.uzh.ifi.seal.soprafs16.model.characters.Character character) {
+        this.character = character;
+        if(character !=null){
+            this.characterType = character.getClass().getSimpleName();
+        }else{
+            this.characterType = null;
+        }
+    }
+
+    public String getCharacterType() {
         return characterType;
     }
 
-    public void setCharacterType(CharacterType characterType) {
-        this.characterType = characterType;
-    }
-
-    public List<Card> getHandDeck() {
+    public PlayerDeck<HandCard> getHandDeck() {
         return handDeck;
     }
 
-    public void setHandDeck(List<Card> handDeck) {
+    public void setHandDeck(PlayerDeck<HandCard> handDeck) {
         this.handDeck = handDeck;
+    }
+
+    public PlayerDeck<HandCard> getHiddenDeck() {
+        return hiddenDeck;
+    }
+
+    public void setHiddenDeck(PlayerDeck<HandCard> hiddenDeck) {
+        this.hiddenDeck = hiddenDeck;
+    }
+
+    public PlayerDeck<BulletCard> getBulletsDeck() {
+        return bulletsDeck;
+    }
+
+    public void setBulletsDeck(PlayerDeck<BulletCard> bulletsDeck) {
+        this.bulletsDeck = bulletsDeck;
     }
 }

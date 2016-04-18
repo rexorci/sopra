@@ -1,6 +1,7 @@
 package ch.uzh.ifi.seal.soprafs16.model;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
@@ -15,10 +16,13 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
-import javax.smartcardio.Card;
 
 import ch.uzh.ifi.seal.soprafs16.constant.GameStatus;
 import ch.uzh.ifi.seal.soprafs16.constant.PhaseType;
+import ch.uzh.ifi.seal.soprafs16.model.cards.GameDeck;
+import ch.uzh.ifi.seal.soprafs16.model.cards.handCards.ActionCard;
+import ch.uzh.ifi.seal.soprafs16.model.cards.roundCards.RoundCard;
+import ch.uzh.ifi.seal.soprafs16.model.turns.Turn;
 
 @Entity
 public class Game implements Serializable {
@@ -67,6 +71,14 @@ public class Game implements Serializable {
 
     @OneToOne
     private GameDeck<ActionCard> commonDeck;
+
+    @JsonIgnore
+    @Column
+    private int actionCounter;
+
+    @JsonIgnore
+    @Column
+    private int roundStarter;
 
     @ElementCollection
     private List<String> log;
@@ -184,9 +196,26 @@ public class Game implements Serializable {
         this.roundCardDeck = roundCardDeck;
     }
 
-    public Turn.Type getCurrentTurnType(){
-        return getRoundCardDeck().get(getCurrentRound())
-                .getPattern()[getCurrentTurn()]
-                .getType();
+    public Turn getCurrentTurnType(){
+        if(roundCardDeck != null) {
+            return ((RoundCard) roundCardDeck.getCards().get(currentRound)).getPattern().get(currentTurn);
+        }
+        else return null;
+    }
+
+    public int getActionCounter() {
+        return actionCounter;
+    }
+
+    public void setActionCounter(int actionCounter) {
+        this.actionCounter = actionCounter;
+    }
+
+    public int getRoundStarter() {
+        return roundStarter;
+    }
+
+    public void setRoundStarter(int roundStarter) {
+        this.roundStarter = roundStarter;
     }
 }

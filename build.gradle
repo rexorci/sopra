@@ -18,12 +18,18 @@ apply plugin: 'eclipse'
 apply plugin: 'idea'
 apply plugin: 'spring-boot'
 apply plugin: 'org.sonarqube'
+apply plugin: 'jacoco'
 
 uploadArchives.dependsOn bootRepackage
 
 jar {
     baseName = 'group-00-service'
     version =  '0.0.1-SNAPSHOT'
+}
+
+jacoco {
+    toolVersion = "0.7.6.201602180812"
+    reportsDir = file("$buildDir/jacoco")
 }
 
 repositories {

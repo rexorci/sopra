@@ -16,6 +16,8 @@ public class MoveRequestDTO extends ActionRequestDTO implements Serializable {
     private List<Long> movableWagonsLvlIds;
     private long gameId;
 
+    private long userId;
+
     public MoveRequestDTO()
     {
         this.movableWagonsLvlIds = new ArrayList<Long>();
@@ -35,5 +37,13 @@ public class MoveRequestDTO extends ActionRequestDTO implements Serializable {
 
     public void setGameId(long gameId) {
         this.gameId = gameId;
+    }
+
+    public long getUserId() {
+        return userId;
+    }
+
+    public void setUserId(long userId) {
+        this.userId = userId;
     }
 }

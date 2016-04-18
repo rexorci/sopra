@@ -16,6 +16,7 @@ import javax.persistence.OneToOne;
 
 import ch.uzh.ifi.seal.soprafs16.constant.GameStatus;
 import ch.uzh.ifi.seal.soprafs16.constant.PhaseType;
+import ch.uzh.ifi.seal.soprafs16.model.action.ActionRequestDTO;
 
 @Entity
 public class Game implements Serializable {
@@ -63,7 +64,7 @@ public class Game implements Serializable {
     private String roundPattern;
 
     @OneToMany(mappedBy = "game")
-    private List<Action> actions;
+    private List<ActionRequestDTO> actions;
 
     @ElementCollection
     private List<String> log;
@@ -164,11 +165,11 @@ public class Game implements Serializable {
         this.roundPattern = roundPattern;
     }
 
-    public List<Action> getActions() {
+    public List<ActionRequestDTO> getActions() {
         return actions;
     }
 
-    public void setActions(List<Action> actions) {
+    public void setActions(List<ActionRequestDTO> actions) {
         this.actions = actions;
     }
 

@@ -18,7 +18,8 @@ public class PunchCard extends ActionCard implements Serializable {
      */
     private static final long serialVersionUID = 1L;
 
-    public PunchRequestDTO generatePunchRequest(Game game, User user){
+    @Override
+    public PunchRequestDTO generateActionRequest(Game game, User user){
         PunchRequestDTO prq = new PunchRequestDTO();
         prq.setGameId(game.getId());
         List<User> userList = new ArrayList<User>();
@@ -39,6 +40,9 @@ public class PunchCard extends ActionCard implements Serializable {
         {
             prq.getPunchableUserIds().add(userList.get(i).getId());
         }
+        prq.setGameId(game.getId());
+        prq.setUserId(user.getId());
+        game.getActions().add(prq);
         return prq;
 
     }

@@ -16,6 +16,8 @@ public class PunchRequestDTO extends ActionRequestDTO implements Serializable {
 
     private long gameId;
 
+    private long userId;
+
     private List<Long> punchableUserIds;
 
     public PunchRequestDTO()
@@ -37,5 +39,13 @@ public class PunchRequestDTO extends ActionRequestDTO implements Serializable {
 
     public void setGameId(long gameId) {
         this.gameId = gameId;
+    }
+
+    public long getUserId() {
+        return userId;
+    }
+
+    public void setUserId(long userId) {
+        this.userId = userId;
     }
 }

@@ -11,5 +11,7 @@ public abstract class ActionRequestDTO extends ActionDTO implements Serializable
 
     private static final long serialVersionUID = 1L;
 
-    private User requestedPlayer;
+    private long gamerId;
+    private long userId;
+
 }

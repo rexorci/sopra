@@ -16,14 +16,17 @@ public class CollectCard extends ActionCard implements Serializable {
      */
     private static final long serialVersionUID = 1L;
 
-    public CollectItemRequestDTO generateCollectItemRequest(Game game, User user)
-    {
+    @Override
+    public CollectItemRequestDTO generateActionRequest(Game game, User user) {
         CollectItemRequestDTO crq = new CollectItemRequestDTO();
 
-        for(int i = 0; i<user.getWagonLevel().getItems().size(); i++)
-        crq.getCollectableItemIds().add(user.getWagonLevel().getItems().get(i).getId());
+        for (int i = 0; i < user.getWagonLevel().getItems().size(); i++) {
+            crq.getCollectableItemIds().add(user.getWagonLevel().getItems().get(i).getId());
+        }
         crq.setGameId(game.getId());
+        crq.setUserId(user.getId());
+        game.getActions().add(crq);
         return crq;
-    }
 
+    }
 }

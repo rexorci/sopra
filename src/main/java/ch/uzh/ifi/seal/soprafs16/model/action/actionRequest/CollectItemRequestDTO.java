@@ -16,6 +16,8 @@ public class CollectItemRequestDTO extends ActionRequestDTO implements Serializa
     private List<Long> collectableItemIds;
     private long gameId;
 
+    private long userId;
+
     public CollectItemRequestDTO()
     {
         this.collectableItemIds = new ArrayList<Long>();
@@ -35,5 +37,13 @@ public class CollectItemRequestDTO extends ActionRequestDTO implements Serializa
 
     public void setGameId(long gameId) {
         this.gameId = gameId;
+    }
+
+    public long getUserId() {
+        return userId;
+    }
+
+    public void setUserId(long userId) {
+        this.userId = userId;
     }
 }

@@ -16,13 +16,16 @@ public class MoveCard extends ActionCard implements Serializable {
      */
     private static final long serialVersionUID = 1L;
 
-    public MoveRequestDTO generateMoveRequest(Game game, User user)
+    @Override
+    public MoveRequestDTO generateActionRequest(Game game, User user)
     {
         MoveRequestDTO mrq = new MoveRequestDTO();
         mrq.getMovableWagonsLvlIds().add(user.getWagonLevel().getWagonLevelBefore().getId());
         mrq.getMovableWagonsLvlIds().add(user.getWagonLevel().getWagonLevelAfter().getId());
 
         mrq.setGameId(game.getId());
+        mrq.setUserId(user.getId());
+        game.getActions().add(mrq);
         return mrq;
     }
 

@@ -26,7 +26,8 @@ public class ShootCard extends ActionCard implements Serializable {
     private static final long serialVersionUID = 1L;
 
 
-    public ShootRequestDTO generateShootRequest(Game game,User user ){
+    @Override
+    public ShootRequestDTO generateActionRequest(Game game,User user ){
         ShootRequestDTO srq = new ShootRequestDTO();
         List<User> userList = new ArrayList<User>();
         if(user.getWagonLevel().getLevelType() == LevelType.TOP)
@@ -54,6 +55,8 @@ public class ShootCard extends ActionCard implements Serializable {
             srq.getShootableUserIds().add(userList.get(i).getId());
         }
         srq.setGameId(game.getId());
+        srq.setUserId(user.getId());
+        game.getActions().add(srq);
         return srq;
     };
 

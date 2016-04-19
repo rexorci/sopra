@@ -23,6 +23,7 @@ import ch.uzh.ifi.seal.soprafs16.model.cards.GameDeck;
 import ch.uzh.ifi.seal.soprafs16.model.cards.handCards.ActionCard;
 import ch.uzh.ifi.seal.soprafs16.model.cards.roundCards.RoundCard;
 import ch.uzh.ifi.seal.soprafs16.model.turns.Turn;
+import ch.uzh.ifi.seal.soprafs16.model.action.ActionRequestDTO;
 
 @Entity
 public class Game implements Serializable {
@@ -79,6 +80,9 @@ public class Game implements Serializable {
     @JsonIgnore
     @Column
     private int roundStarter;
+
+    @OneToMany
+    private List<ActionRequestDTO> actions;
 
     @ElementCollection
     private List<String> log;
@@ -186,6 +190,14 @@ public class Game implements Serializable {
 
     public void setCommonDeck(GameDeck<ActionCard> commonDeck) {
         this.commonDeck = commonDeck;
+    }
+
+    public List<ActionRequestDTO> getActions() {
+        return actions;
+    }
+
+    public void setActions(List<ActionRequestDTO> actions) {
+        this.actions = actions;
     }
 
     public GameDeck<RoundCard> getRoundCardDeck() {

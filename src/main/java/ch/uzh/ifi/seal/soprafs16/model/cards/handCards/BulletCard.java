@@ -2,7 +2,6 @@ package ch.uzh.ifi.seal.soprafs16.model.cards.handCards;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
-import org.hibernate.annotations.ManyToAny;
 import org.springframework.data.annotation.Transient;
 
 import java.io.Serializable;

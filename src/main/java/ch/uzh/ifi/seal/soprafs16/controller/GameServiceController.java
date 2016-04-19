@@ -21,10 +21,8 @@ import ch.uzh.ifi.seal.soprafs16.constant.LevelType;
 import ch.uzh.ifi.seal.soprafs16.model.Game;
 import ch.uzh.ifi.seal.soprafs16.model.User;
 import ch.uzh.ifi.seal.soprafs16.model.WagonLevel;
-import ch.uzh.ifi.seal.soprafs16.model.action.ActionRequestDTO;
 import ch.uzh.ifi.seal.soprafs16.model.characters.*;
 import ch.uzh.ifi.seal.soprafs16.model.characters.Character;
-import ch.uzh.ifi.seal.soprafs16.model.repositories.ActionRepository;
 import ch.uzh.ifi.seal.soprafs16.model.repositories.CardRepository;
 import ch.uzh.ifi.seal.soprafs16.model.repositories.CharacterRepository;
 import ch.uzh.ifi.seal.soprafs16.model.repositories.DeckRepository;
@@ -60,8 +58,6 @@ public class GameServiceController extends GenericService {
     private CardRepository cardRepo;
     @Autowired
     private DeckRepository deckRepo;
-    @Autowired
-    private ActionRepository actionRepo;
     //endregion
 
     private final String CONTEXT = "/games";
@@ -161,8 +157,6 @@ public class GameServiceController extends GenericService {
         if (owner != null && game != null && game.getOwner().equals(owner.getName()) && game.getStatus() != GameStatus.RUNNING) {
             GameService chs = new GameService();
             chs.startGame(game, owner, userRepo, wagonRepo, wagonLevelRepo, marshalRepo, characterRepo, deckRepo, cardRepo);
-            Game gameTest = gameRepo.findOne(gameId);
-            String s = "a";
         }
     }
 
@@ -327,16 +321,6 @@ public class GameServiceController extends GenericService {
     }
 
     //games/{gameId}/action - GET
-    @RequestMapping(value = CONTEXT + "/{gameId}/action")
-    @ResponseStatus(HttpStatus.OK)
-    public ActionRequestDTO getActionRequest(@PathVariable Long gameId)
-    {
-        Game game = gameRepo.findOne(gameId);
-        int size = game.getActions().size();
-        ActionRequestDTO actionRequest = game.getActions().get(size-1);
-        actionRepo.save(actionRequest);
-        return actionRequest;
-    }
     //games/{gameId}/action - POST
 
 }

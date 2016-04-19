@@ -46,14 +46,6 @@ public class WagonLevel implements Serializable {
     @OneToMany
     private List<User> users;
 
-    @JsonIgnore
-    @OneToOne
-    private WagonLevel wagonLevelBefore;
-
-    @JsonIgnore
-    @OneToOne
-    private WagonLevel wagonLevelAfter;
-
     public Long getId() {
         return id;
     }
@@ -100,21 +92,5 @@ public class WagonLevel implements Serializable {
 
     public void setUsers(List<User> users) {
         this.users = users;
-    }
-
-    public WagonLevel getWagonLevelAfter() {
-        return wagonLevelAfter;
-    }
-
-    public void setWagonLevelAfter(WagonLevel wagonLevelAfter) {
-        this.wagonLevelAfter = wagonLevelAfter;
-    }
-
-    public WagonLevel getWagonLevelBefore() {
-        return wagonLevelBefore;
-    }
-
-    public void setWagonLevelBefore(WagonLevel wagonLevelBefore) {
-        this.wagonLevelBefore = wagonLevelBefore;
     }
 }

@@ -33,7 +33,6 @@ $RECYCLE.BIN/
 .classpath
 .project
 /bin/
-local.properties
 
 # VIM
 *.sw*

@@ -42,8 +42,8 @@ public class GameService {
 
         game.setWagons(new ArrayList<Wagon>());
 
-        int maxWagons = 4;
-        for (int i = 0; i < maxWagons; i++) {
+        int wagons = 4;
+        for (int i = 0; i < wagons; i++) {
             Wagon wagon = new Wagon();
             wagon.setGame(game);
             game.getWagons().add(wagon);
@@ -55,8 +55,8 @@ public class GameService {
             wagon.setTopLevel(topLevel);
             topLevel.setWagon(wagon);
             topLevel.setUsers(new ArrayList<User>());
-
             wagonLevelRepo.save(topLevel);
+
             WagonLevel botLevel = new WagonLevel();
             botLevel.setLevelType(LevelType.BOTTOM);
             botLevel.setItems(new ArrayList<Item>());
@@ -66,7 +66,7 @@ public class GameService {
             wagonLevelRepo.save(botLevel);
 
             //place all users in last wagon
-            if (i == maxWagons - 1) {
+            if (i == wagons - 1) {
                 for (User u : game.getUsers()) {
                     botLevel.getUsers().add(u);
                     u.setWagonLevel(botLevel);
@@ -74,22 +74,6 @@ public class GameService {
             }
         }
 
-        int counter = 0;
-        for (Wagon w : game.getWagons()) {
-            Wagon thisWagon = game.getWagons().get(counter);
-            if (counter != 0) {
-                Wagon wagonBefore = game.getWagons().get(counter - 1);
-                thisWagon.getTopLevel().setWagonLevelBefore(wagonBefore.getTopLevel());
-                thisWagon.getBottomLevel().setWagonLevelBefore(wagonBefore.getBottomLevel());
-            }
-            if (counter != maxWagons - 1) {
-                Wagon wagonAfter = game.getWagons().get(counter + 1);
-                thisWagon.getTopLevel().setWagonLevelAfter(wagonAfter.getTopLevel());
-                thisWagon.getBottomLevel().setWagonLevelAfter(wagonAfter.getBottomLevel());
-            }
-            wagonRepo.save(thisWagon);
-            counter++;
-        }
         //place Marshal
         Marshal marshal = new Marshal();
         marshal.setGame(game);
@@ -122,4 +106,17 @@ public class GameService {
         }
         return game.getId();
     }
+
+//    public void deleteGame(Game game, UserRepository userRepo, WagonRepository wagonRepo, MarshalRepository marshalRepo){
+//        for (User user : game.getUsers()) {
+//            user.setGame(null);
+//            userRepo.save(user);
+//        }
+//        for (Wagon wagon : game.getWagons()) {
+//            wagon.setGame(null);
+//            wagonRepo.save(wagon);
+//        }
+//        game.getMarshal().setGame(null);
+//        marshalRepo.save(game.getMarshal());
+//    }
 }

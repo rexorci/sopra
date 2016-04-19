@@ -335,6 +335,7 @@ public class GameServiceController extends GenericService {
         int size = game.getActions().size();
         ActionRequestDTO actionRequest = game.getActions().get(size-1);
         actionRepo.save(actionRequest);
+        int i = 0;
         return actionRequest;
     }
     //games/{gameId}/action - POST

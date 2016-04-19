@@ -66,9 +66,6 @@ public class Game implements Serializable {
     @Column
     private String roundPattern;
 
-    @OneToMany(mappedBy = "game")
-    private List<Action> actions;
-
     @ElementCollection
     private List<String> log;
 
@@ -175,14 +172,6 @@ public class Game implements Serializable {
 
     public void setRoundPattern(String roundPattern) {
         this.roundPattern = roundPattern;
-    }
-
-    public List<Action> getActions() {
-        return actions;
-    }
-
-    public void setActions(List<Action> actions) {
-        this.actions = actions;
     }
 
     public List<String> getLog() {

@@ -5,10 +5,12 @@ import org.springframework.stereotype.Service;
 import java.util.AbstractMap;
 import java.util.ArrayList;
 import java.util.Random;
+import java.util.stream.IntStream;
 
 import ch.uzh.ifi.seal.soprafs16.constant.GameStatus;
 import ch.uzh.ifi.seal.soprafs16.constant.ItemType;
 import ch.uzh.ifi.seal.soprafs16.constant.LevelType;
+import ch.uzh.ifi.seal.soprafs16.constant.PhaseType;
 import ch.uzh.ifi.seal.soprafs16.constant.SourceType;
 import ch.uzh.ifi.seal.soprafs16.model.Game;
 import ch.uzh.ifi.seal.soprafs16.model.Item;
@@ -18,13 +20,24 @@ import ch.uzh.ifi.seal.soprafs16.model.Wagon;
 import ch.uzh.ifi.seal.soprafs16.model.WagonLevel;
 import ch.uzh.ifi.seal.soprafs16.model.cards.GameDeck;
 import ch.uzh.ifi.seal.soprafs16.model.cards.PlayerDeck;
+import ch.uzh.ifi.seal.soprafs16.model.cards.handCards.ActionCard;
 import ch.uzh.ifi.seal.soprafs16.model.cards.handCards.BulletCard;
+import ch.uzh.ifi.seal.soprafs16.model.cards.handCards.ChangeLevelCard;
+import ch.uzh.ifi.seal.soprafs16.model.cards.handCards.CollectCard;
+import ch.uzh.ifi.seal.soprafs16.model.cards.handCards.HandCard;
+import ch.uzh.ifi.seal.soprafs16.model.cards.handCards.MarshalCard;
+import ch.uzh.ifi.seal.soprafs16.model.cards.handCards.MoveCard;
+import ch.uzh.ifi.seal.soprafs16.model.cards.handCards.PunchCard;
+import ch.uzh.ifi.seal.soprafs16.model.cards.handCards.ShootCard;
 import ch.uzh.ifi.seal.soprafs16.model.cards.roundCards.AngryMarshalCard;
 import ch.uzh.ifi.seal.soprafs16.model.cards.roundCards.BlankBridgeCard;
 import ch.uzh.ifi.seal.soprafs16.model.cards.roundCards.BlankTunnelCard;
 import ch.uzh.ifi.seal.soprafs16.model.cards.roundCards.BrakingCard;
 import ch.uzh.ifi.seal.soprafs16.model.cards.roundCards.GetItAllCard;
+import ch.uzh.ifi.seal.soprafs16.model.cards.roundCards.HostageCard;
+import ch.uzh.ifi.seal.soprafs16.model.cards.roundCards.MarshallsRevengeCard;
 import ch.uzh.ifi.seal.soprafs16.model.cards.roundCards.PassengerRebellionCard;
+import ch.uzh.ifi.seal.soprafs16.model.cards.roundCards.PickPocketingCard;
 import ch.uzh.ifi.seal.soprafs16.model.cards.roundCards.PivotablePoleCard;
 import ch.uzh.ifi.seal.soprafs16.model.cards.roundCards.RoundCard;
 import ch.uzh.ifi.seal.soprafs16.model.repositories.CardRepository;
@@ -59,15 +72,23 @@ public class GameService {
             boolean initSuccessful = true;
 
             game.setStatus(GameStatus.RUNNING);
-            game.setCurrentPlayer(owner.getId().intValue());
             game.setWagons(new ArrayList<Wagon>());
 
             initSuccessful = initGameWagons(game, wagonRepo, wagonLevelRepo) && initSuccessful;
             initSuccessful = initPlayerDecks(game, userRepo, deckRepo, cardRepo) && initSuccessful;
-            initSuccessful = initGameDecks(game,gameRepo, userRepo, deckRepo, cardRepo, turnRepo) && initSuccessful;
+            initSuccessful = initGameDecks(game, gameRepo, userRepo, deckRepo, cardRepo, turnRepo) && initSuccessful;
             initSuccessful = initGameFigurines(game.getId(), gameRepo, marshalRepo) && initSuccessful;
             initSuccessful = initGameItems(game.getId(), gameRepo, itemRepo, userRepo, wagonLevelRepo) && initSuccessful;
 
+            //set Game status variables
+            game.setCurrentRound(0);
+            game.setCurrentTurn(0);
+            game.setCurrentPhase(PhaseType.PLANNING);
+            game.setRoundStarter(game.getCurrentPlayer());
+            game.setActionRequestCounter(0);
+            game.setRoundPattern(((RoundCard) (game.getRoundCardDeck().getCards().get(0))).getStringPattern());
+
+            gameRepo.save(game);
 
             if (initSuccessful) {
                 return game.getId();
@@ -147,6 +168,7 @@ public class GameService {
                 if (!user.getCharacter().equals(null)) {
                     for (int i = 0; i < 6; i++) {
                         BulletCard bulletCard = new BulletCard();
+                        bulletCard.setBulletCounter(i + 1);
                         SourceType st = SourceType.valueOf(user.getCharacterType().toUpperCase());
                         bulletCard.setSourceType(st);
                         bulletsDeck.getCards().add(bulletCard);
@@ -157,9 +179,35 @@ public class GameService {
                     return false;
                 }
 
-                //give handcards to player
+                //give 6 handcards to each player
+                PlayerDeck<HandCard> handDeck = new PlayerDeck<>();
+                handDeck.setUser(user);
+                user.setHandDeck(handDeck);
+                deckRepo.save(handDeck);
+                userRepo.save(user);
 
-                //put the rest of the players actioncards into his hiddendeck
+                ArrayList<HandCard> allActionCards = (getActionCards(cardRepo, user));
+
+                final int[] randomChosenHandCards = new Random().ints(0, 10).distinct().limit(6).toArray();
+                for (int randomIndex : randomChosenHandCards) {
+                    handDeck.getCards().add(allActionCards.get(randomIndex));
+                    allActionCards.get(randomIndex).setDeck(handDeck);
+                }
+
+                //put the rest of the player's actioncards into his hiddendeck
+                PlayerDeck<HandCard> hiddenDeck = new PlayerDeck<>();
+                hiddenDeck.setUser(user);
+                user.setHiddenDeck(hiddenDeck);
+                deckRepo.save(hiddenDeck);
+                userRepo.save(user);
+
+                for (int i = 0; i < 10; i++) {
+                    final int finalI = i;
+                    if (!IntStream.of(randomChosenHandCards).anyMatch(x -> x == finalI)) {
+                        hiddenDeck.getCards().add(allActionCards.get(i));
+                        allActionCards.get(i).setDeck(hiddenDeck);
+                    }
+                }
             }
             return true;
         } catch (Exception ex) {
@@ -167,9 +215,9 @@ public class GameService {
         }
     }
 
-    private boolean initGameDecks(Game game,GameRepository gameRepo, UserRepository userRepo, DeckRepository deckRepo, CardRepository cardRepo, TurnRepository turnRepo) {
+    private boolean initGameDecks(Game game, GameRepository gameRepo, UserRepository userRepo, DeckRepository deckRepo, CardRepository cardRepo, TurnRepository turnRepo) {
         try {
-            //region Gamedeck
+            //region RoundcardDeck
             //set up a list of possible roundcards (without stationcards) to randomly choose from
             ArrayList<RoundCard> possibleRoundCards = setPatternOnRoundCards(cardRepo, turnRepo);
             //choose 4 Random Roundcards
@@ -182,7 +230,39 @@ public class GameService {
 
             for (int randomIndex : randomChosenRoundCards) {
                 roundCardDeck.getCards().add(possibleRoundCards.get(randomIndex));
+                possibleRoundCards.get(randomIndex).setDeck(roundCardDeck);
             }
+
+            //add a stationcard
+            setPatternOnStationCards(cardRepo, turnRepo);
+            Random rn = new Random();
+            int stationCardId = rn.nextInt(3);
+
+            RoundCard stationCard = setPatternOnStationCards(cardRepo, turnRepo).get(stationCardId);
+            roundCardDeck.getCards().add(stationCard);
+            stationCard.setDeck(roundCardDeck);
+            //endregion
+            //region neutralBulletsDeck
+            GameDeck<BulletCard> neutralBulletsDeck = new GameDeck<BulletCard>();
+            neutralBulletsDeck.setGame(game);
+            game.setNeutralBulletsDeck(neutralBulletsDeck);
+            deckRepo.save(neutralBulletsDeck);
+            gameRepo.save(game);
+            for (int i = 0; i < 13; i++) {
+                BulletCard bulletCard = new BulletCard();
+                bulletCard.setBulletCounter(i + 1);
+                bulletCard.setSourceType(SourceType.MARSHAL);
+                neutralBulletsDeck.getCards().add(bulletCard);
+                bulletCard.setDeck(neutralBulletsDeck);
+                cardRepo.save(bulletCard);
+            }
+            //endregion
+            //region commonDeck
+            GameDeck<ActionCard> commonDeck = new GameDeck<ActionCard>();
+            commonDeck.setGame(game);
+            game.setCommonDeck(commonDeck);
+            deckRepo.save(commonDeck);
+            gameRepo.save(game);
             //endregion
             return true;
         } catch (Exception ex) {
@@ -190,14 +270,38 @@ public class GameService {
         }
     }
 
+    private ArrayList<HandCard> getActionCards(CardRepository cardRepo, User user) {
+        try {
+            ArrayList<HandCard> actionCards = new ArrayList<>();
+            //10ActionCards in Total, 2x Move, 2x ChangeLevel, 1x Punch, 1x MoveMarshal, 2x Shoot, 2x Collect
+            actionCards.add(new MoveCard());
+            actionCards.add(new MoveCard());
+            actionCards.add(new ChangeLevelCard());
+            actionCards.add(new ChangeLevelCard());
+            actionCards.add(new PunchCard());
+            actionCards.add(new MarshalCard());
+            actionCards.add(new ShootCard());
+            actionCards.add(new ShootCard());
+            actionCards.add(new CollectCard());
+            actionCards.add(new CollectCard());
+            for (HandCard c : actionCards) {
+                cardRepo.save(c);
+            }
+
+            return actionCards;
+        } catch (Exception ex) {
+            return null;
+        }
+    }
+
     private ArrayList<RoundCard> setPatternOnRoundCards(CardRepository cardRepo, TurnRepository turnRepo) {
         try {
             ArrayList<RoundCard> possibleRoundCards = new ArrayList<>();
 
-            //AngryMarshal
+            //AngryMarshalCard
             AngryMarshalCard angryMarshalCard = (AngryMarshalCard) createTurnPattern(new AngryMarshalCard(), turnRepo, cardRepo);
             possibleRoundCards.add(angryMarshalCard);
-            //PivotablePole
+            //PivotablePoleCard
             PivotablePoleCard pivotablePoleCard = (PivotablePoleCard) createTurnPattern(new PivotablePoleCard(), turnRepo, cardRepo);
             possibleRoundCards.add(pivotablePoleCard);
             //BrakingCard
@@ -217,6 +321,26 @@ public class GameService {
             possibleRoundCards.add(blankBridgeCard);
 
             return possibleRoundCards;
+        } catch (Exception ex) {
+            return null;
+        }
+    }
+
+    private ArrayList<RoundCard> setPatternOnStationCards(CardRepository cardRepo, TurnRepository turnRepo) {
+        try {
+            ArrayList<RoundCard> possibleStationCards = new ArrayList<>();
+
+            //PickPocketingCard
+            PickPocketingCard pickPocketingCard = (PickPocketingCard) createTurnPattern(new PickPocketingCard(), turnRepo, cardRepo);
+            possibleStationCards.add(pickPocketingCard);
+            //MarshallsRevengeCard
+            MarshallsRevengeCard marshallsRevengeCard = (MarshallsRevengeCard) createTurnPattern(new MarshallsRevengeCard(), turnRepo, cardRepo);
+            possibleStationCards.add(marshallsRevengeCard);
+            //HostageCard
+            HostageCard hostageCard = (HostageCard) createTurnPattern(new HostageCard(), turnRepo, cardRepo);
+            possibleStationCards.add(hostageCard);
+
+            return possibleStationCards;
         } catch (Exception ex) {
             return null;
         }

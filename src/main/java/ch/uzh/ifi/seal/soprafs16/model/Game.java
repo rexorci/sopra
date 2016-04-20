@@ -78,6 +78,13 @@ public class Game implements Serializable {
     @OneToOne
     private GameDeck<ActionCard> commonDeck;
 
+    @Column
+    private Integer roundStarter;
+
+    @Column
+    private Integer actionRequestCounter;
+
+
     public Long getId() {
         return id;
     }
@@ -204,5 +211,21 @@ public class Game implements Serializable {
 
     public void setNeutralBulletsDeck(GameDeck<BulletCard> neutralBulletsDeck) {
         this.neutralBulletsDeck = neutralBulletsDeck;
+    }
+
+    public Integer getRoundStarter() {
+        return roundStarter;
+    }
+
+    public void setRoundStarter(Integer roundStarter) {
+        this.roundStarter = roundStarter;
+    }
+
+    public Integer getActionRequestCounter() {
+        return actionRequestCounter;
+    }
+
+    public void setActionRequestCounter(Integer actionRequestCounter) {
+        this.actionRequestCounter = actionRequestCounter;
     }
 }

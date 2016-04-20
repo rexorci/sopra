@@ -22,6 +22,7 @@ import org.springframework.web.util.UriComponentsBuilder;
 
 import ch.uzh.ifi.seal.soprafs16.Application;
 import ch.uzh.ifi.seal.soprafs16.constant.GameStatus;
+import ch.uzh.ifi.seal.soprafs16.constant.PhaseType;
 import ch.uzh.ifi.seal.soprafs16.model.Game;
 import ch.uzh.ifi.seal.soprafs16.model.User;
 import ch.uzh.ifi.seal.soprafs16.model.WagonLevel;
@@ -181,12 +182,30 @@ public class GameServiceControllerTest {
         //is the the current player (startplayer) placed in the last wagon
         WagonLevel lastWagonLevel = game1_2Response.getWagons().get((game1_2Response.getWagons().size() - 1)).getBottomLevel();
         Assert.assertTrue(containsUserId(lastWagonLevel.getUsers(), game1_2Response.getUsers().get(game1_2Response.getCurrentPlayer()).getId()));
-        //does the bulletsdeck contain 6 bullets
-        Assert.assertEquals(6, game1_2Response.getUsers().get(0).getBulletsDeck().getCards().size());
-        //does every Player have a 250$ bag
         for (User u : game1_2Response.getUsers()) {
+            //does every Player have a 250$ bag
             Assert.assertEquals(250,u.getItems().get(0).getValue());
+            //does the bulletsdeck contain 6 bullets
+            Assert.assertEquals(6, u.getBulletsDeck().getCards().size());
+            //does the handdeck contain 6 cards
+            Assert.assertEquals(6, u.getHandDeck().getCards().size());
+            //does the hiddendeck contain 4 cards
+            Assert.assertEquals(4, u.getHiddenDeck().getCards().size());
         }
+        //does the roundcarddeck contain 5 cards
+        Assert.assertEquals(5, game1_2Response.getRoundCardDeck().getCards().size());
+        //is the last roundcard a stationcard? TODO
+
+        //does the neutralbulletdeck contain 13 cards (marshalbullets)
+        Assert.assertEquals(13, game1_2Response.getNeutralBulletsDeck().getCards().size());
+        //does the commondeck exist?
+        Assert.assertNotNull(game1_2Response.getCommonDeck());
+        //assert gamevariables
+        Assert.assertEquals((Integer)0,game1_2Response.getCurrentRound());
+        Assert.assertEquals((Integer)0,game1_2Response.getActionRequestCounter());
+        Assert.assertEquals((Integer)0,game1_2Response.getCurrentTurn());
+        Assert.assertNotNull(game1_2Response.getRoundPattern());
+        Assert.assertEquals(PhaseType.PLANNING, game1_2Response.getCurrentPhase());
         //endregion
         //endregion
     }

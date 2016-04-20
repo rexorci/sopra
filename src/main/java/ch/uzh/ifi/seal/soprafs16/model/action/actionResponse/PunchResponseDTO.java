@@ -2,6 +2,7 @@ package ch.uzh.ifi.seal.soprafs16.model.action.actionResponse;
 
 import java.io.Serializable;
 
+import ch.uzh.ifi.seal.soprafs16.constant.ItemType;
 import ch.uzh.ifi.seal.soprafs16.model.action.ActionResponseDTO;
 
 /**
@@ -10,4 +11,20 @@ import ch.uzh.ifi.seal.soprafs16.model.action.ActionResponseDTO;
 public class PunchResponseDTO extends ActionResponseDTO implements Serializable {
 
     private static final long serialVersionUID = 1L;
+
+    private Long victimID;
+    private Long wagonLevelID;
+    private ItemType itemType;
+
+    public ItemType getItemType() {
+        return itemType;
+    }
+
+    public Long getWagonLevelID() {
+        return wagonLevelID;
+    }
+
+    public Long getVictimID() {
+        return victimID;
+    }
 }

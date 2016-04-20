@@ -17,4 +17,8 @@ public abstract class ActionDTO implements Serializable {
 
     private long id;
     private long gameId;
+
+    public long getGameId() {
+        return gameId;
+    }
 }

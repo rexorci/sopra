@@ -24,6 +24,7 @@ import ch.uzh.ifi.seal.soprafs16.model.cards.handCards.ActionCard;
 import ch.uzh.ifi.seal.soprafs16.model.cards.roundCards.RoundCard;
 import ch.uzh.ifi.seal.soprafs16.model.turns.Turn;
 import ch.uzh.ifi.seal.soprafs16.model.action.ActionRequestDTO;
+import ch.uzh.ifi.seal.soprafs16.model.cards.handCards.BulletCard;
 
 @Entity
 public class Game implements Serializable {
@@ -65,17 +66,10 @@ public class Game implements Serializable {
     private Integer currentTurn;
 
     @Column
-    private PhaseType currentPhase;
+    private String roundPattern;
 
-    @OneToOne
-    private GameDeck<RoundCard> roundCardDeck;
-
-    @OneToOne
-    private GameDeck<ActionCard> commonDeck;
-
-    @JsonIgnore
     @Column
-    private int actionCounter;
+    private PhaseType currentPhase;
 
     @JsonIgnore
     @Column
@@ -86,6 +80,20 @@ public class Game implements Serializable {
 
     @ElementCollection
     private List<String> log;
+
+    @OneToOne
+    private GameDeck<RoundCard> roundCardDeck;
+
+    @OneToOne
+    private GameDeck<BulletCard> neutralBulletsDeck;
+
+    @OneToOne
+    private GameDeck<ActionCard> commonDeck;
+
+    @JsonIgnore
+    @Column
+    private Integer actionRequestCounter;
+
 
     public Long getId() {
         return id;
@@ -184,20 +192,31 @@ public class Game implements Serializable {
         this.log = log;
     }
 
-    public GameDeck<ActionCard> getCommonDeck() {
-        return commonDeck;
-    }
-
-    public void setCommonDeck(GameDeck<ActionCard> commonDeck) {
-        this.commonDeck = commonDeck;
-    }
-
     public List<ActionRequestDTO> getActions() {
         return actions;
     }
 
     public void setActions(List<ActionRequestDTO> actions) {
         this.actions = actions;
+    }
+
+    public Turn getCurrentTurnType(){
+        if(roundCardDeck != null) {
+            return ((RoundCard) roundCardDeck.getCards().get(currentRound)).getPattern().get(currentTurn);
+        }
+        else return null;
+    }
+
+    public void setRoundStarter(int roundStarter) {
+        this.roundStarter = roundStarter;
+    }
+
+    public GameDeck<ActionCard> getCommonDeck() {
+        return commonDeck;
+    }
+
+    public void setCommonDeck(GameDeck<ActionCard> commonDeck) {
+        this.commonDeck = commonDeck;
     }
 
     public GameDeck<RoundCard> getRoundCardDeck() {
@@ -208,26 +227,35 @@ public class Game implements Serializable {
         this.roundCardDeck = roundCardDeck;
     }
 
-    public Turn getCurrentTurnType(){
-        if(roundCardDeck != null) {
-            return ((RoundCard) roundCardDeck.getCards().get(currentRound)).getPattern().get(currentTurn);
-        }
-        else return null;
+    public GameDeck<BulletCard> getNeutralBulletsDeck() {
+        return neutralBulletsDeck;
     }
 
-    public int getActionCounter() {
-        return actionCounter;
+    public void setNeutralBulletsDeck(GameDeck<BulletCard> neutralBulletsDeck) {
+        this.neutralBulletsDeck = neutralBulletsDeck;
     }
 
-    public void setActionCounter(int actionCounter) {
-        this.actionCounter = actionCounter;
-    }
-
-    public int getRoundStarter() {
+    public Integer getRoundStarter() {
         return roundStarter;
     }
 
-    public void setRoundStarter(int roundStarter) {
+    public void setRoundStarter(Integer roundStarter) {
         this.roundStarter = roundStarter;
+    }
+
+    public Integer getActionRequestCounter() {
+        return actionRequestCounter;
+    }
+
+    public void setActionRequestCounter(Integer actionRequestCounter) {
+        this.actionRequestCounter = actionRequestCounter;
+    }
+
+    public String getRoundPattern() {
+        return roundPattern;
+    }
+
+    public void setRoundPattern(String roundPattern) {
+        this.roundPattern = roundPattern;
     }
 }

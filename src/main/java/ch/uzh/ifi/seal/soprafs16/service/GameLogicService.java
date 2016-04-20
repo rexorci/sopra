@@ -66,7 +66,7 @@ public class GameLogicService extends GenericService {
         Hibernate.initialize(game.getCommonDeck());
         Hibernate.initialize(game.getCurrentPhase());
         Hibernate.initialize(game.getCurrentPlayer());
-        Hibernate.initialize(game.getActionCounter());
+        Hibernate.initialize(game.getActionRequestCounter());
         Hibernate.initialize(game.getRoundStarter());
         Hibernate.initialize(game.getRoundCardDeck());
         Hibernate.initialize(game.getUsers());
@@ -83,7 +83,7 @@ public class GameLogicService extends GenericService {
             }
             else{
                 game.setCurrentPhase(PhaseType.EXECUTION);
-                game.setActionCounter(0);
+                game.setActionRequestCounter(0);
             }
         }
         else if (game.getCurrentPhase() == PhaseType.EXECUTION) {
@@ -109,13 +109,13 @@ public class GameLogicService extends GenericService {
 
     private void processPlayerTurn(Game game, int currentPlayer, int playerCounter) {
         createDOPCRequestDTO(game);
-        game.setActionCounter(game.getActionCounter() + 1);
+        game.setActionRequestCounter(game.getActionRequestCounter() + 1);
     }
 
     private void setNextTurn(Game game, int playerCounter) {
         // Turn end
-        if ((!(game.getCurrentTurnType() instanceof SpeedupTurn) && game.getActionCounter() % playerCounter == 0)
-                || (game.getCurrentTurnType() instanceof SpeedupTurn && game.getActionCounter() == (game.getCurrentTurn() + 2) * playerCounter)) {
+        if ((!(game.getCurrentTurnType() instanceof SpeedupTurn) && game.getActionRequestCounter() % playerCounter == 0)
+                || (game.getCurrentTurnType() instanceof SpeedupTurn && game.getActionRequestCounter() == (game.getCurrentTurn() + 2) * playerCounter)) {
             game.setCurrentTurn(game.getCurrentTurn() + 1);
             if (game.getCurrentTurn() < ((RoundCard)(game.getRoundCardDeck().get(
                     (game.getCurrentRound())))).getPattern().size()
@@ -132,7 +132,7 @@ public class GameLogicService extends GenericService {
 
     private void setNextPlayer(Game game, int playerCounter) {
         Turn t = game.getCurrentTurnType();
-        if (!(t instanceof SpeedupTurn) || game.getActionCounter() % 2 == 0) {
+        if (!(t instanceof SpeedupTurn) || game.getActionRequestCounter() % 2 == 0) {
             if (t instanceof ReverseTurn) {
                 game.setCurrentPlayer(mod(game.getCurrentPlayer() - 1, playerCounter));
 

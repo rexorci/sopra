@@ -125,6 +125,7 @@ public class GameLogicServiceTest {
         tester.setStatus(GameStatus.RUNNING);
         tester.setCommonDeck(commonDeck);
         tester.setOwner(owner.getName());
+        tester.setActionRequestCounter(0);
 
         // Create RoundCards
         for(int i = 0; i < 5; i++) {

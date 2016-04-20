@@ -24,13 +24,13 @@ import ch.uzh.ifi.seal.soprafs16.model.WagonLevel;
 import ch.uzh.ifi.seal.soprafs16.model.action.ActionRequestDTO;
 import ch.uzh.ifi.seal.soprafs16.model.characters.*;
 import ch.uzh.ifi.seal.soprafs16.model.characters.Character;
-import ch.uzh.ifi.seal.soprafs16.model.repositories.ActionRepository;
 import ch.uzh.ifi.seal.soprafs16.model.repositories.CardRepository;
 import ch.uzh.ifi.seal.soprafs16.model.repositories.CharacterRepository;
 import ch.uzh.ifi.seal.soprafs16.model.repositories.DeckRepository;
 import ch.uzh.ifi.seal.soprafs16.model.repositories.GameRepository;
 import ch.uzh.ifi.seal.soprafs16.model.repositories.ItemRepository;
 import ch.uzh.ifi.seal.soprafs16.model.repositories.MarshalRepository;
+import ch.uzh.ifi.seal.soprafs16.model.repositories.TurnRepository;
 import ch.uzh.ifi.seal.soprafs16.model.repositories.UserRepository;
 import ch.uzh.ifi.seal.soprafs16.model.repositories.WagonLevelRepository;
 import ch.uzh.ifi.seal.soprafs16.model.repositories.WagonRepository;
@@ -61,7 +61,7 @@ public class GameServiceController extends GenericService {
     @Autowired
     private DeckRepository deckRepo;
     @Autowired
-    private ActionRepository actionRepo;
+    private TurnRepository turnRepo;
     //endregion
 
     private final String CONTEXT = "/games";
@@ -160,9 +160,7 @@ public class GameServiceController extends GenericService {
 
         if (owner != null && game != null && game.getOwner().equals(owner.getName()) && game.getStatus() != GameStatus.RUNNING) {
             GameService chs = new GameService();
-            chs.startGame(game, owner, userRepo, wagonRepo, wagonLevelRepo, marshalRepo, characterRepo, deckRepo, cardRepo);
-            Game gameTest = gameRepo.findOne(gameId);
-            String s = "a";
+            chs.startGame(game, owner,gameRepo, userRepo, wagonRepo, wagonLevelRepo, marshalRepo, deckRepo, cardRepo, itemRepo,turnRepo);
         }
     }
 
@@ -334,7 +332,7 @@ public class GameServiceController extends GenericService {
         Game game = gameRepo.findOne(gameId);
         int size = game.getActions().size();
         ActionRequestDTO actionRequest = game.getActions().get(size-1);
-        actionRepo.save(actionRequest);
+        //actionRepo.save(actionRequest);
         return actionRequest;
     }
     //games/{gameId}/action - POST

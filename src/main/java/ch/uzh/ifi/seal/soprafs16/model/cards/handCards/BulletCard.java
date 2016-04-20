@@ -26,11 +26,22 @@ public class BulletCard extends HandCard implements Serializable {
     @Column
     private SourceType sourceType;
 
+    @Column
+    private int bulletCounter;
+
     public SourceType getSourceType() {
         return sourceType;
     }
 
     public void setSourceType(SourceType sourceType) {
         this.sourceType = sourceType;
+    }
+
+    public int getBulletCounter() {
+        return bulletCounter;
+    }
+
+    public void setBulletCounter(int bulletCounter) {
+        this.bulletCounter = bulletCounter;
     }
 }

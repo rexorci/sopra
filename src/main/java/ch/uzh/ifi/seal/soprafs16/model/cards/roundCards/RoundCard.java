@@ -1,5 +1,7 @@
 package ch.uzh.ifi.seal.soprafs16.model.cards.roundCards;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
@@ -34,7 +36,11 @@ public class RoundCard extends Card implements Serializable {
         this.pattern = pattern;
     }
 
-    public int getTurnCount(){
+    public int getTurnCount() {
         return pattern.size();
+    }
+    //abstract class not easily possible with JsonMapping
+    public  String getStringPattern(){
+        return null;
     }
 }

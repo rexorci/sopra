@@ -11,6 +11,7 @@ import ch.uzh.ifi.seal.soprafs16.model.action.ActionRequestDTO;
  */
 public class PunchRequestDTO extends ActionRequestDTO implements Serializable {
 
+
     private static final long serialVersionUID = 1L;
 
     private long gameId;
@@ -19,9 +20,19 @@ public class PunchRequestDTO extends ActionRequestDTO implements Serializable {
 
     private List<Long> punchableUserIds;
 
+    private List<Boolean> hasGem;
+    private List<Boolean> hasBag;
+    private List<Boolean> hasCase;
+
+    private List<Long> movable;
+
     public PunchRequestDTO()
     {
         this.punchableUserIds = new ArrayList<Long>();
+        this.hasGem = new ArrayList<Boolean>();
+        this.hasBag = new ArrayList<Boolean>();
+        this.hasCase = new ArrayList<Boolean>();
+        this.movable = new ArrayList<Long>();
     }
 
     public List<Long> getPunchableUserIds() {
@@ -46,5 +57,37 @@ public class PunchRequestDTO extends ActionRequestDTO implements Serializable {
 
     public void setUserId(long userId) {
         this.userId = userId;
+    }
+
+    public List<Boolean> getHasGem() {
+        return hasGem;
+    }
+
+    public void setHasGem(List<Boolean> hasGem) {
+        this.hasGem = hasGem;
+    }
+
+    public List<Boolean> getHasBag() {
+        return hasBag;
+    }
+
+    public void setHasBag(List<Boolean> hasBag) {
+        this.hasBag = hasBag;
+    }
+
+    public List<Boolean> getHasCase() {
+        return hasCase;
+    }
+
+    public void setHasCase(List<Boolean> hasCase) {
+        this.hasCase = hasCase;
+    }
+
+    public List<Long> getMovable() {
+        return movable;
+    }
+
+    public void setMovable(List<Long> movable) {
+        this.movable = movable;
     }
 }

@@ -61,6 +61,8 @@ public class GameServiceController extends GenericService {
     private DeckRepository deckRepo;
     @Autowired
     private TurnRepository turnRepo;
+    @Autowired
+    private GameService gameService;
     //endregion
 
     private final String CONTEXT = "/games";
@@ -158,8 +160,22 @@ public class GameServiceController extends GenericService {
         User owner = userRepo.findByToken(userToken);
 
         if (owner != null && game != null && game.getOwner().equals(owner.getName()) && game.getStatus() != GameStatus.RUNNING) {
-            GameService chs = new GameService();
-            chs.startGame(game, owner,gameRepo, userRepo, wagonRepo, wagonLevelRepo, marshalRepo, deckRepo, cardRepo, itemRepo,turnRepo);
+            gameService.startGame(gameId);
+        }
+    }
+
+    //games/{game-id}/startDemo - POST
+    @RequestMapping(value = CONTEXT + "/{gameId}/startDemo", method = RequestMethod.POST)
+    @ResponseStatus(HttpStatus.OK)
+    public void startDemo(@PathVariable Long gameId, @RequestParam("token") String userToken) {
+        logger.debug("startGameDemo: " + gameId);
+
+        Game game = gameRepo.findOne(gameId);
+        User owner = userRepo.findByToken(userToken);
+
+        if (owner != null && game != null && game.getOwner().equals(owner.getName()) && game.getStatus() != GameStatus.RUNNING) {
+            gameService.startGame(gameId);
+            gameService.createDemoGame(gameId);
         }
     }
 

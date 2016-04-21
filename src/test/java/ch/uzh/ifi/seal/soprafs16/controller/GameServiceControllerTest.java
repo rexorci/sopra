@@ -149,7 +149,6 @@ public class GameServiceControllerTest {
 
     @Test
     public void testStartGame() {
-        //region start game - GameServiceController.startGame
         //region helper
         User user1 = new User();
         user1.setName("name1_startGameTest");
@@ -157,7 +156,7 @@ public class GameServiceControllerTest {
         String token1 = template.postForObject(base + "users", user1, String.class);
         User user2 = new User();
         user2.setName("name2_startGameTest");
-        user2.setUsername("username9_startGameTest");
+        user2.setUsername("username2_startGameTest");
         String token2 = template.postForObject(base + "users", user2, String.class);
 
         Game game1_2 = new Game();
@@ -170,7 +169,7 @@ public class GameServiceControllerTest {
                 .queryParam("token", token1)
                 .queryParam("character", characterType1.toString());
         HttpEntity<User> userResponse1 = template.exchange(builder1.build().encode().toUri(), HttpMethod.PUT, null, User.class);
-        String characterType2 = "Ghost";
+        String characterType2 = "Doc";
         UriComponentsBuilder builder2 = UriComponentsBuilder.fromHttpUrl(base + "games/" + gameId1_2 + "/users")
                 .queryParam("token", token2)
                 .queryParam("character", characterType2.toString());
@@ -187,8 +186,9 @@ public class GameServiceControllerTest {
             Assert.assertEquals(250,u.getItems().get(0).getValue());
             //does the bulletsdeck contain 6 bullets
             Assert.assertEquals(6, u.getBulletsDeck().getCards().size());
-            //does the handdeck contain 6 cards
-            Assert.assertEquals(6, u.getHandDeck().getCards().size());
+            //does the handdeck contain 6 cards (or 7 if Doc)
+            int drawCardsAmount = u.getCharacterType().equals("Doc") ? 7 : 6 ;
+            Assert.assertEquals(drawCardsAmount, u.getHandDeck().getCards().size());
             //does the hiddendeck contain 4 cards
             Assert.assertEquals(4, u.getHiddenDeck().getCards().size());
         }
@@ -202,11 +202,44 @@ public class GameServiceControllerTest {
         Assert.assertNotNull(game1_2Response.getCommonDeck());
         //assert gamevariables
         Assert.assertEquals((Integer)0,game1_2Response.getCurrentRound());
-        Assert.assertEquals((Integer)0,game1_2Response.getActionRequestCounter());
         Assert.assertEquals((Integer)0,game1_2Response.getCurrentTurn());
         Assert.assertNotNull(game1_2Response.getRoundPattern());
         Assert.assertEquals(PhaseType.PLANNING, game1_2Response.getCurrentPhase());
         //endregion
+    }
+
+    @Test
+    public void testStartDemoGame() {
+        //region helper
+        User user1 = new User();
+        user1.setName("name1_startDemoGameTest");
+        user1.setUsername("username1_startDemoGameTest");
+        String token1 = template.postForObject(base + "users", user1, String.class);
+        User user2 = new User();
+        user2.setName("name2_startDemoGameTest");
+        user2.setUsername("username2_startDemoGameTest");
+        String token2 = template.postForObject(base + "users", user2, String.class);
+
+        Game game1_2 = new Game();
+        game1_2.setName("game1_2_startDemoGameTest");
+        Long gameId1_2 = template.postForObject(base + "games?token=" + token1, game1_2, Long.class);
+        Long userIdGameJoined9 = template.postForObject(base + "games/" + gameId1_2 + "/users?token=" + token2, null, Long.class);
+
+        String characterType1 = "Cheyenne";
+        UriComponentsBuilder builder1 = UriComponentsBuilder.fromHttpUrl(base + "games/" + gameId1_2 + "/users")
+                .queryParam("token", token1)
+                .queryParam("character", characterType1.toString());
+        HttpEntity<User> userResponse1 = template.exchange(builder1.build().encode().toUri(), HttpMethod.PUT, null, User.class);
+        String characterType2 = "Doc";
+        UriComponentsBuilder builder2 = UriComponentsBuilder.fromHttpUrl(base + "games/" + gameId1_2 + "/users")
+                .queryParam("token", token2)
+                .queryParam("character", characterType2.toString());
+        HttpEntity<User> userResponse2 = template.exchange(builder2.build().encode().toUri(), HttpMethod.PUT, null, User.class);
+        //endregion
+        template.postForObject(base + "games/" + gameId1_2 + "/startDemo?token=" + token1, null, Void.class);
+        Game game1_2Response = template.getForObject(base + "games/" + gameId1_2, Game.class);
+        //region Assertions
+
         //endregion
     }
 

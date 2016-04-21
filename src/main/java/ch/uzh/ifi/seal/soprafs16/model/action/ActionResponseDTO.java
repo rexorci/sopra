@@ -12,6 +12,10 @@ public abstract class ActionResponseDTO extends ActionDTO implements Serializabl
     private String userToken;
     private Long userID;
 
+    public void setUserID(Long userID) {
+        this.userID = userID;
+    }
+
     public Long getUserID() {
         return userID;
     }

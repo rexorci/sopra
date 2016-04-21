@@ -13,6 +13,10 @@ public class MoveResponseDTO extends ActionResponseDTO implements Serializable {
 
     private Long wagonLevelId;
 
+    public void setWagonLevelId(Long wagonLevelId) {
+        this.wagonLevelId = wagonLevelId;
+    }
+
     public Long getWagonLevelId() {
         return wagonLevelId;
     }

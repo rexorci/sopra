@@ -34,7 +34,7 @@ import ch.uzh.ifi.seal.soprafs16.model.turns.Turn;
 /**
  * Created by Nico on 05.04.2016.
  */
-@Service("glservice")
+@Service
 @Transactional
 public class GameLogicService extends GenericService {
 
@@ -62,15 +62,10 @@ public class GameLogicService extends GenericService {
 
     public void update(Long id) {
         if (!gameRepo.exists(id)) return;
-        Game game = gameRepo.findOne(id);
-        Hibernate.initialize(game.getCommonDeck());
-        Hibernate.initialize(game.getCurrentPhase());
-        Hibernate.initialize(game.getCurrentPlayer());
-        Hibernate.initialize(game.getActionRequestCounter());
-        Hibernate.initialize(game.getRoundStarter());
-        Hibernate.initialize(game.getRoundCardDeck());
-        Hibernate.initialize(game.getUsers());
 
+        Game game = gameRepo.findOne(id);
+
+        Hibernate.initialize(game.getUsers());
         int currentPlayer = game.getCurrentPlayer();
         List<User> users = game.getUsers();
 

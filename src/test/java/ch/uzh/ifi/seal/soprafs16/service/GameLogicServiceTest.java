@@ -1,4 +1,4 @@
-package ch.uzh.ifi.seal.soprafs16.controller;
+package ch.uzh.ifi.seal.soprafs16.service;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -228,75 +228,74 @@ public class GameLogicServiceTest {
 
     @Test
     public void gls_TurnIsCorrect() {
-        tester = gameRepo.findOne(gameId);
-        assertEquals(0, (long) tester.getCurrentTurn());
+       for(int i = 0; i < 5; i ++) {
+           tester = gameRepo.findOne(gameId);
+           assertEquals(0, (long) tester.getCurrentTurn());
 
-        // 4 responses for Normal Turn
-        gls.update(tester.getId());
-        tester = gameRepo.findOne(gameId);
-        assertEquals(0, (long) tester.getCurrentTurn());
-        gls.update(tester.getId());
-        tester = gameRepo.findOne(gameId);
-        assertEquals(0, (long) tester.getCurrentTurn());
-        gls.update(tester.getId());
-        tester = gameRepo.findOne(gameId);
-        assertEquals(0, (long) tester.getCurrentTurn());
-        gls.update(tester.getId());
-        // 4th response triggers turn change
-        tester = gameRepo.findOne(gameId);
-        assertEquals(1, (long) tester.getCurrentTurn());
+           // 4 responses for Normal Turn
+           gls.update(tester.getId());
+           tester = gameRepo.findOne(gameId);
+           assertEquals(0, (long) tester.getCurrentTurn());
+           gls.update(tester.getId());
+           tester = gameRepo.findOne(gameId);
+           assertEquals(0, (long) tester.getCurrentTurn());
+           gls.update(tester.getId());
+           tester = gameRepo.findOne(gameId);
+           assertEquals(0, (long) tester.getCurrentTurn());
+           gls.update(tester.getId());
+           // 4th response triggers turn change
+           tester = gameRepo.findOne(gameId);
+           assertEquals(1, (long) tester.getCurrentTurn());
 
-        // 8 responses for Speed-Up-Turn
-        gls.update(tester.getId());
-        tester = gameRepo.findOne(gameId);
-        assertEquals(1, (long) tester.getCurrentTurn());
-        gls.update(tester.getId());
-        tester = gameRepo.findOne(gameId);
-        assertEquals(1, (long) tester.getCurrentTurn());
-        gls.update(tester.getId());
-        tester = gameRepo.findOne(gameId);
-        assertEquals(1, (long) tester.getCurrentTurn());
-        gls.update(tester.getId());
-        tester = gameRepo.findOne(gameId);
-        assertEquals(1, (long) tester.getCurrentTurn());
-        gls.update(tester.getId());
-        tester = gameRepo.findOne(gameId);
-        assertEquals(1, (long) tester.getCurrentTurn());
-        gls.update(tester.getId());
-        tester = gameRepo.findOne(gameId);
-        assertEquals(1, (long) tester.getCurrentTurn());
-        gls.update(tester.getId());
-        tester = gameRepo.findOne(gameId);
-        assertEquals(1, (long) tester.getCurrentTurn());
-        gls.update(tester.getId());
-        tester = gameRepo.findOne(gameId);
-        // eighth response triggers turn change
-        assertEquals(2, (long) tester.getCurrentTurn());
+           // 8 responses for Speed-Up-Turn
+           gls.update(tester.getId());
+           tester = gameRepo.findOne(gameId);
+           assertEquals(1, (long) tester.getCurrentTurn());
+           gls.update(tester.getId());
+           tester = gameRepo.findOne(gameId);
+           assertEquals(1, (long) tester.getCurrentTurn());
+           gls.update(tester.getId());
+           tester = gameRepo.findOne(gameId);
+           assertEquals(1, (long) tester.getCurrentTurn());
+           gls.update(tester.getId());
+           tester = gameRepo.findOne(gameId);
+           assertEquals(1, (long) tester.getCurrentTurn());
+           gls.update(tester.getId());
+           tester = gameRepo.findOne(gameId);
+           assertEquals(1, (long) tester.getCurrentTurn());
+           gls.update(tester.getId());
+           tester = gameRepo.findOne(gameId);
+           assertEquals(1, (long) tester.getCurrentTurn());
+           gls.update(tester.getId());
+           tester = gameRepo.findOne(gameId);
+           assertEquals(1, (long) tester.getCurrentTurn());
+           gls.update(tester.getId());
+           tester = gameRepo.findOne(gameId);
+           // eighth response triggers turn change
+           assertEquals(2, (long) tester.getCurrentTurn());
 
 
-        // 4 Responses for Normal-Turn
-        gls.update(tester.getId());
-        tester = gameRepo.findOne(gameId);
-        assertEquals(2, (long) tester.getCurrentTurn());
-        gls.update(tester.getId());
-        tester = gameRepo.findOne(gameId);
-        assertEquals(2, (long) tester.getCurrentTurn());
-        gls.update(tester.getId());
-        tester = gameRepo.findOne(gameId);
-        assertEquals(2, (long) tester.getCurrentTurn());
-        gls.update(tester.getId());
-        // 4th response triggers turn change
-        //assertEquals(0, (long) tester.getCurrentTurnType());
+           // 4 Responses for Normal-Turn
+           gls.update(tester.getId());
+           tester = gameRepo.findOne(gameId);
+           assertEquals(2, (long) tester.getCurrentTurn());
+           gls.update(tester.getId());
+           tester = gameRepo.findOne(gameId);
+           assertEquals(2, (long) tester.getCurrentTurn());
+           gls.update(tester.getId());
+           tester = gameRepo.findOne(gameId);
+           assertEquals(2, (long) tester.getCurrentTurn());
+           gls.update(tester.getId());
+
+           // Simulate responses
+           simulateRound(tester);
+       }
     }
 
     @Test
     public void gls_PhaseIsCorrect() {
-        // initial call to update
-        gls.update(tester.getId());
-        tester = gameRepo.findOne(gameId);
-        assertEquals(PhaseType.PLANNING, tester.getCurrentPhase());
         // simulate 16 ActionResponses (first round)
-        for (int i = 0; i < 15; i++) {
+        for (int i = 0; i < 16; i++) {
             tester = gameRepo.findOne(gameId);
             assertEquals(PhaseType.PLANNING, tester.getCurrentPhase());
             gls.update(tester.getId());

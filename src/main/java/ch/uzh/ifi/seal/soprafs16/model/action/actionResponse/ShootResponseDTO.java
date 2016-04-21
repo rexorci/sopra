@@ -16,4 +16,8 @@ public class ShootResponseDTO extends ActionResponseDTO implements Serializable 
     public Long getVictimId() {
         return victimId;
     }
+
+    public void setVictimId(Long victimId) {
+        this.victimId = victimId;
+    }
 }

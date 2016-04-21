@@ -202,7 +202,6 @@ public class GameServiceControllerTest {
         Assert.assertNotNull(game1_2Response.getCommonDeck());
         //assert gamevariables
         Assert.assertEquals((Integer)0,game1_2Response.getCurrentRound());
-        Assert.assertEquals((Integer)0,game1_2Response.getActionRequestCounter());
         Assert.assertEquals((Integer)0,game1_2Response.getCurrentTurn());
         Assert.assertNotNull(game1_2Response.getRoundPattern());
         Assert.assertEquals(PhaseType.PLANNING, game1_2Response.getCurrentPhase());

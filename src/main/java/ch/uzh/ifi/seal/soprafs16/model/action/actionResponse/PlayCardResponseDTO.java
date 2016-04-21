@@ -14,6 +14,10 @@ public class PlayCardResponseDTO extends ActionResponseDTO implements Serializab
     private static final long serialVersionUID = 1L;
     private ActionCard playedCard;
 
+    public void setPlayedCard(ActionCard playedCard) {
+        this.playedCard = playedCard;
+    }
+
     public ActionCard getPlayedCard() {
         return playedCard;
     }

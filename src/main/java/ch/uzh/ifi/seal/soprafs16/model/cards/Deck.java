@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.OneToMany;
@@ -48,6 +49,16 @@ public class Deck<T extends Card> implements Serializable {
 
     public T remove(int pos){
         return cards.remove(pos);
+    }
+
+    public boolean removeById(Long id){
+        for(T t: cards){
+            if(t.getId() == id){
+                return cards.remove(t);
+            }
+        }
+
+        return false;
     }
 
     public T get(int pos){

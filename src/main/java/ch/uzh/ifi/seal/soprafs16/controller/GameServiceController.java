@@ -62,6 +62,8 @@ public class GameServiceController extends GenericService {
     private DeckRepository deckRepo;
     @Autowired
     private TurnRepository turnRepo;
+    @Autowired
+    private GameService gs;
     //endregion
 
     private final String CONTEXT = "/games";

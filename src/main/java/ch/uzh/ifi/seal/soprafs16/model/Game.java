@@ -12,8 +12,10 @@ import java.util.List;
 import javax.persistence.Column;
 import javax.persistence.ElementCollection;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
 import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
 
@@ -75,6 +77,10 @@ public class Game implements Serializable {
     @Column
     private int roundStarter;
 
+    @JsonIgnore
+    @Column
+    private Integer actionRequestCounter;
+
     @OneToMany
     private List<ActionRequestDTO> actions;
 
@@ -89,10 +95,6 @@ public class Game implements Serializable {
 
     @OneToOne
     private GameDeck<ActionCard> commonDeck;
-
-    @JsonIgnore
-    @Column
-    private Integer actionRequestCounter;
 
 
     public Long getId() {
@@ -120,7 +122,7 @@ public class Game implements Serializable {
     }
 
     public List<User> getUsers() {
-        return users;
+            return users;
     }
 
     public void setUsers(List<User> users) {

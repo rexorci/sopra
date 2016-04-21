@@ -6,8 +6,6 @@ import java.io.Serializable;
 import java.util.ArrayList;
 
 import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.Id;
 import javax.persistence.OneToOne;
 
 import ch.uzh.ifi.seal.soprafs16.model.Game;

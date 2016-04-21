@@ -282,6 +282,7 @@ public class GameService {
             actionCards.add(new MarshalCard());
             actionCards.add(new ShootCard());
             actionCards.add(new ShootCard());
+
             actionCards.add(new CollectCard());
             actionCards.add(new CollectCard());
             for (HandCard c : actionCards) {

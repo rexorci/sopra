@@ -14,7 +14,6 @@ import ch.uzh.ifi.seal.soprafs16.model.cards.handCards.HandCard;
 
 @Entity
 public class PlayerDeck<T extends HandCard> extends Deck implements Serializable {
-//    public class PlayerDeck<T extends HandCard> extends ArrayList<T> implements Serializable {
 
     /**
      *

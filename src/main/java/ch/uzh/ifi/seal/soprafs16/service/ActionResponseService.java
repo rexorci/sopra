@@ -11,10 +11,12 @@ import java.util.List;
 import ch.uzh.ifi.seal.soprafs16.constant.ItemType;
 import ch.uzh.ifi.seal.soprafs16.model.Game;
 import ch.uzh.ifi.seal.soprafs16.model.Item;
+import ch.uzh.ifi.seal.soprafs16.model.Marshal;
 import ch.uzh.ifi.seal.soprafs16.model.User;
 import ch.uzh.ifi.seal.soprafs16.model.WagonLevel;
 import ch.uzh.ifi.seal.soprafs16.model.action.actionResponse.CollectItemResponseDTO;
 import ch.uzh.ifi.seal.soprafs16.model.action.actionResponse.DrawCardResponseDTO;
+import ch.uzh.ifi.seal.soprafs16.model.action.actionResponse.MoveMarshalResponseDTO;
 import ch.uzh.ifi.seal.soprafs16.model.action.actionResponse.MoveResponseDTO;
 import ch.uzh.ifi.seal.soprafs16.model.action.actionResponse.PlayCardResponseDTO;
 import ch.uzh.ifi.seal.soprafs16.model.action.actionResponse.PunchResponseDTO;
@@ -28,6 +30,7 @@ import ch.uzh.ifi.seal.soprafs16.model.repositories.CardRepository;
 import ch.uzh.ifi.seal.soprafs16.model.repositories.DeckRepository;
 import ch.uzh.ifi.seal.soprafs16.model.repositories.GameRepository;
 import ch.uzh.ifi.seal.soprafs16.model.repositories.ItemRepository;
+import ch.uzh.ifi.seal.soprafs16.model.repositories.MarshalRepository;
 import ch.uzh.ifi.seal.soprafs16.model.repositories.UserRepository;
 import ch.uzh.ifi.seal.soprafs16.model.repositories.WagonLevelRepository;
 
@@ -49,6 +52,8 @@ public class ActionResponseService {
     public CardRepository cardRepo;
     @Autowired
     public DeckRepository deckRepo;
+    @Autowired
+    public MarshalRepository marshalRepo;
     //endregion
 
     public void processResponse(DrawCardResponseDTO dcr) {
@@ -164,6 +169,22 @@ public class ActionResponseService {
             userRepo.save(user);
             cardRepo.save(bc);
         }
+    }
+
+    public void processResponse(MoveMarshalResponseDTO mmr){
+        Game game = gameRepo.findOne(mmr.getGameId());
+
+        Marshal marshal = marshalRepo.findOne(game.getMarshal().getId());
+        WagonLevel wl = wagonLevelRepo.findOne(marshal.getWagonLevel().getId());
+        WagonLevel newWl = wagonLevelRepo.findOne(mmr.getWagonLevelId());
+
+        wl.setMarshal(null);
+        newWl.setMarshal(marshal);
+        marshal.setWagonLevel(newWl);
+
+        wagonLevelRepo.save(wl);
+        wagonLevelRepo.save(newWl);
+        marshalRepo.save(marshal);
     }
 
     private Item getRandomItem(ItemType type, User user){

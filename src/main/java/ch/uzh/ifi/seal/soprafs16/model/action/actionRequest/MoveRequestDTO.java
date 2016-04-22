@@ -14,6 +14,7 @@ public class MoveRequestDTO extends ActionRequestDTO implements Serializable {
     private static final long serialVersionUID = 1L;
 
     private List<Long> movableWagonsLvlIds;
+
     private long gameId;
 
     private long userId;

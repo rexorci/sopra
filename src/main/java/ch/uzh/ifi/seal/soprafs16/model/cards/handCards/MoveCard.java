@@ -10,6 +10,7 @@ import ch.uzh.ifi.seal.soprafs16.constant.LevelType;
 import ch.uzh.ifi.seal.soprafs16.model.Game;
 import ch.uzh.ifi.seal.soprafs16.model.User;
 import ch.uzh.ifi.seal.soprafs16.model.WagonLevel;
+import ch.uzh.ifi.seal.soprafs16.model.action.ActionRequestDTO;
 import ch.uzh.ifi.seal.soprafs16.model.action.actionRequest.MoveRequestDTO;
 
 @Entity
@@ -54,6 +55,11 @@ public class MoveCard extends ActionCard implements Serializable {
         mrq.setUserId(user.getId());
         game.getActions().add(mrq);
         return mrq;
+    }
+
+    @Override
+    public ActionRequestDTO generateMarshalRequest(Game game) {
+        return null;
     }
 
     public void getMovableBeforeR(User user, List<Long> movable, WagonLevel wagonLevel)

@@ -9,6 +9,7 @@ import javax.persistence.Entity;
 import ch.uzh.ifi.seal.soprafs16.constant.ItemType;
 import ch.uzh.ifi.seal.soprafs16.model.Game;
 import ch.uzh.ifi.seal.soprafs16.model.User;
+import ch.uzh.ifi.seal.soprafs16.model.action.ActionRequestDTO;
 import ch.uzh.ifi.seal.soprafs16.model.action.actionRequest.PunchRequestDTO;
 
 @Entity
@@ -78,6 +79,11 @@ public class PunchCard extends ActionCard implements Serializable {
         game.getActions().add(prq);
         return prq;
 
+    }
+
+    @Override
+    public ActionRequestDTO generateMarshalRequest(Game game) {
+        return null;
     }
 
 }

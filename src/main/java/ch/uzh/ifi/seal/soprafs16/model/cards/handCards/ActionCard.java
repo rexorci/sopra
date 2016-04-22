@@ -17,5 +17,6 @@ public abstract class ActionCard extends HandCard implements Serializable {
     private static final long serialVersionUID = 1L;
 
     public abstract ActionRequestDTO generateActionRequest(Game game, User user);
+    public abstract ActionRequestDTO generateMarshalRequest(Game game);
 
 }

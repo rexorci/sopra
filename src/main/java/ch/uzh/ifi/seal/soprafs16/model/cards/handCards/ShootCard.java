@@ -58,7 +58,14 @@ public class ShootCard extends ActionCard implements Serializable {
         srq.setUserId(user.getId());
         game.getActions().add(srq);
         return srq;
-    };
+    }
+
+    @Override
+    public ActionRequestDTO generateMarshalRequest(Game game) {
+        return null;
+    }
+
+    ;
 
     public void getShootableUsersBeforeR(User user, List<User> shootable, WagonLevel wagonLevel)
     {

@@ -78,47 +78,6 @@ public class GameServiceControllerTest {
         Long userIdGameJoined = template.postForObject(base + "games/" + gameId1 + "/users?token=" + token2, null, Long.class);
         Assert.assertNotNull(userIdGameJoined);
         //endregion
-        //region User leaves Game - GameServiceController.removePlayer
-        //region helper
-        User user3 = new User();
-        user3.setName("name3_lobbyTest");
-        user3.setUsername("username3_lobbyTest");
-        String token3 = template.postForObject(base + "users", user3, String.class);
-        User user4 = new User();
-        user4.setName("name4_lobbyTest");
-        user4.setUsername("username4_lobbyTest");
-        String token4 = template.postForObject(base + "users", user4, String.class);
-        Game game3_4 = new Game();
-        game3_4.setName("game3_4_lobbyTest");
-        Long gameId3_4 = template.postForObject(base + "games?token=" + token4, game3_4, Long.class);
-        //endregion
-        //as a not-owner
-        HttpEntity<User> httpEntityUser3 = new HttpEntity<User>(user3);
-        ResponseEntity<Long> httpResponse3 = template.exchange(base + "games/" + gameId3_4 + "/users?token=" + token3, HttpMethod.DELETE, httpEntityUser3, Long.class);
-        Game game3 = template.getForObject(base + "games/" + gameId3_4, Game.class);
-        Assert.assertTrue(!containsUserName(game3.getUsers(), user3.getUsername()));
-        Assert.assertTrue(containsUserName(game3.getUsers(), user4.getUsername()));
-        //as an owner
-        HttpEntity<User> httpEntityUser4 = new HttpEntity<User>(user4);
-        ResponseEntity<Long> httpResponse4 = template.exchange(base + "games/" + gameId3_4 + "/users?token=" + token4, HttpMethod.DELETE, httpEntityUser4, Long.class);
-        List<LinkedHashMap> games4 = template.getForObject(base + "games", List.class);
-        Assert.assertTrue(!containsGameId(games4, gameId3_4));
-        Assert.assertTrue(containsGameId(games4, gameId1));
-        //endregion
-        //region delete game - GameServiceController.deleteGame
-        //region helper
-        User user5 = new User();
-        user5.setName("name5_lobbyTest");
-        user5.setUsername("username5_lobbyTest");
-        String token5 = template.postForObject(base + "users", user5, String.class);
-        Game game5 = new Game();
-        game5.setName("game5_lobbyTest");
-        Long gameId5 = template.postForObject(base + "games?token=" + token5, game5, Long.class);
-        //endregion
-        HttpEntity<User> httpEntityUser5 = new HttpEntity<User>(user5);
-        ResponseEntity<Long> httpResponse5 = template.exchange(base + "games/" + gameId5 + "?token=" + token5, HttpMethod.DELETE, httpEntityUser5, Long.class);
-        Assert.assertEquals(gameId5, httpResponse5.getBody());
-        //endregion
         //region get UserId of User - UserServiceController.getUserId
         User user6 = new User();
         user6.setName("name6_lobbyTest");
@@ -183,14 +142,15 @@ public class GameServiceControllerTest {
         Assert.assertTrue(containsUserId(lastWagonLevel.getUsers(), game1_2Response.getUsers().get(game1_2Response.getCurrentPlayer()).getId()));
         for (User u : game1_2Response.getUsers()) {
             //does every Player have a 250$ bag
-            Assert.assertEquals(250,u.getItems().get(0).getValue());
+            Assert.assertEquals(250, u.getItems().get(0).getValue());
             //does the bulletsdeck contain 6 bullets
             Assert.assertEquals(6, u.getBulletsDeck().getCards().size());
             //does the handdeck contain 6 cards (or 7 if Doc)
-            int drawCardsAmount = u.getCharacterType().equals("Doc") ? 7 : 6 ;
+            int drawCardsAmount = u.getCharacterType().equals("Doc") ? 7 : 6;
             Assert.assertEquals(drawCardsAmount, u.getHandDeck().getCards().size());
-            //does the hiddendeck contain 4 cards
-            Assert.assertEquals(4, u.getHiddenDeck().getCards().size());
+            //does the hiddendeck contains 4 cards (3 for doc)
+            int hiddenCardsAmount = u.getCharacterType().equals("Doc") ? 3 : 4;
+            Assert.assertEquals(hiddenCardsAmount, u.getHiddenDeck().getCards().size());
         }
         //does the roundcarddeck contain 5 cards
         Assert.assertEquals(5, game1_2Response.getRoundCardDeck().getCards().size());
@@ -201,10 +161,75 @@ public class GameServiceControllerTest {
         //does the commondeck exist?
         Assert.assertNotNull(game1_2Response.getCommonDeck());
         //assert gamevariables
-        Assert.assertEquals((Integer)0,game1_2Response.getCurrentRound());
-        Assert.assertEquals((Integer)0,game1_2Response.getCurrentTurn());
+        Assert.assertEquals((Integer) 0, game1_2Response.getCurrentRound());
+        Assert.assertEquals((Integer) 0, game1_2Response.getCurrentTurn());
         Assert.assertNotNull(game1_2Response.getRoundPattern());
         Assert.assertEquals(PhaseType.PLANNING, game1_2Response.getCurrentPhase());
+        //endregion
+    }
+
+    @Test
+    public void testDeleteFunctions() {
+        //region set up
+        User user1 = new User();
+        user1.setName("name1_deleteTest");
+        user1.setUsername("username1_deleteTest");
+        String token1 = template.postForObject(base + "users", user1, String.class);
+        User user2 = new User();
+        user2.setName("name2_deleteTest");
+        user2.setUsername("username2_deleteTest");
+        String token2 = template.postForObject(base + "users", user2, String.class);
+        User user3 = new User();
+        user3.setName("name3_deleteTest");
+        user3.setUsername("username3_deleteTest");
+        String token3 = template.postForObject(base + "users", user3, String.class);
+
+        Game game = new Game();
+        game.setName("gameDeleteTest");
+        Long gameId = template.postForObject(base + "games?token=" + token1, game, Long.class);
+        Long userIdGameJoined9 = template.postForObject(base + "games/" + gameId + "/users?token=" + token2, null, Long.class);
+
+        String characterType1 = "Cheyenne";
+        UriComponentsBuilder builder1 = UriComponentsBuilder.fromHttpUrl(base + "games/" + gameId + "/users")
+                .queryParam("token", token1)
+                .queryParam("character", characterType1.toString());
+        HttpEntity<User> userResponse1 = template.exchange(builder1.build().encode().toUri(), HttpMethod.PUT, null, User.class);
+        String characterType2 = "Doc";
+        UriComponentsBuilder builder2 = UriComponentsBuilder.fromHttpUrl(base + "games/" + gameId + "/users")
+                .queryParam("token", token2)
+                .queryParam("character", characterType2.toString());
+        HttpEntity<User> userResponse2 = template.exchange(builder2.build().encode().toUri(), HttpMethod.PUT, null, User.class);
+        String characterType3 = "Tuco";
+        UriComponentsBuilder builder3 = UriComponentsBuilder.fromHttpUrl(base + "games/" + gameId + "/users")
+                .queryParam("token", token3)
+                .queryParam("character", characterType3.toString());
+        HttpEntity<User> userResponse3 = template.exchange(builder3.build().encode().toUri(), HttpMethod.PUT, null, User.class);
+
+        template.postForObject(base + "games/" + gameId + "/start?token=" + token1, null, Void.class);
+        //endregion
+        //region remove a user that is not the owner
+        HttpEntity<User> httpEntityUser3 = new HttpEntity<User>(user3);
+        ResponseEntity<Long> httpResponse3 = template.exchange(base + "games/" + gameId + "/users?token=" + token3, HttpMethod.DELETE, httpEntityUser3, Long.class);
+        Game gameRemoveNotOwner = template.getForObject(base + "games/" + gameId, Game.class);
+        Assert.assertTrue(!containsUserName(gameRemoveNotOwner.getUsers(), user3.getUsername()));
+        Assert.assertTrue(containsUserName(gameRemoveNotOwner.getUsers(), user1.getUsername()));
+        Assert.assertTrue(containsUserName(gameRemoveNotOwner.getUsers(), user2.getUsername()));
+        //endregion
+        //region remove a user that is the owner. check if owner is correctly "handed over"
+        HttpEntity<User> httpEntityUser1 = new HttpEntity<User>(user1);
+        ResponseEntity<Long> httpResponse1 = template.exchange(base + "games/" + gameId + "/users?token=" + token1, HttpMethod.DELETE, httpEntityUser1, Long.class);
+        Game gameRemoveOwner = template.getForObject(base + "games/" + gameId, Game.class);
+        Assert.assertTrue(gameRemoveOwner.getOwner().equals(user2.getName()));
+        //endregion
+        //region remove the last user and trigger game deletion
+        List<LinkedHashMap> allGamesBefore = template.getForObject(base + "games", List.class);
+        Assert.assertTrue(containsGameId(allGamesBefore, gameId));
+        HttpEntity<User> httpEntityUser2 = new HttpEntity<User>(user2);
+        ResponseEntity<Long> httpResponse2 = template.exchange(base + "games/" + gameId + "/users?token=" + token2, HttpMethod.DELETE, httpEntityUser2, Long.class);
+        List<LinkedHashMap> allGamesAfter = template.getForObject(base + "games", List.class);
+        Assert.assertTrue(!containsGameId(allGamesAfter, gameId));
+
+        // Assert.assertEquals(gameId, httpResponse2.getBody());
         //endregion
     }
 
@@ -263,6 +288,7 @@ public class GameServiceControllerTest {
         //endregion
 
         Game game1_2Response = template.postForObject(base + "games/" + gameId1_2 + "/switchLevel?token=" + token1, null, Game.class);
+
         Assert.assertNotNull(game1_2Response);
     }
 

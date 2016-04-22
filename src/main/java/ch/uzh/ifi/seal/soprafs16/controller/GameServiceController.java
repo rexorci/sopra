@@ -100,6 +100,14 @@ public class GameServiceController extends GenericService {
         User owner = userRepo.findByToken(userToken);
 
         if (owner != null) {
+            if (owner.getCharacter() != null) {
+                Character oldChar = owner.getCharacter();
+                oldChar.setUser(null);
+                owner.setCharacter(null);
+                userRepo.save(owner);
+                characterRepo.delete(oldChar);
+            }
+
             game.setStatus(GameStatus.PENDING);
             owner.setGame(game);
             game.setUsers(new ArrayList<User>());
@@ -124,31 +132,31 @@ public class GameServiceController extends GenericService {
         return game;
     }
 
-    //games/{game-id} - DELETE
-    @RequestMapping(value = CONTEXT + "/{gameId}", method = RequestMethod.DELETE)
-    @ResponseStatus(HttpStatus.OK)
-    public Long deleteGame(@PathVariable Long gameId, @RequestParam("token") String userToken) {
-        logger.debug("deleteGame: " + gameId);
-        Game game = gameRepo.findOne(gameId);
-        User user = userRepo.findByToken(userToken);
-        if (game != null && user != null) {
-            String ownerString = game.getOwner();
-            if (user.getName().equals(game.getOwner())) {
-                for (User u : game.getUsers()) {
-                    u.setGame(null);
-                    userRepo.save(u);
-                }
-                gameRepo.delete(game);
-                return gameId;
-            } else {
-                logger.debug("deleteGame: game " + gameId + " - user is not owner of game");
-                return null;
-            }
-        } else {
-            logger.debug("deleteGame: game " + gameId + " - user or game is null");
-            return null;
-        }
-    }
+//    //games/{game-id} - DELETE
+//    @RequestMapping(value = CONTEXT + "/{gameId}", method = RequestMethod.DELETE)
+//    @ResponseStatus(HttpStatus.OK)
+//    public Long deleteGame(@PathVariable Long gameId, @RequestParam("token") String userToken) {
+//        logger.debug("deleteGame: " + gameId);
+//        Game game = gameRepo.findOne(gameId);
+//        User user = userRepo.findByToken(userToken);
+//        if (game != null && user != null) {
+//            String ownerString = game.getOwner();
+//            if (user.getName().equals(game.getOwner())) {
+//                for (User u : game.getUsers()) {
+//                    u.setGame(null);
+//                    userRepo.save(u);
+//                }
+//                gameRepo.delete(game);
+//                return gameId;
+//            } else {
+//                logger.debug("deleteGame: game " + gameId + " - user is not owner of game");
+//                return null;
+//            }
+//        } else {
+//            logger.debug("deleteGame: game " + gameId + " - user or game is null");
+//            return null;
+//        }
+//    }
 
     //games/{game-id}/start - POST
     @RequestMapping(value = CONTEXT + "/{gameId}/start", method = RequestMethod.POST)
@@ -160,6 +168,7 @@ public class GameServiceController extends GenericService {
         User owner = userRepo.findByToken(userToken);
 
         if (owner != null && game != null && game.getOwner().equals(owner.getName()) && game.getStatus() != GameStatus.RUNNING) {
+
             gameService.startGame(gameId);
         }
     }
@@ -174,6 +183,7 @@ public class GameServiceController extends GenericService {
         User owner = userRepo.findByToken(userToken);
 
         if (owner != null && game != null && game.getOwner().equals(owner.getName()) && game.getStatus() != GameStatus.RUNNING) {
+
             gameService.startGame(gameId);
             gameService.createDemoGame(gameId);
         }
@@ -201,6 +211,13 @@ public class GameServiceController extends GenericService {
         Game game = gameRepo.findOne(gameId);
         User user = userRepo.findByToken(userToken);
         if (game != null && user != null && game.getUsers().size() < GameConstants.MAX_PLAYERS && game.getStatus() == GameStatus.PENDING) {
+            if (user.getCharacter() != null) {
+                Character oldChar = user.getCharacter();
+                oldChar.setUser(null);
+                user.setCharacter(null);
+                userRepo.save(user);
+                characterRepo.delete(oldChar);
+            }
             game.getUsers().add(user);
             user.setGame(game);
             logger.debug("Game: " + game.getName() + " - user added: " + user.getUsername());
@@ -283,26 +300,21 @@ public class GameServiceController extends GenericService {
         Game game = gameRepo.findOne(gameId);
         User user = userRepo.findByToken(userToken);
         if (game != null && user != null) {
-            if (game.getOwner().equals(user.getName())) {
-                for (User u : game.getUsers()) {
-                    u.setGame(null);
-                    if (u.getCharacter() != null) {
-                        Character oldChar = u.getCharacter();
-                        characterRepo.delete(oldChar);
-                        u.setCharacter(null);
+            if (game.getUsers().size() > 1) {
+                if (game.getOwner().equals(user.getName())) {
+                    if (game.getUsers().get(0).getName().equals(game.getOwner())) {
+                        game.setOwner(game.getUsers().get(1).getName());
+                    } else {
+                        game.setOwner(game.getUsers().get(0).getName());
                     }
-                    userRepo.save(u);
-                }
-                gameRepo.delete(game);
-            } else {
-                user.setGame(null);
-                if (user.getCharacter() != null) {
-                    Character oldChar = user.getCharacter();
-                    characterRepo.delete(oldChar);
-                    user.setCharacter(null);
                 }
                 gameRepo.save(game);
-                userRepo.save(user);
+
+                gameService.removeUser(user, game);
+
+            } else {
+                gameService.removeUser(user, game);
+                gameService.deleteGame(game);
             }
             return gameId;
         } else {
@@ -310,6 +322,29 @@ public class GameServiceController extends GenericService {
             return null;
         }
     }
+
+    /*
+     logger.debug("deleteGame: " + gameId);
+//        Game game = gameRepo.findOne(gameId);
+//        User user = userRepo.findByToken(userToken);
+//        if (game != null && user != null) {
+//            String ownerString = game.getOwner();
+//            if (user.getName().equals(game.getOwner())) {
+//                for (User u : game.getUsers()) {
+//                    u.setGame(null);
+//                    userRepo.save(u);
+//                }
+//                gameRepo.delete(game);
+//                return gameId;
+//            } else {
+//                logger.debug("deleteGame: game " + gameId + " - user is not owner of game");
+//                return null;
+//            }
+//        } else {
+//            logger.debug("deleteGame: game " + gameId + " - user or game is null");
+//            return null;
+//        }
+     */
 
     //games/{game-id}/switchLevel - POST
     @RequestMapping(value = CONTEXT + "/{gameId}/switchLevel", method = RequestMethod.POST)

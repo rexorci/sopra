@@ -9,6 +9,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import ch.uzh.ifi.seal.soprafs16.constant.ItemType;
+import ch.uzh.ifi.seal.soprafs16.constant.LevelType;
 import ch.uzh.ifi.seal.soprafs16.model.Game;
 import ch.uzh.ifi.seal.soprafs16.model.Item;
 import ch.uzh.ifi.seal.soprafs16.model.Marshal;
@@ -185,6 +186,27 @@ public class ActionResponseService {
         wagonLevelRepo.save(wl);
         wagonLevelRepo.save(newWl);
         marshalRepo.save(marshal);
+    }
+
+    public void changeLevel(User user){
+        WagonLevel wl = wagonLevelRepo.findOne(user.getWagonLevel().getId());
+        WagonLevel newWl = new WagonLevel();
+        if(wl.getLevelType() == LevelType.TOP) {
+            newWl = wagonLevelRepo.findOne(user.getWagonLevel().getWagon().getBottomLevel().getId());
+        }
+        else if(wl.getLevelType() == LevelType.BOTTOM) {
+            newWl = wagonLevelRepo.findOne(user.getWagonLevel().getWagon().getTopLevel().getId());
+        }
+
+        if(newWl != null) {
+            user.setWagonLevel(newWl);
+            wl.removeUserById(user.getId());
+            newWl.getUsers().add(user);
+
+            userRepo.save(user);
+            wagonLevelRepo.save(wl);
+            wagonLevelRepo.save(newWl);
+        }
     }
 
     private Item getRandomItem(ItemType type, User user){

@@ -28,10 +28,12 @@ import ch.uzh.ifi.seal.soprafs16.Application;
 import ch.uzh.ifi.seal.soprafs16.constant.ItemType;
 import ch.uzh.ifi.seal.soprafs16.model.Game;
 import ch.uzh.ifi.seal.soprafs16.model.Item;
+import ch.uzh.ifi.seal.soprafs16.model.Marshal;
 import ch.uzh.ifi.seal.soprafs16.model.User;
 import ch.uzh.ifi.seal.soprafs16.model.WagonLevel;
 import ch.uzh.ifi.seal.soprafs16.model.action.actionResponse.CollectItemResponseDTO;
 import ch.uzh.ifi.seal.soprafs16.model.action.actionResponse.DrawCardResponseDTO;
+import ch.uzh.ifi.seal.soprafs16.model.action.actionResponse.MoveMarshalResponseDTO;
 import ch.uzh.ifi.seal.soprafs16.model.action.actionResponse.MoveResponseDTO;
 import ch.uzh.ifi.seal.soprafs16.model.action.actionResponse.PlayCardResponseDTO;
 import ch.uzh.ifi.seal.soprafs16.model.action.actionResponse.PunchResponseDTO;
@@ -313,4 +315,47 @@ public class ActionResponseServiceTest {
         assertEquals(victim.getHiddenDeck().getId(), bc.getDeck().getId());
     }
 
+    @Test
+    public void processResponse_MoveMarshalIsCorrect(){
+        Game game = gameRepo.findOne(gameId);
+        User user = userRepo.findOne(game.getUsers().get(0).getId());
+
+        Marshal marshal = marshalRepo.findOne(game.getMarshal().getId());
+        WagonLevel wl = wagonLevelRepo.findOne(marshal.getWagonLevel().getId());
+        WagonLevel newWl = wagonLevelRepo.findOne(marshal.getWagonLevel().getWagonLevelAfter().getId());
+
+        MoveMarshalResponseDTO mmr = new MoveMarshalResponseDTO();
+        mmr.setGameId(game.getId());
+        mmr.setUserID(user.getId());
+        mmr.setWagonLevelId(newWl.getId());
+
+        ars.processResponse(mmr);
+
+        marshal = marshalRepo.findOne(game.getMarshal().getId());
+        wl = wagonLevelRepo.findOne(wl.getId());
+        newWl = wagonLevelRepo.findOne(newWl.getId());
+
+        assertNull(wl.getMarshal());
+        assertEquals(marshal.getId(), newWl.getMarshal().getId());
+        assertEquals(newWl.getId(), marshal.getWagonLevel().getId());
+    }
+
+    @Test
+    public void changeLevel_isCorrect(){
+        Game game = gameRepo.findOne(gameId);
+        User user = userRepo.findOne(game.getUsers().get(0).getId());
+
+        WagonLevel wl = wagonLevelRepo.findOne(user.getWagonLevel().getId());
+        WagonLevel newWl = wagonLevelRepo.findOne(wl.getWagon().getTopLevel().getId());
+
+        ars.changeLevel(user);
+
+        wl = wagonLevelRepo.findOne(wl.getId());
+        newWl = wagonLevelRepo.findOne(newWl.getId());
+        user = userRepo.findOne(user.getId());
+
+        assertEquals(newWl.getId(), user.getWagonLevel().getId());
+        assertFalse(wl.removeUserById(user.getId()));
+        assertTrue(newWl.removeUserById(user.getId()));
+    }
 }

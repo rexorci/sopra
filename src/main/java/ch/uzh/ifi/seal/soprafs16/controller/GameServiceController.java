@@ -16,15 +16,20 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
 import ch.uzh.ifi.seal.soprafs16.GameConstants;
-import ch.uzh.ifi.seal.soprafs16.constant.CharacterType;
 import ch.uzh.ifi.seal.soprafs16.constant.GameStatus;
 import ch.uzh.ifi.seal.soprafs16.constant.LevelType;
 import ch.uzh.ifi.seal.soprafs16.model.Game;
 import ch.uzh.ifi.seal.soprafs16.model.User;
 import ch.uzh.ifi.seal.soprafs16.model.WagonLevel;
+import ch.uzh.ifi.seal.soprafs16.model.characters.*;
+import ch.uzh.ifi.seal.soprafs16.model.characters.Character;
+import ch.uzh.ifi.seal.soprafs16.model.repositories.CardRepository;
+import ch.uzh.ifi.seal.soprafs16.model.repositories.CharacterRepository;
+import ch.uzh.ifi.seal.soprafs16.model.repositories.DeckRepository;
 import ch.uzh.ifi.seal.soprafs16.model.repositories.GameRepository;
 import ch.uzh.ifi.seal.soprafs16.model.repositories.ItemRepository;
 import ch.uzh.ifi.seal.soprafs16.model.repositories.MarshalRepository;
+import ch.uzh.ifi.seal.soprafs16.model.repositories.TurnRepository;
 import ch.uzh.ifi.seal.soprafs16.model.repositories.UserRepository;
 import ch.uzh.ifi.seal.soprafs16.model.repositories.WagonLevelRepository;
 import ch.uzh.ifi.seal.soprafs16.model.repositories.WagonRepository;
@@ -48,6 +53,16 @@ public class GameServiceController extends GenericService {
     private ItemRepository itemRepo;
     @Autowired
     private MarshalRepository marshalRepo;
+    @Autowired
+    private CharacterRepository characterRepo;
+    @Autowired
+    private CardRepository cardRepo;
+    @Autowired
+    private DeckRepository deckRepo;
+    @Autowired
+    private TurnRepository turnRepo;
+    @Autowired
+    private GameService gameService;
     //endregion
 
     private final String CONTEXT = "/games";
@@ -85,6 +100,14 @@ public class GameServiceController extends GenericService {
         User owner = userRepo.findByToken(userToken);
 
         if (owner != null) {
+            if (owner.getCharacter() != null) {
+                Character oldChar = owner.getCharacter();
+                oldChar.setUser(null);
+                owner.setCharacter(null);
+                userRepo.save(owner);
+                characterRepo.delete(oldChar);
+            }
+
             game.setStatus(GameStatus.PENDING);
             owner.setGame(game);
             game.setUsers(new ArrayList<User>());
@@ -109,31 +132,31 @@ public class GameServiceController extends GenericService {
         return game;
     }
 
-    //games/{game-id} - DELETE
-    @RequestMapping(value = CONTEXT + "/{gameId}", method = RequestMethod.DELETE)
-    @ResponseStatus(HttpStatus.OK)
-    public Long deleteGame(@PathVariable Long gameId, @RequestParam("token") String userToken) {
-        logger.debug("deleteGame: " + gameId);
-        Game game = gameRepo.findOne(gameId);
-        User user = userRepo.findByToken(userToken);
-        if (game != null && user != null) {
-            String ownerString = game.getOwner();
-            if (user.getName().equals(game.getOwner())) {
-                for (User u : game.getUsers()) {
-                    u.setGame(null);
-                    userRepo.save(u);
-                }
-                gameRepo.delete(game);
-                return gameId;
-            } else {
-                logger.debug("deleteGame: game " + gameId + " - user is not owner of game");
-                return null;
-            }
-        } else {
-            logger.debug("deleteGame: game " + gameId + " - user or game is null");
-            return null;
-        }
-    }
+//    //games/{game-id} - DELETE
+//    @RequestMapping(value = CONTEXT + "/{gameId}", method = RequestMethod.DELETE)
+//    @ResponseStatus(HttpStatus.OK)
+//    public Long deleteGame(@PathVariable Long gameId, @RequestParam("token") String userToken) {
+//        logger.debug("deleteGame: " + gameId);
+//        Game game = gameRepo.findOne(gameId);
+//        User user = userRepo.findByToken(userToken);
+//        if (game != null && user != null) {
+//            String ownerString = game.getOwner();
+//            if (user.getName().equals(game.getOwner())) {
+//                for (User u : game.getUsers()) {
+//                    u.setGame(null);
+//                    userRepo.save(u);
+//                }
+//                gameRepo.delete(game);
+//                return gameId;
+//            } else {
+//                logger.debug("deleteGame: game " + gameId + " - user is not owner of game");
+//                return null;
+//            }
+//        } else {
+//            logger.debug("deleteGame: game " + gameId + " - user or game is null");
+//            return null;
+//        }
+//    }
 
     //games/{game-id}/start - POST
     @RequestMapping(value = CONTEXT + "/{gameId}/start", method = RequestMethod.POST)
@@ -144,9 +167,25 @@ public class GameServiceController extends GenericService {
         Game game = gameRepo.findOne(gameId);
         User owner = userRepo.findByToken(userToken);
 
-        if (owner != null && game != null && game.getOwner().equals(owner.getName())) {
-            GameService chs = new GameService();
-            chs.startGame(game, owner, wagonRepo, wagonLevelRepo, marshalRepo);
+        if (owner != null && game != null && game.getOwner().equals(owner.getName()) && game.getStatus() != GameStatus.RUNNING) {
+
+            gameService.startGame(gameId);
+        }
+    }
+
+    //games/{game-id}/startDemo - POST
+    @RequestMapping(value = CONTEXT + "/{gameId}/startDemo", method = RequestMethod.POST)
+    @ResponseStatus(HttpStatus.OK)
+    public void startDemo(@PathVariable Long gameId, @RequestParam("token") String userToken) {
+        logger.debug("startGameDemo: " + gameId);
+
+        Game game = gameRepo.findOne(gameId);
+        User owner = userRepo.findByToken(userToken);
+
+        if (owner != null && game != null && game.getOwner().equals(owner.getName()) && game.getStatus() != GameStatus.RUNNING) {
+
+            gameService.startGame(gameId);
+            gameService.createDemoGame(gameId);
         }
     }
 
@@ -172,6 +211,13 @@ public class GameServiceController extends GenericService {
         Game game = gameRepo.findOne(gameId);
         User user = userRepo.findByToken(userToken);
         if (game != null && user != null && game.getUsers().size() < GameConstants.MAX_PLAYERS && game.getStatus() == GameStatus.PENDING) {
+            if (user.getCharacter() != null) {
+                Character oldChar = user.getCharacter();
+                oldChar.setUser(null);
+                user.setCharacter(null);
+                userRepo.save(user);
+                characterRepo.delete(oldChar);
+            }
             game.getUsers().add(user);
             user.setGame(game);
             logger.debug("Game: " + game.getName() + " - user added: " + user.getUsername());
@@ -192,15 +238,49 @@ public class GameServiceController extends GenericService {
         User user = userRepo.findByToken(userToken);
         if (user != null && game != null) {
             try {
-                CharacterType characterType = CharacterType.valueOf(character);
                 for (User u : game.getUsers()) {
-                    if (u.getCharacterType() != null && u.getId() != user.getId()) {
-                        if (u.getCharacterType().equals(characterType)) {
+                    if (u.getCharacter() != null && u.getId() != user.getId()) {
+                        if (u.getCharacterType().equals(character)) {
+                            //other user already chose this character
                             return null;
                         }
                     }
                 }
-                user.setCharacterType(characterType);
+
+                if (user.getCharacter() != null) {
+                    ch.uzh.ifi.seal.soprafs16.model.characters.Character oldChar = user.getCharacter();
+                    oldChar.setUser(null);
+                    user.setCharacter(null);
+                    userRepo.save(user);
+                    characterRepo.delete(oldChar);
+                }
+
+                ch.uzh.ifi.seal.soprafs16.model.characters.Character newCharacter;
+                switch (character) {
+                    case "Belle":
+                        newCharacter = new Belle();
+                        break;
+                    case "Cheyenne":
+                        newCharacter = new Cheyenne();
+                        break;
+                    case "Django":
+                        newCharacter = new Django();
+                        break;
+                    case "Doc":
+                        newCharacter = new Doc();
+                        break;
+                    case "Ghost":
+                        newCharacter = new Ghost();
+                        break;
+                    case "Tuco":
+                        newCharacter = new Tuco();
+                        break;
+                    default:
+                        return null;
+                }
+                user.setCharacter(newCharacter);
+                newCharacter.setUser(user);
+                characterRepo.save(newCharacter);
                 userRepo.save(user);
                 return user;
             } catch (IllegalArgumentException iae) {
@@ -220,18 +300,21 @@ public class GameServiceController extends GenericService {
         Game game = gameRepo.findOne(gameId);
         User user = userRepo.findByToken(userToken);
         if (game != null && user != null) {
-            if (game.getOwner().equals(user.getName())) {
-                for (User u : game.getUsers()) {
-                    u.setGame(null);
-                    u.setCharacterType(null);
-                    userRepo.save(u);
+            if (game.getUsers().size() > 1) {
+                if (game.getOwner().equals(user.getName())) {
+                    if (game.getUsers().get(0).getName().equals(game.getOwner())) {
+                        game.setOwner(game.getUsers().get(1).getName());
+                    } else {
+                        game.setOwner(game.getUsers().get(0).getName());
+                    }
                 }
-                gameRepo.delete(game);
-            } else {
-                user.setGame(null);
-                user.setCharacterType(null);
                 gameRepo.save(game);
-                userRepo.save(user);
+
+                gameService.removeUser(user, game);
+
+            } else {
+                gameService.removeUser(user, game);
+                gameService.deleteGame(game);
             }
             return gameId;
         } else {
@@ -240,33 +323,56 @@ public class GameServiceController extends GenericService {
         }
     }
 
-    //games/{game-id}/switchLevel - POST
-    @RequestMapping(value = CONTEXT + "/{gameId}/switchLevel", method = RequestMethod.POST)
-    @ResponseStatus(HttpStatus.OK)
-    public Game prototypeSwitchLevel(@PathVariable Long gameId, @RequestParam("token") String userToken) {
-        Game game = gameRepo.findOne(gameId);
-        User user = userRepo.findByToken(userToken);
-        if (game != null && user != null && game.getStatus() == GameStatus.RUNNING) {
-            WagonLevel wagonLevelNew;
-            if (user.getWagonLevel().getLevelType().equals(LevelType.BOTTOM)) {
-                wagonLevelNew = user.getWagonLevel().getWagon().getTopLevel();
-            } else {
-                wagonLevelNew = user.getWagonLevel().getWagon().getBottomLevel();
-            }
+    /*
+     logger.debug("deleteGame: " + gameId);
+//        Game game = gameRepo.findOne(gameId);
+//        User user = userRepo.findByToken(userToken);
+//        if (game != null && user != null) {
+//            String ownerString = game.getOwner();
+//            if (user.getName().equals(game.getOwner())) {
+//                for (User u : game.getUsers()) {
+//                    u.setGame(null);
+//                    userRepo.save(u);
+//                }
+//                gameRepo.delete(game);
+//                return gameId;
+//            } else {
+//                logger.debug("deleteGame: game " + gameId + " - user is not owner of game");
+//                return null;
+//            }
+//        } else {
+//            logger.debug("deleteGame: game " + gameId + " - user or game is null");
+//            return null;
+//        }
+     */
 
-            user.getWagonLevel().getUsers().remove(user);
-            gameRepo.save(game);//this save is mandatory!
-
-            wagonLevelNew.getUsers().add(user);
-            user.setWagonLevel(wagonLevelNew);
-            gameRepo.save(game);
-            userRepo.save(user);
-            return game;
-        } else {
-            logger.error("Error switching level");
-            return null;
-        }
-    }
+//    //games/{game-id}/switchLevel - POST
+//    @RequestMapping(value = CONTEXT + "/{gameId}/switchLevel", method = RequestMethod.POST)
+//    @ResponseStatus(HttpStatus.OK)
+//    public Game prototypeSwitchLevel(@PathVariable Long gameId, @RequestParam("token") String userToken) {
+//        Game game = gameRepo.findOne(gameId);
+//        User user = userRepo.findByToken(userToken);
+//        if (game != null && user != null && game.getStatus() == GameStatus.RUNNING) {
+//            WagonLevel wagonLevelNew;
+//            if (user.getWagonLevel().getLevelType().equals(LevelType.BOTTOM)) {
+//                wagonLevelNew = user.getWagonLevel().getWagon().getTopLevel();
+//            } else {
+//                wagonLevelNew = user.getWagonLevel().getWagon().getBottomLevel();
+//            }
+//
+//            user.getWagonLevel().getUsers().remove(user);
+//            gameRepo.save(game);//this save is mandatory!
+//
+//            wagonLevelNew.getUsers().add(user);
+//            user.setWagonLevel(wagonLevelNew);
+//            gameRepo.save(game);
+//            userRepo.save(user);
+//            return game;
+//        } else {
+//            logger.error("Error switching level");
+//            return null;
+//        }
+//    }
 
     //games/{gameId}/action - GET
     //games/{gameId}/action - POST

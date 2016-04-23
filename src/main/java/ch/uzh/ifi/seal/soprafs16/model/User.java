@@ -174,5 +174,4 @@ public class User implements Serializable {
     public void setBulletsDeck(PlayerDeck<BulletCard> bulletsDeck) {
         this.bulletsDeck = bulletsDeck;
     }
-
 }

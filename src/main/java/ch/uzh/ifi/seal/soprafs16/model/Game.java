@@ -1,4 +1,7 @@
 package ch.uzh.ifi.seal.soprafs16.model;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
@@ -16,7 +19,12 @@ import javax.persistence.OneToOne;
 
 import ch.uzh.ifi.seal.soprafs16.constant.GameStatus;
 import ch.uzh.ifi.seal.soprafs16.constant.PhaseType;
+import ch.uzh.ifi.seal.soprafs16.model.cards.GameDeck;
+import ch.uzh.ifi.seal.soprafs16.model.cards.handCards.ActionCard;
+import ch.uzh.ifi.seal.soprafs16.model.cards.roundCards.RoundCard;
+import ch.uzh.ifi.seal.soprafs16.model.turns.Turn;
 import ch.uzh.ifi.seal.soprafs16.model.action.ActionRequestDTO;
+import ch.uzh.ifi.seal.soprafs16.model.cards.handCards.BulletCard;
 
 @Entity
 public class Game implements Serializable {
@@ -58,16 +66,34 @@ public class Game implements Serializable {
     private Integer currentTurn;
 
     @Column
-    private PhaseType currentPhase;
-
-    @Column
     private String roundPattern;
 
-    @OneToMany(mappedBy = "game")
+    @Column
+    private PhaseType currentPhase;
+
+    @JsonIgnore
+    @Column
+    private int roundStarter;
+
+    @OneToMany
     private List<ActionRequestDTO> actions;
 
     @ElementCollection
     private List<String> log;
+
+    @OneToOne
+    private GameDeck<RoundCard> roundCardDeck;
+
+    @OneToOne
+    private GameDeck<BulletCard> neutralBulletsDeck;
+
+    @OneToOne
+    private GameDeck<ActionCard> commonDeck;
+
+    @JsonIgnore
+    @Column
+    private Integer actionRequestCounter;
+
 
     public Long getId() {
         return id;
@@ -114,6 +140,7 @@ public class Game implements Serializable {
     }
 
     public void setCurrentPlayer(Integer currentPlayer) {
+        LoggerFactory.getLogger("Game").debug("setCurrentPlayer: " + currentPlayer);
         this.currentPlayer = currentPlayer;
     }
 
@@ -157,12 +184,12 @@ public class Game implements Serializable {
         this.currentPhase = currentPhase;
     }
 
-    public String getRoundPattern() {
-        return roundPattern;
+    public List<String> getLog() {
+        return log;
     }
 
-    public void setRoundPattern(String roundPattern) {
-        this.roundPattern = roundPattern;
+    public void setLog(List<String> log) {
+        this.log = log;
     }
 
     public List<ActionRequestDTO> getActions() {
@@ -173,11 +200,62 @@ public class Game implements Serializable {
         this.actions = actions;
     }
 
-    public List<String> getLog() {
-        return log;
+    public Turn getCurrentTurnType(){
+        if(roundCardDeck != null) {
+            return ((RoundCard) roundCardDeck.getCards().get(currentRound)).getPattern().get(currentTurn);
+        }
+        else return null;
     }
 
-    public void setLog(List<String> log) {
-        this.log = log;
+    public void setRoundStarter(int roundStarter) {
+        this.roundStarter = roundStarter;
+    }
+
+    public GameDeck<ActionCard> getCommonDeck() {
+        return commonDeck;
+    }
+
+    public void setCommonDeck(GameDeck<ActionCard> commonDeck) {
+        this.commonDeck = commonDeck;
+    }
+
+    public GameDeck<RoundCard> getRoundCardDeck() {
+        return roundCardDeck;
+    }
+
+    public void setRoundCardDeck(GameDeck<RoundCard> roundCardDeck) {
+        this.roundCardDeck = roundCardDeck;
+    }
+
+    public GameDeck<BulletCard> getNeutralBulletsDeck() {
+        return neutralBulletsDeck;
+    }
+
+    public void setNeutralBulletsDeck(GameDeck<BulletCard> neutralBulletsDeck) {
+        this.neutralBulletsDeck = neutralBulletsDeck;
+    }
+
+    public Integer getRoundStarter() {
+        return roundStarter;
+    }
+
+    public void setRoundStarter(Integer roundStarter) {
+        this.roundStarter = roundStarter;
+    }
+
+    public Integer getActionRequestCounter() {
+        return actionRequestCounter;
+    }
+
+    public void setActionRequestCounter(Integer actionRequestCounter) {
+        this.actionRequestCounter = actionRequestCounter;
+    }
+
+    public String getRoundPattern() {
+        return roundPattern;
+    }
+
+    public void setRoundPattern(String roundPattern) {
+        this.roundPattern = roundPattern;
     }
 }

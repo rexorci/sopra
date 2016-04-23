@@ -4,7 +4,6 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
-import ch.uzh.ifi.seal.soprafs16.model.Action;
 import ch.uzh.ifi.seal.soprafs16.model.action.ActionRequestDTO;
 
 /**

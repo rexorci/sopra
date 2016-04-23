@@ -8,6 +8,15 @@ import java.io.Serializable;
 public abstract class ActionResponseDTO extends ActionDTO implements Serializable {
 
     private static final long serialVersionUID = 1L;
-
+    private int requestID;
     private String userToken;
+    private Long userID;
+
+    public Long getUserID() {
+        return userID;
+    }
+
+    public int getRequestID() {
+        return requestID;
+    }
 }

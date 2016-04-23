@@ -31,6 +31,7 @@ import ch.uzh.ifi.seal.soprafs16.model.repositories.DeckRepository;
 import ch.uzh.ifi.seal.soprafs16.model.repositories.GameRepository;
 import ch.uzh.ifi.seal.soprafs16.model.repositories.ItemRepository;
 import ch.uzh.ifi.seal.soprafs16.model.repositories.MarshalRepository;
+import ch.uzh.ifi.seal.soprafs16.model.repositories.TurnRepository;
 import ch.uzh.ifi.seal.soprafs16.model.repositories.UserRepository;
 import ch.uzh.ifi.seal.soprafs16.model.repositories.WagonLevelRepository;
 import ch.uzh.ifi.seal.soprafs16.model.repositories.WagonRepository;
@@ -62,6 +63,8 @@ public class GameServiceController extends GenericService {
     private DeckRepository deckRepo;
     @Autowired
     private ActionRepository actionRepo;
+    @Autowired
+    private TurnRepository turnRepo;
     //endregion
 
     private final String CONTEXT = "/games";

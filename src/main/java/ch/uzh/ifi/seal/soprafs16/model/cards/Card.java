@@ -26,6 +26,10 @@ public class Card implements Serializable {
     @JsonIgnore
     private Deck deck;
 
+    public Long getId() {
+        return id;
+    }
+
     public Deck getDeck() {
         return deck;
     }

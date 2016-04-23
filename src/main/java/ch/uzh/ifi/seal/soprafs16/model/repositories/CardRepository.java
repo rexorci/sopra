@@ -7,5 +7,5 @@ import ch.uzh.ifi.seal.soprafs16.model.cards.Card;
 import ch.uzh.ifi.seal.soprafs16.model.cards.handCards.BulletCard;
 
 @Repository("cardRepository")
-public interface CardRepository extends CrudRepository<BulletCard, Long> {
+public interface CardRepository extends CrudRepository<Card, Long> {
 }

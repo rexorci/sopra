@@ -2,7 +2,6 @@ package ch.uzh.ifi.seal.soprafs16.model.cards.handCards;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
-import org.hibernate.annotations.ManyToAny;
 import org.springframework.data.annotation.Transient;
 
 import java.io.Serializable;
@@ -27,11 +26,22 @@ public class BulletCard extends HandCard implements Serializable {
     @Column
     private SourceType sourceType;
 
+    @Column
+    private int bulletCounter;
+
     public SourceType getSourceType() {
         return sourceType;
     }
 
     public void setSourceType(SourceType sourceType) {
         this.sourceType = sourceType;
+    }
+
+    public int getBulletCounter() {
+        return bulletCounter;
+    }
+
+    public void setBulletCounter(int bulletCounter) {
+        this.bulletCounter = bulletCounter;
     }
 }

@@ -10,4 +10,10 @@ import ch.uzh.ifi.seal.soprafs16.model.action.ActionResponseDTO;
 public class ShootResponseDTO extends ActionResponseDTO implements Serializable {
 
     private static final long serialVersionUID = 1L;
+
+    private Long victimId;
+
+    public Long getVictimId() {
+        return victimId;
+    }
 }

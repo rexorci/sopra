@@ -8,6 +8,8 @@ import java.util.ArrayList;
 import java.util.Random;
 import java.util.stream.IntStream;
 
+import javax.swing.Action;
+
 import ch.uzh.ifi.seal.soprafs16.constant.GameStatus;
 import ch.uzh.ifi.seal.soprafs16.constant.ItemType;
 import ch.uzh.ifi.seal.soprafs16.constant.LevelType;
@@ -216,7 +218,7 @@ public class GameService {
                 deckRepo.save(handDeck);
                 userRepo.save(user);
 
-                ArrayList<HandCard> allActionCards = (getActionCards(user));
+                ArrayList<ActionCard> allActionCards = getActionCards(user);
 
                 int drawCardsAmount = user.getCharacterType().equals("Doc") ? 7 : 6;
 
@@ -224,6 +226,7 @@ public class GameService {
                 for (int randomIndex : randomChosenHandCards) {
                     handDeck.getCards().add(allActionCards.get(randomIndex));
                     allActionCards.get(randomIndex).setDeck(handDeck);
+                    allActionCards.get(randomIndex).setPlayedByUserId(user.getId());
                 }
 
                 //put the rest of the player's actioncards into his hiddendeck
@@ -302,9 +305,9 @@ public class GameService {
         }
     }
 
-    private ArrayList<HandCard> getActionCards(User user) {
+    private ArrayList<ActionCard> getActionCards(User user) {
         try {
-            ArrayList<HandCard> actionCards = new ArrayList<>();
+            ArrayList<ActionCard> actionCards = new ArrayList<>();
             //10ActionCards in Total, 2x Move, 2x ChangeLevel, 1x Punch, 1x MoveMarshal, 2x Shoot, 2x Collect
             actionCards.add(new MoveCard());
             actionCards.add(new MoveCard());
@@ -317,7 +320,7 @@ public class GameService {
 
             actionCards.add(new CollectCard());
             actionCards.add(new CollectCard());
-            for (HandCard c : actionCards) {
+            for (ActionCard c : actionCards) {
                 cardRepo.save(c);
             }
 
@@ -774,10 +777,10 @@ public class GameService {
             creationSuccessful = creationSuccessful && relocateMarshal(game, 1);
 
             //place 1 user in first wagon (after locomotive)
-            creationSuccessful = creationSuccessful && relocatePlayer(game.getUsers().get(0),game.getWagons().get(0).getBottomLevel());
+            creationSuccessful = creationSuccessful && relocatePlayer(game.getUsers().get(0), game.getWagons().get(0).getBottomLevel());
 
             //place 1 user in on top of 3rd wagon
-            creationSuccessful = creationSuccessful && relocatePlayer(game.getUsers().get(1),game.getWagons().get(3).getTopLevel());
+            creationSuccessful = creationSuccessful && relocatePlayer(game.getUsers().get(1), game.getWagons().get(3).getTopLevel());
 
             if (creationSuccessful) {
                 return gameId;
@@ -855,12 +858,10 @@ public class GameService {
         try {
             boolean successful = true;
             successful = handOverItem(game.getUsers().get(0), ItemType.BAG, game) && successful;
-            successful = handOverItem(game.getUsers().get(0), ItemType.BAG, game) && successful;
             successful = handOverItem(game.getUsers().get(0), ItemType.CASE, game) && successful;
 
             successful = handOverItem(game.getUsers().get(1), ItemType.GEM, game) && successful;
             successful = handOverItem(game.getUsers().get(1), ItemType.GEM, game) && successful;
-            successful = handOverItem(game.getUsers().get(1), ItemType.BAG, game) && successful;
             successful = handOverItem(game.getUsers().get(1), ItemType.BAG, game) && successful;
 
             return successful;
@@ -921,7 +922,7 @@ public class GameService {
         }
     }
 
-    private boolean relocatePlayer(User user, WagonLevel wagonLevelNew){
+    private boolean relocatePlayer(User user, WagonLevel wagonLevelNew) {
         try {
             WagonLevel wagonLevelOld = user.getWagonLevel();
             wagonLevelOld.getUsers().remove(user);

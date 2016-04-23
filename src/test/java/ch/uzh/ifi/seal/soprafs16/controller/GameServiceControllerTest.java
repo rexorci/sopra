@@ -266,7 +266,8 @@ public class GameServiceControllerTest {
         Game game1_2Response = template.getForObject(base + "games/" + gameId1_2, Game.class);
         //region Assertions
         Assert.assertEquals(StationCard.class, game1_2Response.getRoundCardDeck().getCards().get(game1_2Response.getCurrentRound()).getClass().getSuperclass());
-        Assert.assertNotNull(game1_2Response.getWagons().get(1).getBottomLevel().getMarshal());
+
+       Assert.assertNotNull(game1_2Response.getWagons().get(1).getBottomLevel().getMarshal());
         Assert.assertEquals(user1.getUsername(), game1_2Response.getWagons().get(0).getBottomLevel().getUsers().get(0).getUsername());
         Assert.assertEquals(user2.getUsername(), game1_2Response.getWagons().get(3).getTopLevel().getUsers().get(0).getUsername());
         //endregion

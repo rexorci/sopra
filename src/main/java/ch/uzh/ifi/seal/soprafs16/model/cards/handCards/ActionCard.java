@@ -5,6 +5,7 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo;
 
 import java.io.Serializable;
 
+import javax.persistence.Column;
 import javax.persistence.Entity;
 
 @Entity
@@ -24,4 +25,25 @@ public class ActionCard extends HandCard implements Serializable {
      */
     private static final long serialVersionUID = 1L;
 
+    @Column
+    private Long playedByUserId;
+
+    @Column
+    private boolean  playedHidden;
+
+    public Long getPlayedByUserId() {
+        return playedByUserId;
+    }
+
+    public void setPlayedByUserId(Long playedByUserId) {
+        this.playedByUserId = playedByUserId;
+    }
+
+    public boolean isPlayedHidden() {
+        return playedHidden;
+    }
+
+    public void setPlayedHidden(boolean playedHidden) {
+        this.playedHidden = playedHidden;
+    }
 }

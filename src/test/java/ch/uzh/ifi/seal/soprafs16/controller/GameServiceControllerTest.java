@@ -26,6 +26,7 @@ import ch.uzh.ifi.seal.soprafs16.constant.PhaseType;
 import ch.uzh.ifi.seal.soprafs16.model.Game;
 import ch.uzh.ifi.seal.soprafs16.model.User;
 import ch.uzh.ifi.seal.soprafs16.model.WagonLevel;
+import ch.uzh.ifi.seal.soprafs16.model.cards.roundCards.StationCard;
 
 
 @RunWith(SpringJUnit4ClassRunner.class)
@@ -264,32 +265,11 @@ public class GameServiceControllerTest {
         template.postForObject(base + "games/" + gameId1_2 + "/startDemo?token=" + token1, null, Void.class);
         Game game1_2Response = template.getForObject(base + "games/" + gameId1_2, Game.class);
         //region Assertions
-
+        Assert.assertEquals(StationCard.class, game1_2Response.getRoundCardDeck().getCards().get(game1_2Response.getCurrentRound()).getClass().getSuperclass());
+        Assert.assertNotNull(game1_2Response.getWagons().get(1).getBottomLevel().getMarshal());
+        Assert.assertEquals(user1.getUsername(), game1_2Response.getWagons().get(0).getBottomLevel().getUsers().get(0).getUsername());
+        Assert.assertEquals(user2.getUsername(), game1_2Response.getWagons().get(3).getTopLevel().getUsers().get(0).getUsername());
         //endregion
-    }
-
-    @Test
-    public void testPrototypeLogic() throws Exception {
-        //region helper
-        User user1 = new User();
-        user1.setName("name1_prototypeTest");
-        user1.setUsername("username1_prototypeTest");
-        String token1 = template.postForObject(base + "users", user1, String.class);
-        User user2 = new User();
-        user2.setName("name2_prototypeTest");
-        user2.setUsername("username2_prototypeTest");
-        String token2 = template.postForObject(base + "users", user2, String.class);
-
-        Game game1_2 = new Game();
-        game1_2.setName("game1_2_lobbyTest");
-        Long gameId1_2 = template.postForObject(base + "games?token=" + token1, game1_2, Long.class);
-        template.postForObject(base + "games/" + gameId1_2 + "/users?token=" + token2, null, Long.class);
-        template.postForObject(base + "games/" + gameId1_2 + "/start?token=" + token1, null, Void.class);
-        //endregion
-
-        Game game1_2Response = template.postForObject(base + "games/" + gameId1_2 + "/switchLevel?token=" + token1, null, Game.class);
-
-        Assert.assertNotNull(game1_2Response);
     }
 
     //region helper methods

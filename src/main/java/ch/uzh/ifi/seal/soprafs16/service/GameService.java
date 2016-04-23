@@ -5,7 +5,6 @@ import org.springframework.stereotype.Service;
 
 import java.util.AbstractMap;
 import java.util.ArrayList;
-import java.util.List;
 import java.util.Random;
 import java.util.stream.IntStream;
 
@@ -44,7 +43,6 @@ import ch.uzh.ifi.seal.soprafs16.model.cards.roundCards.PassengerRebellionCard;
 import ch.uzh.ifi.seal.soprafs16.model.cards.roundCards.PickPocketingCard;
 import ch.uzh.ifi.seal.soprafs16.model.cards.roundCards.PivotablePoleCard;
 import ch.uzh.ifi.seal.soprafs16.model.cards.roundCards.RoundCard;
-import ch.uzh.ifi.seal.soprafs16.model.characters.*;
 import ch.uzh.ifi.seal.soprafs16.model.repositories.CardRepository;
 import ch.uzh.ifi.seal.soprafs16.model.repositories.CharacterRepository;
 import ch.uzh.ifi.seal.soprafs16.model.repositories.DeckRepository;
@@ -767,8 +765,19 @@ public class GameService {
 
             boolean creationSuccessful = true;
             //put bulletcards into decks
-            creationSuccessful = creationSuccessful && placeBullets(game);
+            creationSuccessful = creationSuccessful && placeBulletsDemo(game);
 
+            //give some items to users
+            creationSuccessful = creationSuccessful && giveItemsDemo(game);
+
+            //place marshal in second wagon
+            creationSuccessful = creationSuccessful && relocateMarshal(game, 1);
+
+            //place 1 user in first wagon (after locomotive)
+            creationSuccessful = creationSuccessful && relocatePlayer(game.getUsers().get(0),game.getWagons().get(0).getBottomLevel());
+
+            //place 1 user in on top of 3rd wagon
+            creationSuccessful = creationSuccessful && relocatePlayer(game.getUsers().get(1),game.getWagons().get(3).getTopLevel());
 
             if (creationSuccessful) {
                 return gameId;
@@ -780,7 +789,7 @@ public class GameService {
         }
     }
 
-    private boolean placeBullets(Game game) {
+    private boolean placeBulletsDemo(Game game) {
         try {
             addPlayerBulletToDeck(game.getUsers().get(0), game.getUsers().get(1));
 
@@ -841,5 +850,92 @@ public class GameService {
         user.getHiddenDeck().getCards().add(handCard);
         cardRepo.save(handCard);
     }
+
+    private boolean giveItemsDemo(Game game) {
+        try {
+            boolean successful = true;
+            successful = handOverItem(game.getUsers().get(0), ItemType.BAG, game) && successful;
+            successful = handOverItem(game.getUsers().get(0), ItemType.BAG, game) && successful;
+            successful = handOverItem(game.getUsers().get(0), ItemType.CASE, game) && successful;
+
+            successful = handOverItem(game.getUsers().get(1), ItemType.GEM, game) && successful;
+            successful = handOverItem(game.getUsers().get(1), ItemType.GEM, game) && successful;
+            successful = handOverItem(game.getUsers().get(1), ItemType.BAG, game) && successful;
+            successful = handOverItem(game.getUsers().get(1), ItemType.BAG, game) && successful;
+
+            return successful;
+        } catch (Exception ex) {
+            return false;
+        }
+    }
+
+    private boolean handOverItem(User user, ItemType itemType, Game game) {
+        try {
+            for (Wagon wagon : game.getWagons()) {
+                int index = wagonLevelContainsItem(wagon.getBottomLevel(), itemType);
+                if (index != -1) {
+                    Item item = wagon.getBottomLevel().getItems().get(index);
+                    item.setWagonLevel(null);
+                    wagon.getBottomLevel().getItems().remove(index);
+                    wagonLevelRepo.save(wagon.getBottomLevel());
+                    itemRepo.save(item);
+                    user.getItems().add(item);
+                    item.setUser(user);
+                    itemRepo.save(item);
+                    userRepo.save(user);
+                    return true;
+                }
+            }
+            return false;
+        } catch (Exception ex) {
+            return false;
+        }
+    }
+
+    private int wagonLevelContainsItem(WagonLevel wagonLevel, ItemType itemType) {
+        int index = 0;
+        for (Item item : wagonLevel.getItems()) {
+            if (item.getItemType().equals(itemType)) {
+                return index;
+            }
+            index++;
+        }
+        return -1;
+    }
+
+    private boolean relocateMarshal(Game game, int wagonId) {
+        try {
+            WagonLevel wagonLevelNew = game.getWagons().get(wagonId).getBottomLevel();
+            Marshal marshal = game.getMarshal();
+            WagonLevel wagonLevelOld = marshal.getWagonLevel();
+            wagonLevelOld.setMarshal(null);
+            wagonLevelRepo.save(wagonLevelOld);
+            marshal.setWagonLevel(wagonLevelNew);
+            wagonLevelNew.setMarshal(marshal);
+            wagonLevelRepo.save(wagonLevelNew);
+            marshalRepo.save(marshal);
+
+            return true;
+        } catch (Exception ex) {
+            return false;
+        }
+    }
+
+    private boolean relocatePlayer(User user, WagonLevel wagonLevelNew){
+        try {
+            WagonLevel wagonLevelOld = user.getWagonLevel();
+            wagonLevelOld.getUsers().remove(user);
+            wagonLevelRepo.save(wagonLevelOld);
+            user.setWagonLevel(wagonLevelNew);
+            wagonLevelNew.getUsers().add(user);
+            wagonLevelRepo.save(wagonLevelNew);
+            userRepo.save(user);
+
+            return true;
+        } catch (Exception ex) {
+            return false;
+        }
+    }
+
     //endregion
 }

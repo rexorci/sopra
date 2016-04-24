@@ -142,7 +142,6 @@ public class Game implements Serializable {
     }
 
     public void setCurrentPlayer(Integer currentPlayer) {
-        LoggerFactory.getLogger("Game").debug("setCurrentPlayer: " + currentPlayer);
         this.currentPlayer = currentPlayer;
     }
 

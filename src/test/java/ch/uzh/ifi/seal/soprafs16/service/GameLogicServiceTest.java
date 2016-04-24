@@ -1,16 +1,25 @@
 package ch.uzh.ifi.seal.soprafs16.service;
 
+import org.hibernate.Hibernate;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.IntegrationTest;
 import org.springframework.boot.test.SpringApplicationConfiguration;
+import org.springframework.boot.test.TestRestTemplate;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpMethod;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.context.web.WebAppConfiguration;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.client.RestTemplate;
+import org.springframework.web.util.UriComponentsBuilder;
 
 import static org.junit.Assert.assertEquals;
 
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.UUID;
 
@@ -20,8 +29,11 @@ import ch.uzh.ifi.seal.soprafs16.constant.PhaseType;
 import ch.uzh.ifi.seal.soprafs16.constant.UserStatus;
 import ch.uzh.ifi.seal.soprafs16.model.Game;
 import ch.uzh.ifi.seal.soprafs16.model.User;
+import ch.uzh.ifi.seal.soprafs16.model.action.ActionRequestDTO;
 import ch.uzh.ifi.seal.soprafs16.model.cards.GameDeck;
+import ch.uzh.ifi.seal.soprafs16.model.cards.PlayerDeck;
 import ch.uzh.ifi.seal.soprafs16.model.cards.handCards.ActionCard;
+import ch.uzh.ifi.seal.soprafs16.model.cards.handCards.HandCard;
 import ch.uzh.ifi.seal.soprafs16.model.cards.roundCards.RoundCard;
 import ch.uzh.ifi.seal.soprafs16.model.repositories.CardRepository;
 import ch.uzh.ifi.seal.soprafs16.model.repositories.CharacterRepository;
@@ -48,6 +60,7 @@ import ch.uzh.ifi.seal.soprafs16.service.GameLogicService;
 @SpringApplicationConfiguration(classes = Application.class)
 @WebAppConfiguration
 @IntegrationTest({"server.port=0"})
+@Transactional
 public class GameLogicServiceTest {
     //region Repositories
     @Autowired
@@ -76,56 +89,82 @@ public class GameLogicServiceTest {
     private Game tester;
     private Long gameId;
 
+    @Value("${local.server.port}")
+    private int port;
+
+    private URL base;
+    private RestTemplate template;
+    private static int i = 0;
+
     @Before
-    public void init() {
+    public void setUp()
+            throws Exception {
+        this.base = new URL("http://localhost:" + port + "/");
+        this.template = new TestRestTemplate();
+    }
+
+    @Before
+    public void init(){
+        //region helper
+        i++;
+        User user1 = new User();
+        user1.setName("name1_glServiceTest" + i);
+        user1.setUsername("username1_glServiceTest" + i);
+        String token1 = template.postForObject(base + "users", user1, String.class);
+        User user2 = new User();
+        user2.setName("name2_glServiceTest" + i);
+        user2.setUsername("username2_glServiceTest" + i);
+        String token2 = template.postForObject(base + "users", user2, String.class);
+        User user3 = new User();
+        user3.setName("name3_glServiceTest" + i);
+        user3.setUsername("username3_glServiceTest" + i);
+        String token3 = template.postForObject(base + "users", user3, String.class);
+        User user4 = new User();
+        user4.setName("name4_glServiceTest" + i);
+        user4.setUsername("username4_glServiceTest" + i);
+        String token4 = template.postForObject(base + "users", user4, String.class);
+
         tester = new Game();
+        tester.setName("game1_2_glServiceTest" + i);
+        Long gameId1_2 = template.postForObject(base + "games?token=" + token1, tester, Long.class);
+        Long userIdGameJoined2 = template.postForObject(base + "games/" + gameId1_2 + "/users?token=" + token2, null, Long.class);
+        Long userIdGameJoined3 = template.postForObject(base + "games/" + gameId1_2 + "/users?token=" + token3, null, Long.class);
+        Long userIdGameJoined4 = template.postForObject(base + "games/" + gameId1_2 + "/users?token=" + token4, null, Long.class);
 
-        ArrayList<User> users = new ArrayList<>();
-        GameDeck<RoundCard> roundCardDeck = new GameDeck<>();
-        deckRepo.save(roundCardDeck);
-        GameDeck<ActionCard> commonDeck = new GameDeck<>();
-        deckRepo.save(roundCardDeck);
+        String characterType1 = "Cheyenne";
+        UriComponentsBuilder builder1 = UriComponentsBuilder.fromHttpUrl(base + "games/" + gameId1_2 + "/users")
+                .queryParam("token", token1)
+                .queryParam("character", characterType1.toString());
+        HttpEntity<User> userResponse1 = template.exchange(builder1.build().encode().toUri(), HttpMethod.PUT, null, User.class);
+        String characterType2 = "Ghost";
+        UriComponentsBuilder builder2 = UriComponentsBuilder.fromHttpUrl(base + "games/" + gameId1_2 + "/users")
+                .queryParam("token", token2)
+                .queryParam("character", characterType2.toString());
+        HttpEntity<User> userResponse2 = template.exchange(builder2.build().encode().toUri(), HttpMethod.PUT, null, User.class);
+        String characterType3 = "Doc";
+        UriComponentsBuilder builder3 = UriComponentsBuilder.fromHttpUrl(base + "games/" + gameId1_2 + "/users")
+                .queryParam("token", token3)
+                .queryParam("character", characterType3.toString());
+        HttpEntity<User> userResponse3 = template.exchange(builder3.build().encode().toUri(), HttpMethod.PUT, null, User.class);
+        String characterType4 = "Tuco";
+        UriComponentsBuilder builder4 = UriComponentsBuilder.fromHttpUrl(base + "games/" + gameId1_2 + "/users")
+                .queryParam("token", token4)
+                .queryParam("character", characterType4.toString());
+        HttpEntity<User> userResponse4 = template.exchange(builder4.build().encode().toUri(), HttpMethod.PUT, null, User.class);
 
-        User owner = new User();
-        owner.setStatus(UserStatus.ONLINE);
-        String token = UUID.randomUUID().toString();
-        owner.setToken(token);
-        owner.setItems(new ArrayList<>());
-        owner.setName("GLSTest1Owner" + Math.random() * 999);
-        owner.setUsername("GLSTest1Owner" + Math.random() * 999);
-        owner = userRepo.save(owner);
+        template.postForObject(base + "games/" + gameId1_2 + "/start?token=" + token1, null, Void.class);
+        Game testerResponse = template.getForObject(base + "games/" + gameId1_2, Game.class);
+        gameId = testerResponse.getId();
 
-        owner.setGame(tester);
-        users.add(owner);
-
-        tester.setStatus(GameStatus.PENDING);
-        tester.setOwner(owner.getName());
-        tester.setName("GameLogicServiceTest");
+        tester = gameRepo.findOne(gameId);
 
         gameRepo.save(tester);
 
-        for(int i = 0; i < 4; i++){
-            User user = new User();
-            user.setName("a" + tester.getId() + i);
-            user.setUsername("a" + tester.getId() + i);
-            user.setGame(tester);
-            user.setToken(UUID.randomUUID().toString());
-            user.setStatus(UserStatus.ONLINE);
-            userRepo.save(user);
-            users.add(user);
-        }
-        gameRepo.save(tester);
-
-        tester.setUsers(users);
-        tester.setCurrentPhase(PhaseType.PLANNING);
         tester.setCurrentPlayer(0);
-        tester.setRoundCardDeck(roundCardDeck);
-        tester.setCurrentRound(0);
-        tester.setCurrentTurn(0);
-        tester.setStatus(GameStatus.RUNNING);
-        tester.setCommonDeck(commonDeck);
-        tester.setOwner(owner.getName());
-        tester.setActionRequestCounter(0);
+        tester.setRoundStarter(0);
+        GameDeck<ActionCard> roundCardDeck = (GameDeck<ActionCard>)deckRepo.findOne(tester.getRoundCardDeck().getId());
+        Hibernate.initialize(roundCardDeck.getCards());
+        roundCardDeck.getCards().clear();
 
         // Create RoundCards
         for(int i = 0; i < 5; i++) {
@@ -154,13 +193,9 @@ public class GameLogicServiceTest {
             roundCardDeck.add(rc);
             cardRepo.save(rc);
         }
+
         deckRepo.save(roundCardDeck);
-        deckRepo.save(commonDeck);
-
-        tester.setStatus(GameStatus.PENDING);
         gameRepo.save(tester);
-
-        gameId = tester.getId();
     }
 
     @Test
@@ -219,7 +254,6 @@ public class GameLogicServiceTest {
             assertEquals((1+i)%4, (long) tester.getCurrentPlayer());
             tester = gameRepo.findOne(gameId);
             gls.update(tester.getId());
-            tester = gameRepo.findOne(gameId);
             for(int y = 0; y < 16; y++){
                 gls.update(tester.getId());
             }
@@ -326,14 +360,20 @@ public class GameLogicServiceTest {
         }
     }
 
-    @Test
+  /*  @Test
     public void gls_GameFinishesCorrectly(){
         tester.setCurrentRound(4);
         tester.setCurrentPhase(PhaseType.EXECUTION);
         tester.setCurrentTurn(2);
+        tester.getCommonDeck().getCards().add(new ActionCard() {
+            @Override
+            public ActionRequestDTO generateActionRequest(Game game, User user) {
+                return null;
+            }
+        });
         gls.update(tester.getId());
         gameRepo.save(tester);
-    }
+    }*/
 
 
     /*

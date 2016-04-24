@@ -1,6 +1,5 @@
 package ch.uzh.ifi.seal.soprafs16.service;
 
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -55,7 +54,6 @@ public class ActionResponseService {
     public DeckRepository deckRepo;
     @Autowired
     public MarshalRepository marshalRepo;
-    //endregion
 
     public void processResponse(DrawCardResponseDTO dcr) {
         User user = userRepo.findOne(dcr.getUserID());
@@ -112,7 +110,6 @@ public class ActionResponseService {
     public void processResponse(CollectItemResponseDTO cir) {
         User user = userRepo.findOne(cir.getUserID());
 
-
         WagonLevel wl = wagonLevelRepo.findOne(user.getWagonLevel().getId());
         Item item = itemRepo.findOne(getRandomItem(cir.getCollectedItemType(), wl).getId());
         wl.removeItemById(item.getId());
@@ -138,8 +135,16 @@ public class ActionResponseService {
         victim.getItems().remove(item);
         drop_wl.getItems().add(item);
 
-        item.setUser(null);
-        item.setWagonLevel(drop_wl);
+
+        // Cheyenne Character Skill
+        if(user.getCharacterType().equals("Cheyenne")){
+            item.setUser(user);
+            user.getItems().add(item);
+        }
+        else{
+            item.setUser(null);
+            item.setWagonLevel(drop_wl);
+        }
         // Move user
         drop_wl.getUsers().remove(victim);
         move_wl.getUsers().add(victim);
@@ -164,6 +169,25 @@ public class ActionResponseService {
             hiddenDeck.add(bc);
 
             bc.setDeck(hiddenDeck);
+
+            // Character Skill Tuco
+            if(user.getCharacterType().equals("Tuco")){
+                WagonLevel wl = wagonLevelRepo.findOne(victim.getWagonLevel().getId());
+                WagonLevel wlNew = new WagonLevel();
+                if(user.getWagonLevel().getWagon().getId() < victim.getWagonLevel().getWagon().getId()){
+                    wlNew = wagonLevelRepo.findOne(wl.getWagonLevelAfter().getId());
+                }
+                else{
+                    wlNew = wagonLevelRepo.findOne(wl.getWagonLevelBefore().getId());
+                }
+
+                wl.removeUserById(victim.getId());
+                wlNew.getUsers().add(victim);
+                victim.setWagonLevel(wlNew);
+
+                wagonLevelRepo.save(wl);
+                wagonLevelRepo.save(wlNew);
+            }
             deckRepo.save(bulletCardDeck);
             deckRepo.save(hiddenDeck);
             userRepo.save(victim);

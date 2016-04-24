@@ -154,7 +154,7 @@ public class GameService {
         }
     }
 
-    private boolean initPlayerDecks(Game game, UserRepository userRepo, DeckRepository deckRepo, CardRepository cardRepo) {
+    private boolean     initPlayerDecks(Game game, UserRepository userRepo, DeckRepository deckRepo, CardRepository cardRepo) {
         try {
             for (User user : game.getUsers()) {
 

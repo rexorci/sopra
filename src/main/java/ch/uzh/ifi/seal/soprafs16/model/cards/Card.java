@@ -3,6 +3,7 @@ package ch.uzh.ifi.seal.soprafs16.model.cards;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
+import com.fasterxml.jackson.annotation.JsonTypeName;
 
 import java.io.Serializable;
 
@@ -15,10 +16,11 @@ import ch.uzh.ifi.seal.soprafs16.model.cards.handCards.HandCard;
 import ch.uzh.ifi.seal.soprafs16.model.cards.roundCards.RoundCard;
 
 @Entity
-@JsonTypeInfo(use = JsonTypeInfo.Id.MINIMAL_CLASS, include = JsonTypeInfo.As.PROPERTY, property = "@class")
+@JsonTypeName("card")
+@JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.PROPERTY, property = "type")
 @JsonSubTypes({
-        @JsonSubTypes.Type(HandCard.class),
-        @JsonSubTypes.Type(RoundCard.class)
+        @JsonSubTypes.Type(value=HandCard.class, name = "handCard"),
+        @JsonSubTypes.Type(value=RoundCard.class, name = "roundCard")
 })
 public class Card implements Serializable {
 

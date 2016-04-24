@@ -2,20 +2,22 @@ package ch.uzh.ifi.seal.soprafs16.model.cards.handCards;
 
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
+import com.fasterxml.jackson.annotation.JsonTypeName;
 
 import java.io.Serializable;
 
 import javax.persistence.Entity;
 
 @Entity
-@JsonTypeInfo(use = JsonTypeInfo.Id.MINIMAL_CLASS, include = JsonTypeInfo.As.PROPERTY, property = "@class")
+@JsonTypeName("actionCard")
+@JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.PROPERTY, property = "type")
 @JsonSubTypes({
-        @JsonSubTypes.Type(ShootCard.class),
-        @JsonSubTypes.Type(CollectCard.class),
-        @JsonSubTypes.Type(MarshalCard.class),
-        @JsonSubTypes.Type(MoveCard.class),
-        @JsonSubTypes.Type(ChangeLevelCard.class),
-        @JsonSubTypes.Type(PunchCard.class)
+        @JsonSubTypes.Type(value = ShootCard.class, name = "shootCard"),
+        @JsonSubTypes.Type(value = CollectCard.class, name = "collectCard"),
+        @JsonSubTypes.Type(value = MarshalCard.class, name = "marshalCard"),
+        @JsonSubTypes.Type(value = MoveCard.class, name = "moveCard"),
+        @JsonSubTypes.Type(value = ChangeLevelCard.class, name = "changeLevelCard"),
+        @JsonSubTypes.Type(value = PunchCard.class, name = "punchCard")
 })
 public class ActionCard extends HandCard implements Serializable {
 

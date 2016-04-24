@@ -1,5 +1,7 @@
 package ch.uzh.ifi.seal.soprafs16.model.cards.handCards;
 
+import com.fasterxml.jackson.annotation.JsonTypeName;
+
 import java.io.Serializable;
 
 import javax.persistence.Column;
@@ -8,6 +10,7 @@ import javax.persistence.Entity;
 import ch.uzh.ifi.seal.soprafs16.constant.SourceType;
 
 @Entity
+@JsonTypeName("bulletCard")
 public class BulletCard extends HandCard implements Serializable {
 
     /**

@@ -1,3 +1,4 @@
+
 package ch.uzh.ifi.seal.soprafs16.model.cards.handCards;
 
 import com.fasterxml.jackson.annotation.JsonSubTypes;
@@ -7,6 +8,10 @@ import java.io.Serializable;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
+
+import ch.uzh.ifi.seal.soprafs16.model.Game;
+import ch.uzh.ifi.seal.soprafs16.model.User;
+import ch.uzh.ifi.seal.soprafs16.model.action.ActionRequestDTO;
 
 @Entity
 @JsonTypeInfo(use = JsonTypeInfo.Id.MINIMAL_CLASS, include = JsonTypeInfo.As.PROPERTY, property = "@class")
@@ -18,7 +23,7 @@ import javax.persistence.Entity;
         @JsonSubTypes.Type(ChangeLevelCard.class),
         @JsonSubTypes.Type(PunchCard.class)
 })
-public class ActionCard extends HandCard implements Serializable {
+public abstract class ActionCard extends HandCard implements Serializable {
 
     /**
      *
@@ -46,4 +51,7 @@ public class ActionCard extends HandCard implements Serializable {
     public void setPlayedHidden(boolean playedHidden) {
         this.playedHidden = playedHidden;
     }
+
+    public abstract ActionRequestDTO generateActionRequest(Game game, User user);
+
 }

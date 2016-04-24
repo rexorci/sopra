@@ -35,12 +35,16 @@ public class RoundCard extends Card implements Serializable {
     @OneToMany
     private List<Turn> pattern;
 
-    public ArrayList<Turn> getPattern() {
+    public ArrayList<Turn> getArrayList() {
         ArrayList<Turn> turns = new ArrayList<>();
         for(Turn t: pattern){
             turns.add(t);
         }
         return turns;
+    }
+
+    public List<Turn> getPattern(){
+        return pattern;
     }
 
     public void setPattern(List<Turn> pattern) {

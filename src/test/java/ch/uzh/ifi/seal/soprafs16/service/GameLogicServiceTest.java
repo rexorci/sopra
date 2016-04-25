@@ -127,33 +127,33 @@ public class GameLogicServiceTest {
 
         tester = new Game();
         tester.setName("game1_2_glServiceTest" + i);
-        Long gameId1_2 = template.postForObject(base + "games?token=" + userAuthenticationWrapper1.userToken, tester, Long.class);
-        Long userIdGameJoined2 = template.postForObject(base + "games/" + gameId1_2 + "/users?token=" + userAuthenticationWrapper2.userToken, null, Long.class);
-        Long userIdGameJoined3 = template.postForObject(base + "games/" + gameId1_2 + "/users?token=" + userAuthenticationWrapper3.userToken, null, Long.class);
-        Long userIdGameJoined4 = template.postForObject(base + "games/" + gameId1_2 + "/users?token=" + userAuthenticationWrapper4.userToken, null, Long.class);
+        Long gameId1_2 = template.postForObject(base + "games?token=" + userAuthenticationWrapper1.getUserToken(), tester, Long.class);
+        Long userIdGameJoined2 = template.postForObject(base + "games/" + gameId1_2 + "/users?token=" + userAuthenticationWrapper2.getUserToken(), null, Long.class);
+        Long userIdGameJoined3 = template.postForObject(base + "games/" + gameId1_2 + "/users?token=" + userAuthenticationWrapper3.getUserToken(), null, Long.class);
+        Long userIdGameJoined4 = template.postForObject(base + "games/" + gameId1_2 + "/users?token=" + userAuthenticationWrapper4.getUserToken(), null, Long.class);
 
         String characterType1 = "Cheyenne";
         UriComponentsBuilder builder1 = UriComponentsBuilder.fromHttpUrl(base + "games/" + gameId1_2 + "/users")
-                .queryParam("token", userAuthenticationWrapper1.userToken)
+                .queryParam("token", userAuthenticationWrapper1.getUserToken())
                 .queryParam("character", characterType1.toString());
         HttpEntity<User> userResponse1 = template.exchange(builder1.build().encode().toUri(), HttpMethod.PUT, null, User.class);
         String characterType2 = "Ghost";
         UriComponentsBuilder builder2 = UriComponentsBuilder.fromHttpUrl(base + "games/" + gameId1_2 + "/users")
-                .queryParam("token", userAuthenticationWrapper2.userToken)
+                .queryParam("token", userAuthenticationWrapper2.getUserToken())
                 .queryParam("character", characterType2.toString());
         HttpEntity<User> userResponse2 = template.exchange(builder2.build().encode().toUri(), HttpMethod.PUT, null, User.class);
         String characterType3 = "Doc";
         UriComponentsBuilder builder3 = UriComponentsBuilder.fromHttpUrl(base + "games/" + gameId1_2 + "/users")
-                .queryParam("token", userAuthenticationWrapper3.userToken)
+                .queryParam("token", userAuthenticationWrapper3.getUserToken())
                 .queryParam("character", characterType3.toString());
         HttpEntity<User> userResponse3 = template.exchange(builder3.build().encode().toUri(), HttpMethod.PUT, null, User.class);
         String characterType4 = "Tuco";
         UriComponentsBuilder builder4 = UriComponentsBuilder.fromHttpUrl(base + "games/" + gameId1_2 + "/users")
-                .queryParam("token", userAuthenticationWrapper4.userToken)
+                .queryParam("token", userAuthenticationWrapper4.getUserToken())
                 .queryParam("character", characterType4.toString());
         HttpEntity<User> userResponse4 = template.exchange(builder4.build().encode().toUri(), HttpMethod.PUT, null, User.class);
 
-        template.postForObject(base + "games/" + gameId1_2 + "/start?token=" + userAuthenticationWrapper1.userToken, null, Void.class);
+        template.postForObject(base + "games/" + gameId1_2 + "/start?token=" + userAuthenticationWrapper1.getUserToken(), null, Void.class);
         Game testerResponse = template.getForObject(base + "games/" + gameId1_2, Game.class);
         gameId = testerResponse.getId();
 

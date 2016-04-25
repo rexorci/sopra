@@ -111,29 +111,29 @@ public class ActionResponseServiceTest {
         User user1 = new User();
         user1.setName("name1_startGameTest" + i);
         user1.setUsername("username1_startGameTest" + i);
-        UserAuthenticationWrapper userAuthenticationWrapper = template.postForObject(base + "users", user1, UserAuthenticationWrapper.class);
+        UserAuthenticationWrapper userAuthenticationWrapper1 = template.postForObject(base + "users", user1, UserAuthenticationWrapper.class);
         User user2 = new User();
         user2.setName("name2_startGameTest" + i);
         user2.setUsername("username9_startGameTest" + i);
-        String token2 = template.postForObject(base + "users", user2, String.class);
+        UserAuthenticationWrapper userAuthenticationWrapper2 = template.postForObject(base + "users", user2, UserAuthenticationWrapper.class);
 
         tester = new Game();
         tester.setName("game1_2_startGameTest" + i);
-        Long gameId1_2 = template.postForObject(base + "games?token=" + userAuthenticationWrapper.userToken, tester, Long.class);
-        Long userIdGameJoined9 = template.postForObject(base + "games/" + gameId1_2 + "/users?token=" + token2, null, Long.class);
+        Long gameId1_2 = template.postForObject(base + "games?token=" + userAuthenticationWrapper1.getUserToken(), tester, Long.class);
+        Long userIdGameJoined9 = template.postForObject(base + "games/" + gameId1_2 + "/users?token=" + userAuthenticationWrapper2.getUserToken(), null, Long.class);
 
         String characterType1 = "Cheyenne";
         UriComponentsBuilder builder1 = UriComponentsBuilder.fromHttpUrl(base + "games/" + gameId1_2 + "/users")
-                .queryParam("token", userAuthenticationWrapper.userToken)
+                .queryParam("token", userAuthenticationWrapper1.getUserToken())
                 .queryParam("character", characterType1.toString());
         HttpEntity<User> userResponse1 = template.exchange(builder1.build().encode().toUri(), HttpMethod.PUT, null, User.class);
         String characterType2 = "Ghost";
         UriComponentsBuilder builder2 = UriComponentsBuilder.fromHttpUrl(base + "games/" + gameId1_2 + "/users")
-                .queryParam("token", token2)
+                .queryParam("token", userAuthenticationWrapper2.getUserToken())
                 .queryParam("character", characterType2.toString());
         HttpEntity<User> userResponse2 = template.exchange(builder2.build().encode().toUri(), HttpMethod.PUT, null, User.class);
 
-        template.postForObject(base + "games/" + gameId1_2 + "/start?token=" + userAuthenticationWrapper.userToken, null, Void.class);
+        template.postForObject(base + "games/" + gameId1_2 + "/start?token=" + userAuthenticationWrapper1.getUserToken(), null, Void.class);
         Game testerResponse = template.getForObject(base + "games/" + gameId1_2, Game.class);
         gameId = testerResponse.getId();
     }

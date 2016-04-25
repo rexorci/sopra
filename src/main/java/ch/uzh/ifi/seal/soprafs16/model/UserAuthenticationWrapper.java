@@ -8,16 +8,26 @@ import java.io.Serializable;
 /**
  * Created by rafael on 24/04/16.
  */
-@JsonTypeName("userAuthentication")
 public class UserAuthenticationWrapper implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
-    public String userToken;
-    public Long userId;
+    private String userToken;
+    private Long userId;
 
-    public UserAuthenticationWrapper(String userToken, Long userId){
-        this.userId = userId;
+    public String getUserToken() {
+        return userToken;
+    }
+
+    public void setUserToken(String userToken) {
         this.userToken = userToken;
+    }
+
+    public Long getUserId() {
+        return userId;
+    }
+
+    public void setUserId(Long userId) {
+        this.userId = userId;
     }
 }

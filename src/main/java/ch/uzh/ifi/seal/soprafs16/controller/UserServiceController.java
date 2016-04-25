@@ -82,7 +82,11 @@ public class UserServiceController
         user.setToken(token);
         user.setItems(new ArrayList<Item>());
         user = userRepo.save(user);
-        return new UserAuthenticationWrapper(token,user.getId());
+
+        UserAuthenticationWrapper userAuthenticationWrapper = new UserAuthenticationWrapper();
+        userAuthenticationWrapper.setUserToken(token);
+        userAuthenticationWrapper.setUserId(user.getId());
+        return userAuthenticationWrapper;
     }
 
     //users/{userId}/login - POST

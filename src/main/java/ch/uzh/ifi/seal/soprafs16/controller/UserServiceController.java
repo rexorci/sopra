@@ -20,6 +20,7 @@ import org.springframework.web.bind.annotation.RestController;
 import ch.uzh.ifi.seal.soprafs16.constant.UserStatus;
 import ch.uzh.ifi.seal.soprafs16.model.Item;
 import ch.uzh.ifi.seal.soprafs16.model.User;
+import ch.uzh.ifi.seal.soprafs16.model.UserAuthenticationWrapper;
 import ch.uzh.ifi.seal.soprafs16.model.repositories.UserRepository;
 
 @RestController
@@ -72,8 +73,7 @@ public class UserServiceController
     @RequestMapping(method = RequestMethod.POST)
     @ResponseStatus(HttpStatus.CREATED)
     @ResponseBody
-    public User addUser(@RequestBody User user) {
-    //public UserAuthenticationWrapper addUser(@RequestBody User user) { TODO
+    public UserAuthenticationWrapper addUser(@RequestBody User user) {
 
         logger.debug("addUser: " + user);
 
@@ -82,8 +82,7 @@ public class UserServiceController
         user.setToken(token);
         user.setItems(new ArrayList<Item>());
         user = userRepo.save(user);
-        return user;
-    //return new UserAuthenticationWrapper(token,user.getId()); TODO
+        return new UserAuthenticationWrapper(token,user.getId());
     }
 
     //users/{userId}/login - POST

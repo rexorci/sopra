@@ -38,7 +38,7 @@ dependencies {
     compile('com.h2database:h2:1.4.191')
     compile('org.apache.tomcat:tomcat-servlet-api:8.0.20')
     compile 'com.fasterxml.jackson.core:jackson-annotations:2.7.3'
-
+    compile 'com.fasterxml.jackson.core:jackson-databind:2.7.3'
 
     testCompile('junit:junit:4.12')
     testCompile('org.springframework.boot:spring-boot-starter-test')

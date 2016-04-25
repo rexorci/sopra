@@ -30,6 +30,7 @@ import ch.uzh.ifi.seal.soprafs16.model.Game;
 import ch.uzh.ifi.seal.soprafs16.model.Item;
 import ch.uzh.ifi.seal.soprafs16.model.Marshal;
 import ch.uzh.ifi.seal.soprafs16.model.User;
+import ch.uzh.ifi.seal.soprafs16.model.UserAuthenticationWrapper;
 import ch.uzh.ifi.seal.soprafs16.model.WagonLevel;
 import ch.uzh.ifi.seal.soprafs16.model.action.actionResponse.CollectItemResponseDTO;
 import ch.uzh.ifi.seal.soprafs16.model.action.actionResponse.DrawCardResponseDTO;
@@ -110,7 +111,7 @@ public class ActionResponseServiceTest {
         User user1 = new User();
         user1.setName("name1_startGameTest" + i);
         user1.setUsername("username1_startGameTest" + i);
-        String token1 = template.postForObject(base + "users", user1, String.class);
+        UserAuthenticationWrapper userAuthenticationWrapper = template.postForObject(base + "users", user1, UserAuthenticationWrapper.class);
         User user2 = new User();
         user2.setName("name2_startGameTest" + i);
         user2.setUsername("username9_startGameTest" + i);
@@ -118,12 +119,12 @@ public class ActionResponseServiceTest {
 
         tester = new Game();
         tester.setName("game1_2_startGameTest" + i);
-        Long gameId1_2 = template.postForObject(base + "games?token=" + token1, tester, Long.class);
+        Long gameId1_2 = template.postForObject(base + "games?token=" + userAuthenticationWrapper.userToken, tester, Long.class);
         Long userIdGameJoined9 = template.postForObject(base + "games/" + gameId1_2 + "/users?token=" + token2, null, Long.class);
 
         String characterType1 = "Cheyenne";
         UriComponentsBuilder builder1 = UriComponentsBuilder.fromHttpUrl(base + "games/" + gameId1_2 + "/users")
-                .queryParam("token", token1)
+                .queryParam("token", userAuthenticationWrapper.userToken)
                 .queryParam("character", characterType1.toString());
         HttpEntity<User> userResponse1 = template.exchange(builder1.build().encode().toUri(), HttpMethod.PUT, null, User.class);
         String characterType2 = "Ghost";
@@ -132,7 +133,7 @@ public class ActionResponseServiceTest {
                 .queryParam("character", characterType2.toString());
         HttpEntity<User> userResponse2 = template.exchange(builder2.build().encode().toUri(), HttpMethod.PUT, null, User.class);
 
-        template.postForObject(base + "games/" + gameId1_2 + "/start?token=" + token1, null, Void.class);
+        template.postForObject(base + "games/" + gameId1_2 + "/start?token=" + userAuthenticationWrapper.userToken, null, Void.class);
         Game testerResponse = template.getForObject(base + "games/" + gameId1_2, Game.class);
         gameId = testerResponse.getId();
     }

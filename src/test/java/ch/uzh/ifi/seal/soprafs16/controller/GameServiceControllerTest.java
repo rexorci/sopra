@@ -25,6 +25,7 @@ import ch.uzh.ifi.seal.soprafs16.constant.GameStatus;
 import ch.uzh.ifi.seal.soprafs16.constant.PhaseType;
 import ch.uzh.ifi.seal.soprafs16.model.Game;
 import ch.uzh.ifi.seal.soprafs16.model.User;
+import ch.uzh.ifi.seal.soprafs16.model.UserAuthenticationWrapper;
 import ch.uzh.ifi.seal.soprafs16.model.WagonLevel;
 import ch.uzh.ifi.seal.soprafs16.model.cards.roundCards.StationCard;
 
@@ -113,29 +114,29 @@ public class GameServiceControllerTest {
         User user1 = new User();
         user1.setName("name1_startGameTest");
         user1.setUsername("username1_startGameTest");
-        String token1 = template.postForObject(base + "users", user1, String.class);
+        UserAuthenticationWrapper userAuthenticationWrapper1 = template.postForObject(base + "users", user1, UserAuthenticationWrapper.class);
         User user2 = new User();
         user2.setName("name2_startGameTest");
         user2.setUsername("username2_startGameTest");
-        String token2 = template.postForObject(base + "users", user2, String.class);
+        UserAuthenticationWrapper userAuthenticationWrapper2 = template.postForObject(base + "users", user2, UserAuthenticationWrapper.class);
 
         Game game1_2 = new Game();
         game1_2.setName("game1_2_startGameTest");
-        Long gameId1_2 = template.postForObject(base + "games?token=" + token1, game1_2, Long.class);
-        Long userIdGameJoined9 = template.postForObject(base + "games/" + gameId1_2 + "/users?token=" + token2, null, Long.class);
+        Long gameId1_2 = template.postForObject(base + "games?token=" + userAuthenticationWrapper1.userToken, game1_2, Long.class);
+        Long userIdGameJoined9 = template.postForObject(base + "games/" + gameId1_2 + "/users?token=" + userAuthenticationWrapper2.userToken, null, Long.class);
 
         String characterType1 = "Cheyenne";
         UriComponentsBuilder builder1 = UriComponentsBuilder.fromHttpUrl(base + "games/" + gameId1_2 + "/users")
-                .queryParam("token", token1)
+                .queryParam("token", userAuthenticationWrapper1.userToken)
                 .queryParam("character", characterType1.toString());
         HttpEntity<User> userResponse1 = template.exchange(builder1.build().encode().toUri(), HttpMethod.PUT, null, User.class);
         String characterType2 = "Doc";
         UriComponentsBuilder builder2 = UriComponentsBuilder.fromHttpUrl(base + "games/" + gameId1_2 + "/users")
-                .queryParam("token", token2)
+                .queryParam("token", userAuthenticationWrapper2.userToken)
                 .queryParam("character", characterType2.toString());
         HttpEntity<User> userResponse2 = template.exchange(builder2.build().encode().toUri(), HttpMethod.PUT, null, User.class);
         //endregion
-        template.postForObject(base + "games/" + gameId1_2 + "/start?token=" + token1, null, Void.class);
+        template.postForObject(base + "games/" + gameId1_2 + "/start?token=" + userAuthenticationWrapper1.userToken, null, Void.class);
         Game game1_2Response = template.getForObject(base + "games/" + gameId1_2, Game.class);
         //region Assertions
         //is the the current player (startplayer) placed in the last wagon

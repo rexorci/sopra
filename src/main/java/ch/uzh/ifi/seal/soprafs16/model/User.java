@@ -9,6 +9,7 @@ import java.util.List;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.ManyToOne;
@@ -136,15 +137,15 @@ public class User implements Serializable {
         this.items = items;
     }
 
-    public ch.uzh.ifi.seal.soprafs16.model.characters.Character getCharacter() {
+        public ch.uzh.ifi.seal.soprafs16.model.characters.Character getCharacter() {
         return character;
     }
 
     public void setCharacter(ch.uzh.ifi.seal.soprafs16.model.characters.Character character) {
         this.character = character;
-        if(character !=null){
+        if (character != null) {
             this.characterType = character.getClass().getSimpleName();
-        }else{
+        } else {
             this.characterType = null;
         }
     }
@@ -177,4 +178,13 @@ public class User implements Serializable {
         this.bulletsDeck = bulletsDeck;
     }
 
+    public boolean removeItemById(Long id) {
+        for(Item i: items){
+            if(i.getId().equals(id)){
+                return items.remove(i);
+            }
+        }
+
+        return false;
+    }
 }

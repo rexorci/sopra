@@ -10,6 +10,7 @@ import java.util.List;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.ManyToOne;
@@ -116,5 +117,25 @@ public class WagonLevel implements Serializable {
 
     public void setWagonLevelBefore(WagonLevel wagonLevelBefore) {
         this.wagonLevelBefore = wagonLevelBefore;
+    }
+
+    public boolean removeUserById(Long userId){
+        for(User u: users){
+            if(u.getId().equals(userId)){
+                return users.remove(u);
+            }
+        }
+
+        return false;
+    }
+
+    public boolean removeItemById(Long id) {
+        for(Item i: items){
+            if(i.getId().equals(id)){
+                return items.remove(i);
+            }
+        }
+
+        return false;
     }
 }

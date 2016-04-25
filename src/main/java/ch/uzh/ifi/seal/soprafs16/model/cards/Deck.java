@@ -5,9 +5,12 @@ import java.util.ArrayList;
 import java.util.List;
 
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.OneToMany;
+
+import ch.uzh.ifi.seal.soprafs16.model.turns.Turn;
 
 @Entity
 public class Deck<T extends Card> implements Serializable {
@@ -24,6 +27,10 @@ public class Deck<T extends Card> implements Serializable {
     @OneToMany(targetEntity = Card.class)
     private List<T> cards;
 
+    public Deck(){
+        cards = new ArrayList<>();
+    }
+
     public Long getId() {
         return id;
     }
@@ -34,5 +41,31 @@ public class Deck<T extends Card> implements Serializable {
 
     public void setCards(List<T> cards) {
         this.cards = cards;
+    }
+
+    public void add(T t){
+        cards.add(t);
+    }
+
+    public T remove(int pos){
+        return cards.remove(pos);
+    }
+
+    public boolean removeById(Long id){
+        for(T t: cards){
+            if(t.getId() == id){
+                return cards.remove(t);
+            }
+        }
+
+        return false;
+    }
+
+    public T get(int pos){
+        return cards.get(pos);
+    }
+
+    public int size(){
+        return cards.size();
     }
 }

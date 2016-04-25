@@ -5,6 +5,8 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.annotation.JsonTypeName;
 
 import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.List;
 
 import javax.persistence.Entity;
@@ -36,7 +38,15 @@ public class RoundCard extends Card implements Serializable {
     @OneToMany
     private List<Turn> pattern;
 
-    public List<Turn> getPattern() {
+    public ArrayList<Turn> getArrayList() {
+        ArrayList<Turn> turns = new ArrayList<>();
+        for(Turn t: pattern){
+            turns.add(t);
+        }
+        return turns;
+    }
+
+    public List<Turn> getPattern(){
         return pattern;
     }
 
@@ -44,6 +54,9 @@ public class RoundCard extends Card implements Serializable {
         this.pattern = pattern;
     }
 
+    public int getTurnCount() {
+        return pattern.size();
+    }
     //abstract class not easily possible with JsonMapping
     public  String getStringPattern(){
         return null;

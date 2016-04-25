@@ -1,7 +1,6 @@
 package ch.uzh.ifi.seal.soprafs16.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonManagedReference;
 
 import java.io.Serializable;
 import java.util.List;
@@ -20,6 +19,8 @@ import ch.uzh.ifi.seal.soprafs16.model.cards.GameDeck;
 import ch.uzh.ifi.seal.soprafs16.model.cards.handCards.ActionCard;
 import ch.uzh.ifi.seal.soprafs16.model.cards.handCards.BulletCard;
 import ch.uzh.ifi.seal.soprafs16.model.cards.roundCards.RoundCard;
+import ch.uzh.ifi.seal.soprafs16.model.turns.Turn;
+import ch.uzh.ifi.seal.soprafs16.model.action.ActionRequestDTO;
 
 @Entity
 public class Game implements Serializable {
@@ -61,10 +62,21 @@ public class Game implements Serializable {
     private Integer currentTurn;
 
     @Column
-    private PhaseType currentPhase;
+    private String roundPattern;
 
     @Column
-    private String roundPattern;
+    private PhaseType currentPhase;
+
+    @JsonIgnore
+    @Column
+    private int roundStarter;
+
+    @JsonIgnore
+    @Column
+    private Integer actionRequestCounter;
+
+    @OneToMany
+    private List<ActionRequestDTO> actions;
 
     @ElementCollection
     private List<String> log;
@@ -77,13 +89,6 @@ public class Game implements Serializable {
 
     @OneToOne
     private GameDeck<ActionCard> commonDeck;
-
-    @Column
-    private Integer roundStarter;
-
-    @Column
-    private Integer actionRequestCounter;
-
 
     public Long getId() {
         return id;
@@ -110,7 +115,7 @@ public class Game implements Serializable {
     }
 
     public List<User> getUsers() {
-        return users;
+            return users;
     }
 
     public void setUsers(List<User> users) {
@@ -173,20 +178,39 @@ public class Game implements Serializable {
         this.currentPhase = currentPhase;
     }
 
-    public String getRoundPattern() {
-        return roundPattern;
-    }
-
-    public void setRoundPattern(String roundPattern) {
-        this.roundPattern = roundPattern;
+    public void setLog(List<String> log) {
+        this.log = log;
     }
 
     public List<String> getLog() {
         return log;
     }
 
-    public void setLog(List<String> log) {
-        this.log = log;
+    public void setActions(List<ActionRequestDTO> actions) {
+        this.actions = actions;
+    }
+
+    public List<ActionRequestDTO> getActions() {
+        return actions;
+    }
+
+    public Turn getCurrentTurnType(){
+        if(roundCardDeck != null) {
+            return ((RoundCard) roundCardDeck.getCards().get(currentRound)).getPattern().get(currentTurn);
+        }
+        else return null;
+    }
+
+    public void setRoundStarter(int roundStarter) {
+        this.roundStarter = roundStarter;
+    }
+
+    public String getRoundPattern() {
+        return roundPattern;
+    }
+
+    public void setRoundPattern(String roundPattern) {
+        this.roundPattern = roundPattern;
     }
 
     public GameDeck<ActionCard> getCommonDeck() {

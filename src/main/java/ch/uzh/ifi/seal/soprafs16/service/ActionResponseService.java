@@ -26,6 +26,9 @@ import ch.uzh.ifi.seal.soprafs16.model.cards.PlayerDeck;
 import ch.uzh.ifi.seal.soprafs16.model.cards.handCards.ActionCard;
 import ch.uzh.ifi.seal.soprafs16.model.cards.handCards.BulletCard;
 import ch.uzh.ifi.seal.soprafs16.model.cards.handCards.HandCard;
+import ch.uzh.ifi.seal.soprafs16.model.characters.Cheyenne;
+import ch.uzh.ifi.seal.soprafs16.model.characters.Django;
+import ch.uzh.ifi.seal.soprafs16.model.characters.Tuco;
 import ch.uzh.ifi.seal.soprafs16.model.repositories.CardRepository;
 import ch.uzh.ifi.seal.soprafs16.model.repositories.DeckRepository;
 import ch.uzh.ifi.seal.soprafs16.model.repositories.GameRepository;
@@ -137,7 +140,7 @@ public class ActionResponseService {
 
 
         // Cheyenne Character Skill
-        if(user.getCharacterType().equals("Cheyenne")){
+        if(user.getCharacter().getClass().equals(Cheyenne.class)){
             item.setUser(user);
             user.getItems().add(item);
         }
@@ -171,7 +174,7 @@ public class ActionResponseService {
             bc.setDeck(hiddenDeck);
 
             // Character Skill Tuco
-            if(user.getCharacterType().equals("Tuco")){
+            if(user.getCharacter().getClass().equals(Tuco.class)){
                 WagonLevel wl = wagonLevelRepo.findOne(victim.getWagonLevel().getId());
                 WagonLevel wlNew = new WagonLevel();
                 if(user.getWagonLevel().getWagon().getId() < victim.getWagonLevel().getWagon().getId()){

@@ -58,8 +58,8 @@ public class User implements Serializable {
     @OneToMany
     private List<Item> items;
 
-    @Column
-    private String characterType;
+    // @Column
+    // private String characterType;
 
     //@OneToOne
     //@JsonIgnore
@@ -139,22 +139,22 @@ public class User implements Serializable {
         this.items = items;
     }
 
-        public ch.uzh.ifi.seal.soprafs16.model.characters.Character getCharacter() {
+    public ch.uzh.ifi.seal.soprafs16.model.characters.Character getCharacter() {
         return character;
     }
 
     public void setCharacter(ch.uzh.ifi.seal.soprafs16.model.characters.Character character) {
         this.character = character;
-        if (character != null) {
-            this.characterType = character.getClass().getSimpleName();
-        } else {
-            this.characterType = null;
-        }
+//        if (character != null) {
+//            this.characterType = character.getClass().getSimpleName();
+//        } else {
+//            this.characterType = null;
+//        }
     }
 
-    public String getCharacterType() {
-        return characterType;
-    }
+//    public String getCharacterType() {
+//        return characterType;
+//    }
 
     public PlayerDeck<HandCard> getHandDeck() {
         return handDeck;
@@ -181,8 +181,8 @@ public class User implements Serializable {
     }
 
     public boolean removeItemById(Long id) {
-        for(Item i: items){
-            if(i.getId().equals(id)){
+        for (Item i : items) {
+            if (i.getId().equals(id)) {
                 return items.remove(i);
             }
         }

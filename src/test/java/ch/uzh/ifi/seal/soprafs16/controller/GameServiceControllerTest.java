@@ -30,6 +30,7 @@ import ch.uzh.ifi.seal.soprafs16.model.User;
 import ch.uzh.ifi.seal.soprafs16.model.UserAuthenticationWrapper;
 import ch.uzh.ifi.seal.soprafs16.model.WagonLevel;
 import ch.uzh.ifi.seal.soprafs16.model.cards.roundCards.StationCard;
+import ch.uzh.ifi.seal.soprafs16.model.characters.*;
 
 
 @RunWith(SpringJUnit4ClassRunner.class)
@@ -102,12 +103,12 @@ public class GameServiceControllerTest {
         game7.setName("game7_lobbyTest");
         Long gameId7 = template.postForObject(base + "games?token=" + userAuthenticationWrapper7.getUserToken(), game7, Long.class);
         //endregion
-        String characterType7 = "Cheyenne";
+       Class characterType7 = Cheyenne.class;
         UriComponentsBuilder builder7 = UriComponentsBuilder.fromHttpUrl(base + "games/" + gameId1 + "/users")
                 .queryParam("token", userAuthenticationWrapper7.getUserToken())
-                .queryParam("character", characterType7.toString());
+                .queryParam("character", characterType7.getSimpleName());
         HttpEntity<User> userResponse7 = template.exchange(builder7.build().encode().toUri(), HttpMethod.PUT, null, User.class);
-        Assert.assertEquals(characterType7, userResponse7.getBody().getCharacterType());
+        Assert.assertEquals(characterType7, userResponse7.getBody().getCharacter().getClass());
         //endregion
 
     }
@@ -152,10 +153,10 @@ public class GameServiceControllerTest {
             //does the bulletsdeck contain 6 bullets
             Assert.assertEquals(6, u.getBulletsDeck().getCards().size());
             //does the handdeck contain 6 cards (or 7 if Doc)
-            int drawCardsAmount = u.getCharacterType().equals("Doc") ? 7 : 6;
+            int drawCardsAmount = u.getCharacter().getClass().equals(Doc.class) ? 7 : 6;
             Assert.assertEquals(drawCardsAmount, u.getHandDeck().getCards().size());
             //does the hiddendeck contains 4 cards (3 for doc)
-            int hiddenCardsAmount = u.getCharacterType().equals("Doc") ? 3 : 4;
+            int hiddenCardsAmount = u.getCharacter().getClass().equals(Doc.class) ? 3 : 4;
             Assert.assertEquals(hiddenCardsAmount, u.getHiddenDeck().getCards().size());
         }
         //does the roundcarddeck contain 5 cards
@@ -276,6 +277,23 @@ public class GameServiceControllerTest {
         Assert.assertEquals(user1.getUsername(), game1_2Response.getWagons().get(0).getBottomLevel().getUsers().get(0).getUsername());
         Assert.assertEquals(user2.getUsername(), game1_2Response.getWagons().get(3).getTopLevel().getUsers().get(0).getUsername());
         //endregion
+    }
+
+
+    @Test
+    public void testActionResponse() {
+        User user1 = new User();
+        user1.setName("name1_actionResponseTest");
+        user1.setUsername("username1_actionResponseTest");
+        UserAuthenticationWrapper userAuthenticationWrapper1 = template.postForObject(base + "users", user1, UserAuthenticationWrapper.class);
+
+        Game game1 = new Game();
+        game1.setName("game1_actionResponseTest");
+        Long gameId1 = template.postForObject(base + "games?token=" + userAuthenticationWrapper1.getUserToken(), game1, Long.class);
+
+        Long gameId_ActionResponse = template.postForObject(base + "games/" + gameId1 + "/actions", game1, Long.class);
+
+        Assert.assertEquals(gameId1, gameId_ActionResponse);
     }
 
     //region helper methods

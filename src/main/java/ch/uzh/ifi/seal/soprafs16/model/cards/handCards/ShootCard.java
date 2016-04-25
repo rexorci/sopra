@@ -13,6 +13,8 @@ import ch.uzh.ifi.seal.soprafs16.model.Game;
 import ch.uzh.ifi.seal.soprafs16.model.User;
 import ch.uzh.ifi.seal.soprafs16.model.WagonLevel;
 import ch.uzh.ifi.seal.soprafs16.model.action.actionRequest.ShootRequestDTO;
+import ch.uzh.ifi.seal.soprafs16.model.characters.Belle;
+import ch.uzh.ifi.seal.soprafs16.model.characters.Django;
 
 @Entity
 @JsonTypeName("shootCard")
@@ -37,7 +39,7 @@ public class ShootCard extends ActionCard implements Serializable {
         }
         if (userList.size() > 2) {
             for (int i = 0; i < userList.size(); i++) {
-                if (userList.get(i).getCharacterType().equals("Belle")) {
+                if (userList.get(i).getCharacter().getClass().equals(Belle.class)) {
                     userList.remove(i);
                 }
             }
@@ -57,7 +59,7 @@ public class ShootCard extends ActionCard implements Serializable {
             for (int i = 0; i < size; i++) {
                 shootable.add(wagonLevel.getWagonLevelBefore().getUsers().get(i));
             }
-            if (shootable.isEmpty() || user.getCharacterType().equals("Django")) {
+            if (shootable.isEmpty() || user.getCharacter().getClass().equals(Django.class)) {
                 getShootableUsersBeforeR(user, shootable, wagonLevel.getWagonLevelBefore());
 
             }
@@ -70,7 +72,7 @@ public class ShootCard extends ActionCard implements Serializable {
             for (int i = 0; i < size; i++) {
                 shootable.add(wagonLevel.getWagonLevelAfter().getUsers().get(i));
             }
-            if (shootable.isEmpty() || user.getCharacterType().equals("Django")) {
+            if (shootable.isEmpty() || user.getCharacter().getClass().equals(Django.class)) {
                 getShootableUsersAfterR(user, shootable, wagonLevel.getWagonLevelAfter());
             }
         }
@@ -82,7 +84,7 @@ public class ShootCard extends ActionCard implements Serializable {
             for (int i = 0; i < size; i++) {
                 shootable.add(wagonLevel.getWagonLevelBefore().getUsers().get(i));
             }
-            if (user.getCharacterType().equals("Django") && shootable.isEmpty()) {
+            if (user.getCharacter().getClass().equals(Django.class) && shootable.isEmpty()) {
                 getShootableUsersBeforeB(user, shootable, wagonLevel.getWagonLevelBefore());
             }
         }
@@ -94,7 +96,7 @@ public class ShootCard extends ActionCard implements Serializable {
             for (int i = 0; i < size; i++) {
                 shootable.add(wagonLevel.getWagonLevelAfter().getUsers().get(i));
             }
-            if (shootable.isEmpty() && user.getCharacterType().equals("Django")) {
+            if (shootable.isEmpty() && user.getCharacter().getClass().equals(Django.class)) {
                 getShootableUsersAfterB(user, shootable, wagonLevel.getWagonLevelAfter());
             }
         }

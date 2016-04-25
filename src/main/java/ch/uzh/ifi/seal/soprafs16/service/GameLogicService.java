@@ -38,6 +38,7 @@ import ch.uzh.ifi.seal.soprafs16.model.cards.roundCards.PassengerRebellionCard;
 import ch.uzh.ifi.seal.soprafs16.model.cards.roundCards.PickPocketingCard;
 import ch.uzh.ifi.seal.soprafs16.model.cards.roundCards.PivotablePoleCard;
 import ch.uzh.ifi.seal.soprafs16.model.cards.roundCards.RoundCard;
+import ch.uzh.ifi.seal.soprafs16.model.characters.Doc;
 import ch.uzh.ifi.seal.soprafs16.model.repositories.CardRepository;
 import ch.uzh.ifi.seal.soprafs16.model.repositories.CharacterRepository;
 import ch.uzh.ifi.seal.soprafs16.model.repositories.DeckRepository;
@@ -186,7 +187,7 @@ public class GameLogicService extends GenericService {
             }
 
             // Character Skill Doc
-            if (u.getCharacterType().equals("Doc")) {
+            if (u.getCharacter().getClass().equals(Doc.class)) {
                 ActionCard ac = (ActionCard) hiddenDeck.remove((int) (Math.random() * hiddenDeck.size()));
                 ac.setDeck(handDeck);
                 handDeck.add(ac);

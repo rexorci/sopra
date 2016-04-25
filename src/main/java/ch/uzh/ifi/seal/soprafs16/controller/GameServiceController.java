@@ -244,7 +244,7 @@ public class GameServiceController extends GenericService {
             try {
                 for (User u : game.getUsers()) {
                     if (u.getCharacter() != null && u.getId() != user.getId()) {
-                        if (u.getCharacterType().equals(character)) {
+                        if (u.getCharacter().getClass().getSimpleName().equals(character)) {
                             //other user already chose this character
                             return null;
                         }
@@ -330,7 +330,7 @@ public class GameServiceController extends GenericService {
     //games/{game-id}/actions - POST
     @RequestMapping(value = CONTEXT + "/{gameId}/actions", method = RequestMethod.POST)
     @ResponseStatus(HttpStatus.OK)
-    public Long processResponse(@PathVariable Long gameId, @RequestBody ActionResponseDTO actionResponseDTO, @RequestParam("token") String userToken) {
+    public Long processResponse(@PathVariable Long gameId, @RequestBody ActionResponseDTO actionResponseDTO) {
         logger.debug("Post Action: " + gameId);
         try {
 

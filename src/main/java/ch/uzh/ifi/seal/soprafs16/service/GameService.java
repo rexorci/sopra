@@ -45,6 +45,7 @@ import ch.uzh.ifi.seal.soprafs16.model.cards.roundCards.PassengerRebellionCard;
 import ch.uzh.ifi.seal.soprafs16.model.cards.roundCards.PickPocketingCard;
 import ch.uzh.ifi.seal.soprafs16.model.cards.roundCards.PivotablePoleCard;
 import ch.uzh.ifi.seal.soprafs16.model.cards.roundCards.RoundCard;
+import ch.uzh.ifi.seal.soprafs16.model.characters.Doc;
 import ch.uzh.ifi.seal.soprafs16.model.repositories.CardRepository;
 import ch.uzh.ifi.seal.soprafs16.model.repositories.CharacterRepository;
 import ch.uzh.ifi.seal.soprafs16.model.repositories.DeckRepository;
@@ -201,7 +202,7 @@ public class GameService {
                     for (int i = 0; i < 6; i++) {
                         BulletCard bulletCard = new BulletCard();
                         bulletCard.setBulletCounter(i + 1);
-                        SourceType st = SourceType.valueOf(user.getCharacterType().toUpperCase());
+                        SourceType st = SourceType.valueOf(user.getCharacter().getClass().getSimpleName().toUpperCase());
                         bulletCard.setSourceType(st);
                         bulletsDeck.getCards().add(bulletCard);
                         bulletCard.setDeck(bulletsDeck);
@@ -220,7 +221,7 @@ public class GameService {
 
                 ArrayList<ActionCard> allActionCards = getActionCards(user);
 
-                int drawCardsAmount = user.getCharacterType().equals("Doc") ? 7 : 6;
+                int drawCardsAmount = user.getCharacter().getClass().equals(Doc.class) ? 7 : 6;
 
                 final int[] randomChosenHandCards = new Random().ints(0, 10).distinct().limit(drawCardsAmount).toArray();
                 for (int randomIndex : randomChosenHandCards) {

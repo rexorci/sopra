@@ -12,6 +12,7 @@ import ch.uzh.ifi.seal.soprafs16.constant.ItemType;
 import ch.uzh.ifi.seal.soprafs16.model.Game;
 import ch.uzh.ifi.seal.soprafs16.model.User;
 import ch.uzh.ifi.seal.soprafs16.model.action.actionRequest.PunchRequestDTO;
+import ch.uzh.ifi.seal.soprafs16.model.characters.Belle;
 
 @Entity
 @JsonTypeName("punchCard")
@@ -34,7 +35,7 @@ public class PunchCard extends ActionCard implements Serializable {
         {
             for(int i = 0; i < userList.size(); i++)
             {
-                if(userList.get(i).getCharacterType()== ("Belle") || userList.get(i).getId() == user.getId())
+                if(userList.get(i).getCharacter().getClass().equals(Belle.class) || userList.get(i).getId() == user.getId())
                 {
                     userList.remove(i);
                 }

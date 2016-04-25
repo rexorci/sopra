@@ -214,7 +214,7 @@ public class GameLogicService extends GenericService {
 
     private List<Turn> getCurrentTurns(Game game) {
         RoundCard rc = (RoundCard) game.getRoundCardDeck().get(game.getCurrentRound());
-        ArrayList<Turn> turns = rc.getPattern();
+        ArrayList<Turn> turns = rc.getArrayList();
         return turns;
     }
 

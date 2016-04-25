@@ -72,7 +72,9 @@ public class UserServiceController
     @RequestMapping(method = RequestMethod.POST)
     @ResponseStatus(HttpStatus.CREATED)
     @ResponseBody
-    public String addUser(@RequestBody User user) {
+    public User addUser(@RequestBody User user) {
+    //public UserAuthenticationWrapper addUser(@RequestBody User user) { TODO
+
         logger.debug("addUser: " + user);
 
         user.setStatus(UserStatus.OFFLINE);
@@ -80,8 +82,8 @@ public class UserServiceController
         user.setToken(token);
         user.setItems(new ArrayList<Item>());
         user = userRepo.save(user);
-
-        return token;
+        return user;
+    //return new UserAuthenticationWrapper(token,user.getId()); TODO
     }
 
     //users/{userId}/login - POST

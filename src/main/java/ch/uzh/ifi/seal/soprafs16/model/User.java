@@ -1,6 +1,8 @@
 package ch.uzh.ifi.seal.soprafs16.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
+import com.fasterxml.jackson.annotation.JsonTypeName;
 
 import java.io.Serializable;
 import java.util.List;
@@ -36,7 +38,7 @@ public class User implements Serializable {
     @Column(nullable = false, unique = true)
     private String username;
 
-    @JsonIgnore
+    //@JsonIgnore FIXME
     @Column(nullable = false, unique = true)
     private String token;
 

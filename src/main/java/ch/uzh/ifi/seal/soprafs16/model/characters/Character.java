@@ -1,6 +1,9 @@
 package ch.uzh.ifi.seal.soprafs16.model.characters;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonSubTypes;
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
+import com.fasterxml.jackson.annotation.JsonTypeName;
 import com.fasterxml.jackson.annotation.JsonView;
 
 import java.io.Serializable;
@@ -11,8 +14,20 @@ import javax.persistence.Id;
 import javax.persistence.OneToOne;
 
 import ch.uzh.ifi.seal.soprafs16.model.User;
+import ch.uzh.ifi.seal.soprafs16.model.cards.handCards.HandCard;
+import ch.uzh.ifi.seal.soprafs16.model.cards.roundCards.RoundCard;
 
 @Entity
+@JsonTypeName("character")
+@JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.PROPERTY, property = "type")
+@JsonSubTypes({
+        @JsonSubTypes.Type(value=Belle.class, name = "belle"),
+        @JsonSubTypes.Type(value=Cheyenne.class, name = "cheyenne"),
+        @JsonSubTypes.Type(value=Django.class, name = "django"),
+        @JsonSubTypes.Type(value=Doc.class, name = "doc"),
+        @JsonSubTypes.Type(value=Ghost.class, name = "ghost"),
+        @JsonSubTypes.Type(value=Tuco.class, name = "tuco")
+})
 public class Character implements Serializable {
 
     /**
@@ -25,7 +40,8 @@ public class Character implements Serializable {
     private Long id;
 
     @OneToOne
-    @JsonView
+    //@JsonView
+    @JsonIgnore
     private User user;
 
     public User getUser() {

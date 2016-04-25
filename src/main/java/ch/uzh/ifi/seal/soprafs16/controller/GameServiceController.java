@@ -21,6 +21,7 @@ import ch.uzh.ifi.seal.soprafs16.constant.LevelType;
 import ch.uzh.ifi.seal.soprafs16.model.Game;
 import ch.uzh.ifi.seal.soprafs16.model.User;
 import ch.uzh.ifi.seal.soprafs16.model.WagonLevel;
+import ch.uzh.ifi.seal.soprafs16.model.action.ActionResponseDTO;
 import ch.uzh.ifi.seal.soprafs16.model.characters.*;
 import ch.uzh.ifi.seal.soprafs16.model.characters.Character;
 import ch.uzh.ifi.seal.soprafs16.model.repositories.CardRepository;
@@ -33,6 +34,7 @@ import ch.uzh.ifi.seal.soprafs16.model.repositories.TurnRepository;
 import ch.uzh.ifi.seal.soprafs16.model.repositories.UserRepository;
 import ch.uzh.ifi.seal.soprafs16.model.repositories.WagonLevelRepository;
 import ch.uzh.ifi.seal.soprafs16.model.repositories.WagonRepository;
+import ch.uzh.ifi.seal.soprafs16.service.ActionResponseService;
 import ch.uzh.ifi.seal.soprafs16.service.GameService;
 
 @RestController
@@ -63,6 +65,8 @@ public class GameServiceController extends GenericService {
     private TurnRepository turnRepo;
     @Autowired
     private GameService gameService;
+    @Autowired
+    private ActionResponseService actionResponseService;
     //endregion
 
     private final String CONTEXT = "/games";
@@ -320,6 +324,29 @@ public class GameServiceController extends GenericService {
         } else {
             logger.error("Error removing user with token: " + userToken);
             return null;
+        }
+    }
+
+    //games/{game-id}/actions - POST
+    @RequestMapping(value = CONTEXT + "/{gameId}/actions", method = RequestMethod.POST)
+    @ResponseStatus(HttpStatus.OK)
+    public Long processResponse(@PathVariable Long gameId, @RequestBody ActionResponseDTO actionResponseDTO, @RequestParam("token") String userToken) {
+        logger.debug("Post Action: " + gameId);
+        try {
+
+            if (actionResponseDTO != null) {
+
+                //actionResponseRepo.save(actionResponseDTO)
+                //actionResponseService.processResponse(actionResponseDTO);
+                return gameId;
+            } else {
+                logger.error("Actionresponse is null");
+                return (long) -1;
+            }
+
+        } catch (Exception ex) {
+            logger.error("Error adding Actionresponse");
+            return (long) -1;
         }
     }
 

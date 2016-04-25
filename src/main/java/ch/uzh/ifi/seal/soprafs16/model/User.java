@@ -17,6 +17,7 @@ import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
 
 import ch.uzh.ifi.seal.soprafs16.constant.UserStatus;
+import ch.uzh.ifi.seal.soprafs16.model.cards.Card;
 import ch.uzh.ifi.seal.soprafs16.model.cards.PlayerDeck;
 import ch.uzh.ifi.seal.soprafs16.model.cards.handCards.BulletCard;
 import ch.uzh.ifi.seal.soprafs16.model.cards.handCards.HandCard;
@@ -60,8 +61,9 @@ public class User implements Serializable {
     @Column
     private String characterType;
 
-    @OneToOne
-    @JsonIgnore
+    //@OneToOne
+    //@JsonIgnore
+    @OneToOne(targetEntity = ch.uzh.ifi.seal.soprafs16.model.characters.Character.class)
     private ch.uzh.ifi.seal.soprafs16.model.characters.Character character;
 
     @OneToOne

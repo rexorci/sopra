@@ -202,7 +202,11 @@ public class GameServiceController extends GenericService {
         Game game = gameRepo.findOne(gameId);
         User owner = userRepo.findByToken(userToken);
 
-        if (owner != null && game != null && game.getOwner().equals(owner.getUsername())) {
+        if (owner != null && game != null && game.getOwner().equals(owner.getName())) {
+            game.setStatus(GameStatus.FINISHED);
+            gameRepo.save(game);
+        }else{
+            logger.debug("stopGame: owner or game is null, gameId: " + gameId);
         }
     }
 

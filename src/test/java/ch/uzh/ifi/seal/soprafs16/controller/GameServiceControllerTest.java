@@ -114,7 +114,7 @@ public class GameServiceControllerTest {
     }
 
     @Test
-    public void testStartGame() {
+    public void testStartStopGame() {
         //region helper
         User user1 = new User();
         user1.setName("name1_startGameTest");
@@ -171,6 +171,12 @@ public class GameServiceControllerTest {
         Assert.assertEquals((Integer) 0, game1_2Response.getCurrentTurn());
         Assert.assertNotNull(game1_2Response.getRoundPattern());
         Assert.assertEquals(PhaseType.PLANNING, game1_2Response.getCurrentPhase());
+        //endregion
+
+        //region test stop game
+        template.postForObject(base + "games/" + gameId1_2 + "/stop?token=" + userAuthenticationWrapper1.getUserToken(), null, Void.class);
+        Game game1_2ResponseStopped = template.getForObject(base + "games/" + gameId1_2, Game.class);
+        Assert.assertEquals(GameStatus.FINISHED,game1_2ResponseStopped.getStatus());
         //endregion
     }
 

@@ -247,11 +247,11 @@ public class GameLogicService extends GenericService {
                 getShootableUsersBeforeB(user, userList, user.getWagonLevel());
                 getShootableUsersAfterB(user, userList, user.getWagonLevel());
             }
-            if(userList.size()>2)
+            if(userList.size()>= 2)
             {
                 for(int i = 0; i < userList.size(); i++)
                 {
-                    if(userList.get(i).getCharacterType().equals("Belle"))
+                    if(userList.get(i).getCharacterType() =="Belle")
                     {
                         userList.remove(i);
                     }
@@ -264,7 +264,7 @@ public class GameLogicService extends GenericService {
             srq.setSpielId(game.getId());
             srq.setUserId(user.getId());
             game.getActions().add(srq);
-
+            actionRepo.save(srq);
             userRepo.save(user);
             gameRepo.save(game);
             return srq;
@@ -279,9 +279,13 @@ public class GameLogicService extends GenericService {
                 {
                     shootable.add(wagonLevel.getWagonLevelBefore().getUsers().get(i));
                 }
-                if (shootable.isEmpty()|| user.getCharacterType().equals("Django")){
+                if (shootable.size() == 0){
                     getShootableUsersBeforeR(user, shootable, wagonLevel.getWagonLevelBefore());
 
+                }
+                if (user.getCharacterType() == "Django")
+                {
+                    getShootableUsersBeforeR(user, shootable, wagonLevel.getWagonLevelBefore());
                 }
             }
         }
@@ -294,8 +298,13 @@ public class GameLogicService extends GenericService {
                 {
                     shootable.add(wagonLevel.getWagonLevelAfter().getUsers().get(i));
                 }
-                if (shootable.isEmpty()|| user.getCharacterType().equals("Django")){
-                    getShootableUsersAfterR(user, shootable, wagonLevel.getWagonLevelAfter());
+                if (shootable.size() == 0){
+                    getShootableUsersBeforeR(user, shootable, wagonLevel.getWagonLevelBefore());
+
+                }
+                if (user.getCharacterType() == "Django")
+                {
+                    getShootableUsersBeforeR(user, shootable, wagonLevel.getWagonLevelBefore());
                 }
             }
         }
@@ -309,7 +318,7 @@ public class GameLogicService extends GenericService {
                 {
                     shootable.add(wagonLevel.getWagonLevelBefore().getUsers().get(i));
                 }
-                if (user.getCharacterType().equals("Django") && shootable.isEmpty())
+                if (user.getCharacterType() =="Django" && shootable.isEmpty())
                 {
                     getShootableUsersBeforeB(user, shootable, wagonLevel.getWagonLevelBefore());
                 }
@@ -326,13 +335,13 @@ public class GameLogicService extends GenericService {
                 {
                     shootable.add(wagonLevel.getWagonLevelAfter().getUsers().get(i));
                 }
-                if(shootable.isEmpty() && user.getCharacterType().equals("Django"))
+                if(shootable.isEmpty() && user.getCharacterType() =="Django")
                 {
                     getShootableUsersAfterB(user, shootable, wagonLevel.getWagonLevelAfter());
                 }
             }
         }
-
+//region collectRequest
         public CollectItemRequestDTO generateCollectRequest(Long gameId, Long userId) {
             Game game = gameRepo.findOne(gameId);
             User user = userRepo.findOne(userId);
@@ -364,7 +373,7 @@ public class GameLogicService extends GenericService {
             gameRepo.save(game);
             return crq;
         }
-
+//endregion collectrequest
         public MoveRequestDTO generateMoveRequest(Long gameId, Long userId)
         {
             User user = userRepo.findOne(userId);
@@ -468,11 +477,21 @@ public class GameLogicService extends GenericService {
             for(int i = 0; i<user.getWagonLevel().getUsers().size(); i++ ) {
                 userList.add(user.getWagonLevel().getUsers().get(i));
             }
-            if(userList.size() > 2)
+            if(userList.size() > 1)
             {
                 for(int i = 0; i < userList.size(); i++)
                 {
-                    if(userList.get(i).getCharacterType()== ("Belle") || userList.get(i).getId() == user.getId())
+                    if(userList.get(i).getId() == user.getId())
+                    {
+                        userList.remove(i);
+                    }
+                }
+            }
+            if(userList.size() >= 2)
+            {
+                for(int i = 0; i < userList.size(); i++)
+                {
+                    if(userList.get(i).getCharacterType()== ("Belle"))
                     {
                         userList.remove(i);
                     }

@@ -342,6 +342,27 @@ public class ActionServiceControllerTest {
         wagonlevel2_4.setLevelType(LevelType.TOP);
         wagonLevelRepo.save(wagonlevel2_4);
 
+        wagonlevel1_1.setWagonLevelBefore(null);
+        wagonlevel1_1.setWagonLevelAfter(wagonlevel1_2);
+        wagonlevel1_2.setWagonLevelBefore(wagonlevel1_1);
+
+        wagonlevel2_1.setWagonLevelBefore(null);
+        wagonlevel2_1.setWagonLevelAfter(wagonlevel2_2);
+        wagonlevel2_2.setWagonLevelBefore(wagonlevel1_2);
+
+        wagonlevel1_2.setWagonLevelAfter(wagonlevel1_3);
+        wagonlevel1_3.setWagonLevelBefore(wagonlevel1_2);
+
+        wagonlevel2_2.setWagonLevelAfter(wagonlevel2_3);
+        wagonlevel2_3.setWagonLevelBefore(wagonlevel2_2);
+
+        wagonlevel1_3.setWagonLevelAfter(wagonlevel1_4);
+        wagonlevel1_4.setWagonLevelBefore(wagonlevel1_3);
+
+        wagonlevel2_3.setWagonLevelAfter(wagonlevel2_4);
+        wagonlevel2_4.setWagonLevelBefore(wagonlevel2_3);
+
+
         wagon1.setBottomLevel(wagonlevel1_1);
         wagonlevel1_1.setWagon(wagon1);
         wagon1.setTopLevel(wagonlevel2_1);

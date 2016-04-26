@@ -178,17 +178,8 @@ public class GameLogicServiceTest {
             turns.add(tunnel);
             turns.add(reverse);
 
-//            RoundCard rc = new RoundCard() {
-//                @Override
-//                public String getStringPattern() {
-//                    return "NSR";
-//                }
-//            };
-
-
             rc.setPattern(turns);
             rc.setDeck(roundCardDeck);
-//            cardRepo.save(rc);
 
             normal.setRoundCard(rc);
             normal2.setRoundCard(rc);
@@ -202,7 +193,6 @@ public class GameLogicServiceTest {
             turnRepo.save(normal2);
             turnRepo.save(tunnel);
             turnRepo.save(reverse);
-
         }
 
         deckRepo.save(roundCardDeck);

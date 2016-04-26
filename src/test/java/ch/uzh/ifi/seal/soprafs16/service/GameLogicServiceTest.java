@@ -1,7 +1,9 @@
 package ch.uzh.ifi.seal.soprafs16.service;
 
+import ch.uzh.ifi.seal.soprafs16.model.cards.roundCards.AngryMarshalCard;
 import ch.uzh.ifi.seal.soprafs16.model.characters.*;
 import ch.uzh.ifi.seal.soprafs16.model.characters.Character;
+import ch.uzh.ifi.seal.soprafs16.model.turns.*;
 import org.hibernate.Hibernate;
 import org.junit.Before;
 import org.junit.Test;
@@ -48,10 +50,6 @@ import ch.uzh.ifi.seal.soprafs16.model.repositories.TurnRepository;
 import ch.uzh.ifi.seal.soprafs16.model.repositories.UserRepository;
 import ch.uzh.ifi.seal.soprafs16.model.repositories.WagonLevelRepository;
 import ch.uzh.ifi.seal.soprafs16.model.repositories.WagonRepository;
-import ch.uzh.ifi.seal.soprafs16.model.turns.NormalTurn;
-import ch.uzh.ifi.seal.soprafs16.model.turns.ReverseTurn;
-import ch.uzh.ifi.seal.soprafs16.model.turns.SpeedupTurn;
-import ch.uzh.ifi.seal.soprafs16.model.turns.Turn;
 import ch.uzh.ifi.seal.soprafs16.service.GameLogicService;
 
 /**
@@ -168,29 +166,43 @@ public class GameLogicServiceTest {
         // Create RoundCards
         for(int i = 0; i < 5; i++) {
             Turn normal = new NormalTurn();
-            Turn speedup = new SpeedupTurn();
+            Turn normal2 = new NormalTurn();
+            Turn tunnel = new TunnelTurn();
             Turn reverse = new ReverseTurn();
-            turnRepo.save(normal);
-            turnRepo.save(speedup);
-            turnRepo.save(reverse);
+            RoundCard rc = new AngryMarshalCard();
 
             ArrayList<Turn> turns = new ArrayList<>();
 
             turns.add(normal);
-            turns.add(speedup);
+            turns.add(normal2);
+            turns.add(tunnel);
             turns.add(reverse);
 
-            RoundCard rc = new RoundCard();
+//            RoundCard rc = new RoundCard() {
+//                @Override
+//                public String getStringPattern() {
+//                    return "NSR";
+//                }
+//            };
+
+
             rc.setPattern(turns);
             rc.setDeck(roundCardDeck);
-            cardRepo.save(rc);
+//            cardRepo.save(rc);
 
             normal.setRoundCard(rc);
-            speedup.setRoundCard(rc);
+            normal2.setRoundCard(rc);
+            tunnel.setRoundCard(rc);
             reverse.setRoundCard(rc);
 
             roundCardDeck.add(rc);
             cardRepo.save(rc);
+
+            turnRepo.save(normal);
+            turnRepo.save(normal2);
+            turnRepo.save(tunnel);
+            turnRepo.save(reverse);
+
         }
 
         deckRepo.save(roundCardDeck);
@@ -212,17 +224,11 @@ public class GameLogicServiceTest {
             gls.update(tester.getId());
             tester = gameRepo.findOne(gameId);
             assertEquals((3+i)%4, (long) tester.getCurrentPlayer());
+            gls.update(tester.getId());
 
-            // 8 responses for Speed-Up-Turn
-            gls.update(tester.getId());
+            // 4 responses for Normal Turn
             tester = gameRepo.findOne(gameId);
             assertEquals((0+i)%4, (long) tester.getCurrentPlayer());
-            gls.update(tester.getId());
-            tester = gameRepo.findOne(gameId);
-            assertEquals((0+i)%4, (long) tester.getCurrentPlayer());
-            gls.update(tester.getId());
-            tester = gameRepo.findOne(gameId);
-            assertEquals((1+i)%4, (long) tester.getCurrentPlayer());
             gls.update(tester.getId());
             tester = gameRepo.findOne(gameId);
             assertEquals((1+i)%4, (long) tester.getCurrentPlayer());
@@ -231,16 +237,25 @@ public class GameLogicServiceTest {
             assertEquals((2+i)%4, (long) tester.getCurrentPlayer());
             gls.update(tester.getId());
             tester = gameRepo.findOne(gameId);
+            assertEquals((3+i)%4, (long) tester.getCurrentPlayer());
+            gls.update(tester.getId());
+
+            // 4 responses for Tunnel Turn
+            tester = gameRepo.findOne(gameId);
+            assertEquals((0+i)%4, (long) tester.getCurrentPlayer());
+            gls.update(tester.getId());
+            tester = gameRepo.findOne(gameId);
+            assertEquals((1+i)%4, (long) tester.getCurrentPlayer());
+            gls.update(tester.getId());
+            tester = gameRepo.findOne(gameId);
             assertEquals((2+i)%4, (long) tester.getCurrentPlayer());
             gls.update(tester.getId());
             tester = gameRepo.findOne(gameId);
             assertEquals((3+i)%4, (long) tester.getCurrentPlayer());
             gls.update(tester.getId());
+
+            // 4 responses for Normal Turn
             tester = gameRepo.findOne(gameId);
-            assertEquals((3+i)%4, (long) tester.getCurrentPlayer());
-            gls.update(tester.getId());
-            tester = gameRepo.findOne(gameId);
-            // eighth response triggers turn change
             assertEquals((0+i)%4, (long) tester.getCurrentPlayer());
             gls.update(tester.getId());
             tester = gameRepo.findOne(gameId);
@@ -251,8 +266,8 @@ public class GameLogicServiceTest {
             gls.update(tester.getId());
             tester = gameRepo.findOne(gameId);
             assertEquals((1+i)%4, (long) tester.getCurrentPlayer());
-            tester = gameRepo.findOne(gameId);
             gls.update(tester.getId());
+
             for(int y = 0; y < 16; y++){
                 gls.update(tester.getId());
             }
@@ -262,11 +277,8 @@ public class GameLogicServiceTest {
     @Test
     public void gls_TurnIsCorrect() {
        for(int i = 0; i < 5; i ++) {
-           tester = gameRepo.findOne(gameId);
-           assertEquals(0, (long) tester.getCurrentTurn());
 
            // 4 responses for Normal Turn
-           gls.update(tester.getId());
            tester = gameRepo.findOne(gameId);
            assertEquals(0, (long) tester.getCurrentTurn());
            gls.update(tester.getId());
@@ -276,12 +288,11 @@ public class GameLogicServiceTest {
            tester = gameRepo.findOne(gameId);
            assertEquals(0, (long) tester.getCurrentTurn());
            gls.update(tester.getId());
-           // 4th response triggers turn change
            tester = gameRepo.findOne(gameId);
-           assertEquals(1, (long) tester.getCurrentTurn());
+           assertEquals(0, (long) tester.getCurrentTurn());
+           gls.update(tester.getId());
 
-           // 8 responses for Speed-Up-Turn
-           gls.update(tester.getId());
+           // 4 responses for Normal Turn
            tester = gameRepo.findOne(gameId);
            assertEquals(1, (long) tester.getCurrentTurn());
            gls.update(tester.getId());
@@ -294,30 +305,33 @@ public class GameLogicServiceTest {
            tester = gameRepo.findOne(gameId);
            assertEquals(1, (long) tester.getCurrentTurn());
            gls.update(tester.getId());
-           tester = gameRepo.findOne(gameId);
-           assertEquals(1, (long) tester.getCurrentTurn());
-           gls.update(tester.getId());
-           tester = gameRepo.findOne(gameId);
-           assertEquals(1, (long) tester.getCurrentTurn());
-           gls.update(tester.getId());
-           tester = gameRepo.findOne(gameId);
-           assertEquals(1, (long) tester.getCurrentTurn());
-           gls.update(tester.getId());
-           tester = gameRepo.findOne(gameId);
-           // eighth response triggers turn change
-           assertEquals(2, (long) tester.getCurrentTurn());
 
+           // 4 responses for Tunnel Turn
+           tester = gameRepo.findOne(gameId);
+           assertEquals(2, (long) tester.getCurrentTurn());
+           gls.update(tester.getId());
+           tester = gameRepo.findOne(gameId);
+           assertEquals(2, (long) tester.getCurrentTurn());
+           gls.update(tester.getId());
+           tester = gameRepo.findOne(gameId);
+           assertEquals(2, (long) tester.getCurrentTurn());
+           gls.update(tester.getId());
+           tester = gameRepo.findOne(gameId);
+           assertEquals(2, (long) tester.getCurrentTurn());
+           gls.update(tester.getId());
 
-           // 4 Responses for Normal-Turn
+            // 4 responses for Reverse Turn
+           tester = gameRepo.findOne(gameId);
+           assertEquals(3, (long) tester.getCurrentTurn());
            gls.update(tester.getId());
            tester = gameRepo.findOne(gameId);
-           assertEquals(2, (long) tester.getCurrentTurn());
+           assertEquals(3, (long) tester.getCurrentTurn());
            gls.update(tester.getId());
            tester = gameRepo.findOne(gameId);
-           assertEquals(2, (long) tester.getCurrentTurn());
+           assertEquals(3, (long) tester.getCurrentTurn());
            gls.update(tester.getId());
            tester = gameRepo.findOne(gameId);
-           assertEquals(2, (long) tester.getCurrentTurn());
+           assertEquals(3, (long) tester.getCurrentTurn());
            gls.update(tester.getId());
 
            // Simulate responses

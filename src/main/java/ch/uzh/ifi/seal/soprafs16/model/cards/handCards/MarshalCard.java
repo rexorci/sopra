@@ -24,7 +24,7 @@ public class MarshalCard extends ActionCard implements Serializable {
         mmrq.getMovableWagonsLvlIds().add(game.getMarshal().getWagonLevel().getWagonLevelAfter().getId());
 
 
-        mmrq.setGameId(game.getId());
+        mmrq.setSpielId(game.getId());
         game.getActions().add(mmrq);
 
         return mmrq;

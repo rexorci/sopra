@@ -1,13 +1,10 @@
 package ch.uzh.ifi.seal.soprafs16.model.cards.handCards;
 
-import org.springframework.beans.factory.annotation.Autowired;
-
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
 import javax.persistence.Entity;
-import javax.validation.constraints.Null;
 
 import ch.uzh.ifi.seal.soprafs16.constant.LevelType;
 import ch.uzh.ifi.seal.soprafs16.model.Game;
@@ -15,7 +12,6 @@ import ch.uzh.ifi.seal.soprafs16.model.User;
 import ch.uzh.ifi.seal.soprafs16.model.WagonLevel;
 import ch.uzh.ifi.seal.soprafs16.model.action.ActionRequestDTO;
 import ch.uzh.ifi.seal.soprafs16.model.action.actionRequest.ShootRequestDTO;
-import ch.uzh.ifi.seal.soprafs16.model.repositories.UserRepository;
 
 @Entity
 public class ShootCard extends ActionCard implements Serializable {
@@ -25,9 +21,10 @@ public class ShootCard extends ActionCard implements Serializable {
      */
     private static final long serialVersionUID = 1L;
 
+    private User user;
 
     @Override
-    public ShootRequestDTO generateActionRequest(Game game,User user ){
+    public ShootRequestDTO generateActionRequest(Game game, User user){
         ShootRequestDTO srq = new ShootRequestDTO();
         List<User> userList = new ArrayList<User>();
         if(user.getWagonLevel().getLevelType() == LevelType.TOP)
@@ -54,7 +51,7 @@ public class ShootCard extends ActionCard implements Serializable {
         {
             srq.getShootableUserIds().add(userList.get(i).getId());
         }
-        srq.setGameId(game.getId());
+        srq.setSpielId(game.getId());
         srq.setUserId(user.getId());
         game.getActions().add(srq);
         return srq;

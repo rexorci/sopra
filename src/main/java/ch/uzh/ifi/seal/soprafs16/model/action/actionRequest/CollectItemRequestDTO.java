@@ -6,22 +6,33 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.persistence.Column;
+import javax.persistence.ElementCollection;
+import javax.persistence.Entity;
+
 import ch.uzh.ifi.seal.soprafs16.model.action.ActionRequestDTO;
 
 /**
  * Created by Timon Willi on 17.04.2016.
  */
+@Entity
 public class CollectItemRequestDTO extends ActionRequestDTO implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
+    @ElementCollection
     private List<Long> collectableItemIds;
-    private long gameId;
 
-    private long userId;
 
+    @Column
+    private Long userId;
+
+    @Column
     private Boolean hasCase;
+    @Column
     private Boolean hasGem;
+
+    @Column
     private Boolean hasBag;
 
     public CollectItemRequestDTO()
@@ -37,13 +48,6 @@ public class CollectItemRequestDTO extends ActionRequestDTO implements Serializa
         this.collectableItemIds = collectableItemIds;
     }
 
-    public long getGameId() {
-        return gameId;
-    }
-
-    public void setGameId(long gameId) {
-        this.gameId = gameId;
-    }
 
     public long getUserId() {
         return userId;

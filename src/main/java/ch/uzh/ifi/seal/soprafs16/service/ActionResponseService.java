@@ -59,7 +59,8 @@ public class ActionResponseService {
     //endregion
 
     public void processResponse(ActionResponseDTO response) {
-        Game game = gameRepo.findOne(response.getGameId());
+        Game game = gameRepo.findOne(response.getSpielId());
+
         User user = userRepo.findOne(response.getUserID());
 
         if (response instanceof DrawCardResponseDTO) {

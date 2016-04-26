@@ -18,6 +18,7 @@ import ch.uzh.ifi.seal.soprafs16.model.Marshal;
 import ch.uzh.ifi.seal.soprafs16.model.User;
 import ch.uzh.ifi.seal.soprafs16.model.Wagon;
 import ch.uzh.ifi.seal.soprafs16.model.WagonLevel;
+import ch.uzh.ifi.seal.soprafs16.model.action.ActionRequestDTO;
 import ch.uzh.ifi.seal.soprafs16.model.cards.GameDeck;
 import ch.uzh.ifi.seal.soprafs16.model.cards.PlayerDeck;
 import ch.uzh.ifi.seal.soprafs16.model.cards.handCards.ActionCard;
@@ -73,6 +74,7 @@ public class GameService {
 
             game.setStatus(GameStatus.RUNNING);
             game.setWagons(new ArrayList<Wagon>());
+            game.setActions(new ArrayList<>());
 
             initSuccessful = initGameWagons(game, wagonRepo, wagonLevelRepo) && initSuccessful;
             initSuccessful = initPlayerDecks(game, userRepo, deckRepo, cardRepo) && initSuccessful;

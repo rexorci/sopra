@@ -18,6 +18,8 @@ public class CollectCard extends ActionCard implements Serializable {
      */
     private static final long serialVersionUID = 1L;
 
+
+
     @Override
     public CollectItemRequestDTO generateActionRequest(Game game, User user) {
         CollectItemRequestDTO crq = new CollectItemRequestDTO();
@@ -41,7 +43,7 @@ public class CollectCard extends ActionCard implements Serializable {
                 }
             }
         }
-        crq.setGameId(game.getId());
+        crq.setSpielId(game.getId());
         crq.setUserId(user.getId());
         game.getActions().add(crq);
         return crq;

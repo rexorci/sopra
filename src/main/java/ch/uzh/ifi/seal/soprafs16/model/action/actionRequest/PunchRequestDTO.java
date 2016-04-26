@@ -4,26 +4,34 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.persistence.Column;
+import javax.persistence.ElementCollection;
+import javax.persistence.Entity;
+
 import ch.uzh.ifi.seal.soprafs16.model.action.ActionRequestDTO;
 
 /**
  * Created by Timon Willi on 17.04.2016.
  */
+@Entity
 public class PunchRequestDTO extends ActionRequestDTO implements Serializable {
 
 
     private static final long serialVersionUID = 1L;
 
-    private long gameId;
+//    private long gameId;
 
+    @Column
     private long userId;
-
+    @ElementCollection
     private List<Long> punchableUserIds;
-
+    @ElementCollection
     private List<Boolean> hasGem;
+    @ElementCollection
     private List<Boolean> hasBag;
+    @ElementCollection
     private List<Boolean> hasCase;
-
+    @ElementCollection
     private List<Long> movable;
 
     public PunchRequestDTO()
@@ -43,13 +51,13 @@ public class PunchRequestDTO extends ActionRequestDTO implements Serializable {
         this.punchableUserIds = punchableUserIds;
     }
 
-    public long getGameId() {
-        return gameId;
-    }
-
-    public void setGameId(long gameId) {
-        this.gameId = gameId;
-    }
+//    public long getSpielId() {
+//        return gameId;
+//    }
+//
+//    public void setSpielId(long gameId) {
+//        this.gameId = gameId;
+//    }
 
     public long getUserId() {
         return userId;

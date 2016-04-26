@@ -74,7 +74,7 @@ public class PunchCard extends ActionCard implements Serializable {
             prq.getMovable().add(user.getWagonLevel().getWagonLevelAfter().getId());
         }
 
-        prq.setGameId(game.getId());
+        prq.setSpielId(game.getId());
         prq.setUserId(user.getId());
         game.getActions().add(prq);
         return prq;

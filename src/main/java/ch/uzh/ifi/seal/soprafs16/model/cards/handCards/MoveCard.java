@@ -26,15 +26,24 @@ public class MoveCard extends ActionCard implements Serializable {
     {
         MoveRequestDTO mrq = new MoveRequestDTO();
         List<Long> movable = new ArrayList<Long>();
+        mrq.setMovableWagonsLvlIds(movable);
 
         if(user.getWagonLevel().getLevelType() == LevelType.TOP)
         {
             getMovableBeforeR(user, movable, user.getWagonLevel());
             getMovableAfterR(user, movable, user.getWagonLevel());
-
-            for(int i = 0; i< 3; i++)
+            int size = movable.size();
+            if (size > 3) {
+                for (int i = 0; i < 3; i++) {
+                    mrq.getMovableWagonsLvlIds().add(movable.get(i));
+                }
+            }
+            else
             {
-                mrq.getMovableWagonsLvlIds().add(movable.get(i));
+                for(int i = 0; i<size; i++)
+                {
+                    mrq.getMovableWagonsLvlIds().add(movable.get(i));
+                }
             }
 
         }
@@ -51,7 +60,7 @@ public class MoveCard extends ActionCard implements Serializable {
         }
 
 
-        mrq.setGameId(game.getId());
+        mrq.setSpielId(game.getId());
         mrq.setUserId(user.getId());
         game.getActions().add(mrq);
         return mrq;

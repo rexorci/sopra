@@ -75,7 +75,7 @@ public class Game implements Serializable {
     @Column
     private int roundStarter;
 
-    @OneToMany
+    @OneToMany(mappedBy = "game")
     private List<ActionRequestDTO> actions;
 
     @ElementCollection

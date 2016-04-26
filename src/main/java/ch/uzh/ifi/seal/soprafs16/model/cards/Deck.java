@@ -5,12 +5,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 import javax.persistence.Entity;
-import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.OneToMany;
-
-import ch.uzh.ifi.seal.soprafs16.model.turns.Turn;
 
 @Entity
 public class Deck<T extends Card> implements Serializable {

@@ -3,7 +3,6 @@ package ch.uzh.ifi.seal.soprafs16.model.action.actionResponse;
 import java.io.Serializable;
 
 import ch.uzh.ifi.seal.soprafs16.model.action.ActionResponseDTO;
-import ch.uzh.ifi.seal.soprafs16.model.cards.Card;
 import ch.uzh.ifi.seal.soprafs16.model.cards.handCards.ActionCard;
 
 /**

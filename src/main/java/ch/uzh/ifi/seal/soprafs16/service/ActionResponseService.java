@@ -14,6 +14,7 @@ import ch.uzh.ifi.seal.soprafs16.model.Item;
 import ch.uzh.ifi.seal.soprafs16.model.Marshal;
 import ch.uzh.ifi.seal.soprafs16.model.User;
 import ch.uzh.ifi.seal.soprafs16.model.WagonLevel;
+import ch.uzh.ifi.seal.soprafs16.model.action.ActionResponseDTO;
 import ch.uzh.ifi.seal.soprafs16.model.action.actionResponse.CollectItemResponseDTO;
 import ch.uzh.ifi.seal.soprafs16.model.action.actionResponse.DrawCardResponseDTO;
 import ch.uzh.ifi.seal.soprafs16.model.action.actionResponse.MoveMarshalResponseDTO;
@@ -27,7 +28,6 @@ import ch.uzh.ifi.seal.soprafs16.model.cards.handCards.ActionCard;
 import ch.uzh.ifi.seal.soprafs16.model.cards.handCards.BulletCard;
 import ch.uzh.ifi.seal.soprafs16.model.cards.handCards.HandCard;
 import ch.uzh.ifi.seal.soprafs16.model.characters.Cheyenne;
-import ch.uzh.ifi.seal.soprafs16.model.characters.Django;
 import ch.uzh.ifi.seal.soprafs16.model.characters.Tuco;
 import ch.uzh.ifi.seal.soprafs16.model.repositories.CardRepository;
 import ch.uzh.ifi.seal.soprafs16.model.repositories.DeckRepository;
@@ -58,6 +58,30 @@ public class ActionResponseService {
     @Autowired
     public MarshalRepository marshalRepo;
 
+    public void processResponse(ActionResponseDTO ar){
+        if(ar instanceof DrawCardResponseDTO){
+            processResponse((DrawCardResponseDTO) ar);
+        }
+        else if(ar instanceof PlayCardResponseDTO){
+            processResponse((PlayCardResponseDTO)ar);
+        }
+        else if(ar instanceof MoveResponseDTO){
+            processResponse((MoveResponseDTO)ar);
+        }
+        else if(ar instanceof CollectItemResponseDTO){
+            processResponse((CollectItemResponseDTO)ar);
+        }
+        else if(ar instanceof PunchResponseDTO){
+            processResponse((PunchResponseDTO)ar);
+        }
+        else if(ar instanceof ShootResponseDTO){
+            processResponse((ShootResponseDTO)ar);
+        }
+        else if(ar instanceof MoveMarshalResponseDTO){
+            processResponse((MoveMarshalResponseDTO)ar);
+        }
+    }
+
     public void processResponse(DrawCardResponseDTO dcr) {
         User user = userRepo.findOne(dcr.getUserID());
         
@@ -80,14 +104,13 @@ public class ActionResponseService {
         User user = userRepo.findOne(pcr.getUserID());
         
         ActionCard ac = (ActionCard)cardRepo.findOne(pcr.getPlayedCard().getId());
-
         PlayerDeck<HandCard> handDeck = user.getHandDeck();
-
         handDeck.removeById(ac.getId());
 
         GameDeck<ActionCard> commonDeck = game.getCommonDeck();
         commonDeck.add(ac);
         ac.setDeck(commonDeck);
+        ac.setPlayedByUserId(user.getId());
 
         cardRepo.save(ac);
         deckRepo.save(handDeck);

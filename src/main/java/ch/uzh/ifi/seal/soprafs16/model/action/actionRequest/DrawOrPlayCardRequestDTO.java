@@ -1,7 +1,6 @@
 package ch.uzh.ifi.seal.soprafs16.model.action.actionRequest;
 
 import java.io.Serializable;
-import java.util.List;
 
 import ch.uzh.ifi.seal.soprafs16.model.action.ActionRequestDTO;
 

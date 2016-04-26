@@ -1,12 +1,6 @@
 package ch.uzh.ifi.seal.soprafs16.model.action;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
-
 import java.io.Serializable;
-
-import javax.persistence.ManyToOne;
-
-import ch.uzh.ifi.seal.soprafs16.model.Game;
 
 /**
  * Created by Timon Willi on 17.04.2016.

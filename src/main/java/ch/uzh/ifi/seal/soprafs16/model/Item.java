@@ -9,10 +9,8 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.ManyToOne;
-import javax.persistence.OneToOne;
 
 import ch.uzh.ifi.seal.soprafs16.constant.ItemType;
-import ch.uzh.ifi.seal.soprafs16.constant.LevelType;
 
 @Entity
 public class Item implements Serializable {

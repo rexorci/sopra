@@ -16,8 +16,8 @@ public class ChangeLevelCard extends ActionCard implements Serializable {
      */
     private static final long serialVersionUID = 1L;
 
-    @Override
-    public ActionRequestDTO generateActionRequest(Game game, User user) {
-        return null;
-    }
+//    @Override
+//    public ActionRequestDTO generateActionRequest(Game game, User user) {
+//        return null;
+//    }
 }

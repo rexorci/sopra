@@ -1,6 +1,7 @@
 package ch.uzh.ifi.seal.soprafs16.service;
 
 import org.hibernate.Hibernate;
+import org.hibernate.event.service.spi.DuplicationStrategy;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -9,6 +10,8 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import javax.print.attribute.HashDocAttributeSet;
 
 import ch.uzh.ifi.seal.soprafs16.GameConstants;
 import ch.uzh.ifi.seal.soprafs16.constant.GameStatus;
@@ -27,9 +30,8 @@ import ch.uzh.ifi.seal.soprafs16.model.cards.PlayerDeck;
 import ch.uzh.ifi.seal.soprafs16.model.cards.handCards.ActionCard;
 import ch.uzh.ifi.seal.soprafs16.model.cards.handCards.BulletCard;
 import ch.uzh.ifi.seal.soprafs16.model.cards.handCards.HandCard;
+import ch.uzh.ifi.seal.soprafs16.model.cards.handCards.ShootCard;
 import ch.uzh.ifi.seal.soprafs16.model.cards.roundCards.AngryMarshalCard;
-import ch.uzh.ifi.seal.soprafs16.model.cards.roundCards.BlankBridgeCard;
-import ch.uzh.ifi.seal.soprafs16.model.cards.roundCards.BlankTunnelCard;
 import ch.uzh.ifi.seal.soprafs16.model.cards.roundCards.BrakingCard;
 import ch.uzh.ifi.seal.soprafs16.model.cards.roundCards.GetItAllCard;
 import ch.uzh.ifi.seal.soprafs16.model.cards.roundCards.HostageCard;
@@ -50,6 +52,7 @@ import ch.uzh.ifi.seal.soprafs16.model.repositories.WagonRepository;
 import ch.uzh.ifi.seal.soprafs16.model.turns.ReverseTurn;
 import ch.uzh.ifi.seal.soprafs16.model.turns.SpeedupTurn;
 import ch.uzh.ifi.seal.soprafs16.model.turns.Turn;
+import sun.management.counter.perf.PerfLongArrayCounter;
 
 /**
  * Created by Nico on 05.04.2016.
@@ -89,41 +92,82 @@ public class GameLogicService extends GenericService {
         int currentPlayer = game.getCurrentPlayer();
         List<User> users = game.getUsers();
 
+        setPhase(game);
+
+        if(game.getStatus() == GameStatus.FINISHED) return;
+
         if (game.getCurrentPhase() == PhaseType.PLANNING) {
+            if (game.getActionRequestCounter() > 0) {
+                setNextTurn(game, game.getUsers().size());
+                setNextPlayer(game, game.getUsers().size());
+            }
             processPlayerTurn(game, currentPlayer, users.size());
 
-            setNextTurn(game, game.getUsers().size());
-            if (game.getCurrentTurn() < getCurrentTurns(game).size()) {
-                setNextPlayer(game, game.getUsers().size());
-            } else {
-                game.setCurrentPhase(PhaseType.EXECUTION);
-                game.setActionRequestCounter(0);
-            }
         } else if (game.getCurrentPhase() == PhaseType.EXECUTION) {
-            game.getCommonDeck().remove(0);
-            if (game.getCommonDeck().size() == 0) {
-                // Next round is triggered
-                game.setCurrentRound(game.getCurrentRound() + 1);
-                //executeRoundAction(game);
-                //resetPlayerDecks(game);
-                if (game.getCurrentRound().equals(GameConstants.ROUNDS)) {
-                    finishGame(game);
-                } else {
-                    game.setRoundStarter((game.getRoundStarter() + 1) % game.getUsers().size());
-                    game.setCurrentPlayer(game.getRoundStarter());
-                    game.setCurrentTurn(0);
-                    game.setCurrentPhase(PhaseType.PLANNING);
-                }
-            }
+            // Remove ActionCard and return it to player Deck
+            processCommonDeck(game);
         }
 
         gameRepo.save(game);
     }
 
+    private void setPhase(Game game) {
+        if (game.getCurrentPhase() == PhaseType.EXECUTION && game.getCommonDeck().size() == 0) {
+            if(!endRound(game)) game.setCurrentPhase(PhaseType.PLANNING);
+        } else if (game.getCurrentPhase() == PhaseType.PLANNING && game.getActionRequestCounter() == calculatePlanningARcounter(game)) {
+            game.setCurrentPhase(PhaseType.EXECUTION);
+        }
+    }
+
+    private void processCommonDeck(Game game) {
+        GameDeck<ActionCard> commonDeck = (GameDeck<ActionCard>) deckRepo.findOne(game.getCommonDeck().getId());
+        ActionCard ac = (ActionCard) cardRepo.findOne(commonDeck.remove(0).getId());
+        User user = userRepo.findOne(ac.getPlayedByUserId());
+        PlayerDeck<HandCard> hiddenDeck = (PlayerDeck<HandCard>) deckRepo.findOne(user.getHiddenDeck().getId());
+
+        ac.setDeck(hiddenDeck);
+        hiddenDeck.getCards().add(ac);
+
+        cardRepo.save(ac);
+        deckRepo.save(hiddenDeck);
+        deckRepo.save(commonDeck);
+    }
+
+    private int calculatePlanningARcounter(Game game) {
+        int sum = 0;
+        RoundCard r = (RoundCard) game.getRoundCardDeck().get(game.getCurrentRound());
+        for (Turn t : r.getPattern()) {
+            sum += 4;
+            // SpeedUp turn requires 2 action requests per user
+            if (t instanceof SpeedupTurn) {
+                sum += 4;
+            }
+        }
+        return sum;
+    }
+
+    private boolean endRound(Game game) {
+        // Next round is triggered
+        game.setCurrentRound(game.getCurrentRound() + 1);
+        if (game.getCurrentRound().equals(GameConstants.ROUNDS)) {
+            finishGame(game);
+            return true;
+        } else {
+            executeRoundAction(game);
+            //resetPlayerDecks(game);
+            game.setRoundStarter((game.getRoundStarter() + 1) % game.getUsers().size());
+            game.setCurrentPlayer(game.getRoundStarter());
+            game.setCurrentTurn(0);
+            game.setCurrentPhase(PhaseType.PLANNING);
+            game.setActionRequestCounter(0);
+            return false;
+        }
+    }
+
     private void executeRoundAction(Game game) {
         RoundCard rc = (RoundCard) cardRepo.findOne(game.getRoundCardDeck().get(game.getCurrentRound()).getId());
         RoundEndActionHelper reaHelper = new RoundEndActionHelper();
-        //reaHelper.execute(rc, game.getId());
+        reaHelper.execute(rc, game.getId());
     }
 
     private void processPlayerTurn(Game game, int currentPlayer, int playerCounter) {
@@ -166,41 +210,49 @@ public class GameLogicService extends GenericService {
         List<User> users = game.getUsers();
         for (User u : users) {
             u = userRepo.findOne(u.getId());
-            PlayerDeck<HandCard> handDeck = (PlayerDeck<HandCard>)deckRepo.findOne(u.getHandDeck().getId());
-            PlayerDeck<HandCard> hiddenDeck = u.getHiddenDeck();
+            PlayerDeck<HandCard> handDeck = (PlayerDeck<HandCard>) deckRepo.findOne(u.getHandDeck().getId());
+            PlayerDeck<HandCard> hiddenDeck = (PlayerDeck<HandCard>) deckRepo.findOne(u.getHiddenDeck().getId());
 
-            while (handDeck.size() > 0) {
+            /*while (handDeck.size() > 0) {
                 HandCard hc = (HandCard) handDeck.remove(0);
+                hc = (HandCard) cardRepo.findOne(hc.getId());
                 hc.setDeck(hiddenDeck);
                 hiddenDeck.add(hc);
 
                 cardRepo.save(hc);
-            }
+                deckRepo.save(handDeck);
+                deckRepo.save(hiddenDeck);
+            }*/
 
-            for (int i = 0; i < 6; i++) {
-                ActionCard ac = (ActionCard) hiddenDeck.remove((int) (Math.random() * hiddenDeck.size()));
-                ac.setDeck(handDeck);
-                handDeck.add(ac);
+            /*for (int i = 0; i < 6; i++) {
+                HandCard hc = (HandCard) hiddenDeck.remove((int) (Math.random() * hiddenDeck.size()));
+                hc = (HandCard)cardRepo.findOne(hc.getId());
+                hc.setDeck(handDeck);
+                handDeck.add(hc);
 
-                cardRepo.save(ac);
-            }
+                cardRepo.save(hc);
+                deckRepo.save(hiddenDeck);
+                deckRepo.save(handDeck);
+            }*/
 
             // Character Skill Doc
             if (u.getCharacterType().equals("Doc")) {
-                ActionCard ac = (ActionCard) hiddenDeck.remove((int) (Math.random() * hiddenDeck.size()));
-                ac.setDeck(handDeck);
-                handDeck.add(ac);
+                HandCard hc = (HandCard) hiddenDeck.remove((int) (Math.random() * hiddenDeck.size()));
+                hc = (HandCard) cardRepo.findOne(hc.getId());
+                hc.setDeck(handDeck);
+                handDeck.add(hc);
 
-                cardRepo.save(ac);
+                cardRepo.save(hc);
+                deckRepo.save(hiddenDeck);
+                deckRepo.save(handDeck);
             }
-            deckRepo.save(handDeck);
-            deckRepo.save(hiddenDeck);
         }
     }
 
     private void createDOPCRequestDTO(Game game) {
         // TODO
-        Card c = new Card();
+        ShootCard c = new ShootCard();
+        c.setPlayedByUserId(game.getUsers().get(game.getCurrentPlayer()).getId());
         c.setDeck(game.getCommonDeck());
         cardRepo.save(c);
         game.getCommonDeck().add(c);
@@ -214,7 +266,7 @@ public class GameLogicService extends GenericService {
 
     private List<Turn> getCurrentTurns(Game game) {
         RoundCard rc = (RoundCard) game.getRoundCardDeck().get(game.getCurrentRound());
-        ArrayList<Turn> turns = rc.getPattern();
+        ArrayList<Turn> turns = rc.getArrayList();
         return turns;
     }
 
@@ -370,8 +422,8 @@ public class GameLogicService extends GenericService {
             Game game = gameRepo.findOne(gameId);
             // Get top wagonlevel of caboose
             WagonLevel caboose = wagonLevelRepo.findOne(game.getWagons().get(game.getWagons().size() - 1).getTopLevel().getId());
-            for(User u: game.getUsers()){
-                if(u.getWagonLevel().getLevelType() == LevelType.TOP){
+            for (User u : game.getUsers()) {
+                if (u.getWagonLevel().getLevelType() == LevelType.TOP) {
                     u = userRepo.findOne(u.getId());
                     u.setWagonLevel(caboose);
                     WagonLevel wl = wagonLevelRepo.findOne(u.getWagonLevel().getId());

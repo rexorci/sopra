@@ -16,8 +16,8 @@ public class MarshalCard extends ActionCard implements Serializable {
      */
     private static final long serialVersionUID = 1L;
 
-    @Override
+    /*@Override
     public ActionRequestDTO generateActionRequest(Game game, User user) {
         return null;
-    }
+    }*/
 }

@@ -17,33 +17,33 @@ public class CollectCard extends ActionCard implements Serializable {
      */
     private static final long serialVersionUID = 1L;
 
-    @Override
-    public CollectItemRequestDTO generateActionRequest(Game game, User user) {
-        CollectItemRequestDTO crq = new CollectItemRequestDTO();
-        crq.setHasBag(Boolean.FALSE);
-        crq.setHasCase(Boolean.FALSE);
-        crq.setHasGem(Boolean.FALSE);
-        if(user.getWagonLevel().getItems().size()>0)
-        {
-            for (int i = 0; i < user.getWagonLevel().getItems().size(); i++) {
-                if(user.getWagonLevel().getItems().get(i).getItemType() == ItemType.GEM)
-                {
-                    crq.setHasGem(Boolean.TRUE);
-                }
-                if (user.getWagonLevel().getItems().get(i).getItemType() == ItemType.BAG)
-                {
-                    crq.setHasBag(Boolean.TRUE);
-                }
-                if(user.getWagonLevel().getItems().get(i).getItemType() == ItemType.CASE)
-                {
-                    crq.setHasCase(Boolean.TRUE);
-                }
-            }
-        }
-        crq.setGameId(game.getId());
-        crq.setUserId(user.getId());
-        game.getActions().add(crq);
-        return crq;
-
-    }
+//    @Override
+//    public CollectItemRequestDTO generateActionRequest(Game game, User user) {
+//        CollectItemRequestDTO crq = new CollectItemRequestDTO();
+//        crq.setHasBag(Boolean.FALSE);
+//        crq.setHasCase(Boolean.FALSE);
+//        crq.setHasGem(Boolean.FALSE);
+//        if(user.getWagonLevel().getItems().size()>0)
+//        {
+//            for (int i = 0; i < user.getWagonLevel().getItems().size(); i++) {
+//                if(user.getWagonLevel().getItems().get(i).getItemType() == ItemType.GEM)
+//                {
+//                    crq.setHasGem(Boolean.TRUE);
+//                }
+//                if (user.getWagonLevel().getItems().get(i).getItemType() == ItemType.BAG)
+//                {
+//                    crq.setHasBag(Boolean.TRUE);
+//                }
+//                if(user.getWagonLevel().getItems().get(i).getItemType() == ItemType.CASE)
+//                {
+//                    crq.setHasCase(Boolean.TRUE);
+//                }
+//            }
+//        }
+//        crq.setGameId(game.getId());
+//        crq.setUserId(user.getId());
+//        game.getActions().add(crq);
+//        return crq;
+//
+//    }
 }

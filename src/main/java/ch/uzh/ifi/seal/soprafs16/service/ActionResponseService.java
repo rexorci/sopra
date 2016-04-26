@@ -14,6 +14,7 @@ import ch.uzh.ifi.seal.soprafs16.model.Item;
 import ch.uzh.ifi.seal.soprafs16.model.Marshal;
 import ch.uzh.ifi.seal.soprafs16.model.User;
 import ch.uzh.ifi.seal.soprafs16.model.WagonLevel;
+import ch.uzh.ifi.seal.soprafs16.model.action.ActionResponseDTO;
 import ch.uzh.ifi.seal.soprafs16.model.action.actionResponse.CollectItemResponseDTO;
 import ch.uzh.ifi.seal.soprafs16.model.action.actionResponse.DrawCardResponseDTO;
 import ch.uzh.ifi.seal.soprafs16.model.action.actionResponse.MoveMarshalResponseDTO;
@@ -54,6 +55,30 @@ public class ActionResponseService {
     public DeckRepository deckRepo;
     @Autowired
     public MarshalRepository marshalRepo;
+
+    public void processResponse(ActionResponseDTO ar){
+        if(ar instanceof DrawCardResponseDTO){
+            processResponse((DrawCardResponseDTO) ar);
+        }
+        else if(ar instanceof PlayCardResponseDTO){
+            processResponse((PlayCardResponseDTO)ar);
+        }
+        else if(ar instanceof MoveResponseDTO){
+            processResponse((MoveResponseDTO)ar);
+        }
+        else if(ar instanceof CollectItemResponseDTO){
+            processResponse((CollectItemResponseDTO)ar);
+        }
+        else if(ar instanceof PunchResponseDTO){
+            processResponse((PunchResponseDTO)ar);
+        }
+        else if(ar instanceof ShootResponseDTO){
+            processResponse((ShootResponseDTO)ar);
+        }
+        else if(ar instanceof MoveMarshalResponseDTO){
+            processResponse((MoveMarshalResponseDTO)ar);
+        }
+    }
 
     public void processResponse(DrawCardResponseDTO dcr) {
         User user = userRepo.findOne(dcr.getUserID());

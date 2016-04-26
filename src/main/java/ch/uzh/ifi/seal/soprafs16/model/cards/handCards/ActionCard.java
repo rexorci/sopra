@@ -52,6 +52,6 @@ public abstract class ActionCard extends HandCard implements Serializable {
         this.playedHidden = playedHidden;
     }
 
-    public abstract ActionRequestDTO generateActionRequest(Game game, User user);
+    //public abstract ActionRequestDTO generateActionRequest(Game game, User user);
 
 }

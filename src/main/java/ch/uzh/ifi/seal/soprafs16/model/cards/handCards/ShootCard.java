@@ -20,33 +20,33 @@ public class ShootCard extends ActionCard implements Serializable {
      */
     private static final long serialVersionUID = 1L;
 
-    @Override
-    public ShootRequestDTO generateActionRequest(Game game, User user) {
-        ShootRequestDTO srq = new ShootRequestDTO();
-        List<User> userList = new ArrayList<User>();
-        if (user.getWagonLevel().getLevelType() == LevelType.TOP) {
-            getShootableUsersBeforeR(user, userList, user.getWagonLevel());
-            getShootableUsersAfterR(user, userList, user.getWagonLevel());
-        }
-        if (user.getWagonLevel().getLevelType() == LevelType.BOTTOM) {
-            getShootableUsersBeforeB(user, userList, user.getWagonLevel());
-            getShootableUsersAfterB(user, userList, user.getWagonLevel());
-        }
-        if (userList.size() > 2) {
-            for (int i = 0; i < userList.size(); i++) {
-                if (userList.get(i).getCharacterType().equals("Belle")) {
-                    userList.remove(i);
-                }
-            }
-        }
-        for (int i = 0; i < userList.size(); i++) {
-            srq.getShootableUserIds().add(userList.get(i).getId());
-        }
-        srq.setGameId(game.getId());
-        srq.setUserId(user.getId());
-        game.getActions().add(srq);
-        return srq;
-    }
+//    @Override
+//    public ShootRequestDTO generateActionRequest(Game game, User user) {
+//        ShootRequestDTO srq = new ShootRequestDTO();
+//        List<User> userList = new ArrayList<User>();
+//        if (user.getWagonLevel().getLevelType() == LevelType.TOP) {
+//            getShootableUsersBeforeR(user, userList, user.getWagonLevel());
+//            getShootableUsersAfterR(user, userList, user.getWagonLevel());
+//        }
+//        if (user.getWagonLevel().getLevelType() == LevelType.BOTTOM) {
+//            getShootableUsersBeforeB(user, userList, user.getWagonLevel());
+//            getShootableUsersAfterB(user, userList, user.getWagonLevel());
+//        }
+//        if (userList.size() > 2) {
+//            for (int i = 0; i < userList.size(); i++) {
+//                if (userList.get(i).getCharacterType().equals("Belle")) {
+//                    userList.remove(i);
+//                }
+//            }
+//        }
+//        for (int i = 0; i < userList.size(); i++) {
+//            srq.getShootableUserIds().add(userList.get(i).getId());
+//        }
+//        srq.setGameId(game.getId());
+//        srq.setUserId(user.getId());
+//        game.getActions().add(srq);
+//        return srq;
+//    }
 
     public void getShootableUsersBeforeR(User user, List<User> shootable, WagonLevel wagonLevel) {
         if (wagonLevel.getWagonLevelBefore() != null) {

@@ -40,7 +40,7 @@ public class User implements Serializable {
     @Column(nullable = false, unique = true)
     private String username;
 
-    //@JsonIgnore FIXME
+    @JsonIgnore
     @Column(nullable = false, unique = true)
     private String token;
 

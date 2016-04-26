@@ -1,10 +1,10 @@
 package ch.uzh.ifi.seal.soprafs16.model.characters;
 
+import ch.uzh.ifi.seal.soprafs16.model.User;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.annotation.JsonTypeName;
-import com.fasterxml.jackson.annotation.JsonView;
 
 import java.io.Serializable;
 
@@ -12,10 +12,6 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.OneToOne;
-
-import ch.uzh.ifi.seal.soprafs16.model.User;
-import ch.uzh.ifi.seal.soprafs16.model.cards.handCards.HandCard;
-import ch.uzh.ifi.seal.soprafs16.model.cards.roundCards.RoundCard;
 
 @Entity
 @JsonTypeName("character")
@@ -37,6 +33,7 @@ public class Character implements Serializable {
 
     @Id
     @GeneratedValue
+    @JsonIgnore
     private Long id;
 
     @OneToOne

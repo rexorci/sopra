@@ -16,7 +16,7 @@ import javax.persistence.Entity;
         @JsonSubTypes.Type(value = MarshallsRevengeCard.class, name = "marshallsRevengeCard"),
         @JsonSubTypes.Type(value = HostageCard.class, name = "hostageCard")
 })
-public class StationCard extends RoundCard implements Serializable {
+public abstract class StationCard extends RoundCard implements Serializable {
 
     /**
      *

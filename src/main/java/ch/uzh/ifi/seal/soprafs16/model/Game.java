@@ -196,7 +196,7 @@ public class Game implements Serializable {
 
     public Turn getCurrentTurnType(){
         if(roundCardDeck != null) {
-            return ((RoundCard) roundCardDeck.getCards().get(currentRound)).getPattern().get(currentTurn);
+            return ((RoundCard)roundCardDeck.getCards().get(currentRound)).getPattern().get(currentTurn);
         }
         else return null;
     }

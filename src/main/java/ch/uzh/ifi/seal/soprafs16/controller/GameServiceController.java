@@ -237,7 +237,7 @@ public class GameServiceController extends GenericService {
     //games/{game-id}/users - PUT
     @RequestMapping(value = CONTEXT + "/{gameId}/users", method = RequestMethod.PUT)
     @ResponseStatus(HttpStatus.OK)
-    public User modifyUserCharacter(@PathVariable Long gameId, @RequestParam("token") String userToken, @RequestParam("character") String character) {
+    public User modifyUserCharacter(@PathVariable Long gameId, @RequestParam("token") String userToken, @RequestBody Character character) {
         Game game = gameRepo.findOne(gameId);
         User user = userRepo.findByToken(userToken);
         if (user != null && game != null) {
@@ -258,33 +258,9 @@ public class GameServiceController extends GenericService {
                     userRepo.save(user);
                     characterRepo.delete(oldChar);
                 }
-
-                ch.uzh.ifi.seal.soprafs16.model.characters.Character newCharacter;
-                switch (character) {
-                    case "Belle":
-                        newCharacter = new Belle();
-                        break;
-                    case "Cheyenne":
-                        newCharacter = new Cheyenne();
-                        break;
-                    case "Django":
-                        newCharacter = new Django();
-                        break;
-                    case "Doc":
-                        newCharacter = new Doc();
-                        break;
-                    case "Ghost":
-                        newCharacter = new Ghost();
-                        break;
-                    case "Tuco":
-                        newCharacter = new Tuco();
-                        break;
-                    default:
-                        return null;
-                }
-                user.setCharacter(newCharacter);
-                newCharacter.setUser(user);
-                characterRepo.save(newCharacter);
+                user.setCharacter(character);
+                character.setUser(user);
+                characterRepo.save(character);
                 userRepo.save(user);
                 return user;
             } catch (IllegalArgumentException iae) {

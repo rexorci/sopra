@@ -180,17 +180,17 @@ public class GameLogicServiceTest {
             turns.add(speedup);
             turns.add(reverse);
 
-            RoundCard rc = new RoundCard();
-            rc.setPattern(turns);
-            rc.setDeck(roundCardDeck);
-            cardRepo.save(rc);
-
-            normal.setRoundCard(rc);
-            speedup.setRoundCard(rc);
-            reverse.setRoundCard(rc);
-
-            roundCardDeck.add(rc);
-            cardRepo.save(rc);
+//            RoundCard rc = new RoundCard();
+//            rc.setPattern(turns);
+//            rc.setDeck(roundCardDeck);
+//            cardRepo.save(rc);
+//
+//            normal.setRoundCard(rc);
+//            speedup.setRoundCard(rc);
+//            reverse.setRoundCard(rc);
+//
+//            roundCardDeck.add(rc);
+//            cardRepo.save(rc);
         }
 
         deckRepo.save(roundCardDeck);

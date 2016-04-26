@@ -110,6 +110,7 @@ public class ActionResponseService {
         GameDeck<ActionCard> commonDeck = game.getCommonDeck();
         commonDeck.add(ac);
         ac.setDeck(commonDeck);
+        ac.setPlayedByUserId(user.getId());
 
         cardRepo.save(ac);
         deckRepo.save(handDeck);

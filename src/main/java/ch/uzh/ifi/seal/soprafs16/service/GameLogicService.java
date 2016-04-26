@@ -24,6 +24,7 @@ import ch.uzh.ifi.seal.soprafs16.model.Item;
 import ch.uzh.ifi.seal.soprafs16.model.Marshal;
 import ch.uzh.ifi.seal.soprafs16.model.User;
 import ch.uzh.ifi.seal.soprafs16.model.WagonLevel;
+import ch.uzh.ifi.seal.soprafs16.model.action.actionResponse.PlayCardResponseDTO;
 import ch.uzh.ifi.seal.soprafs16.model.cards.Card;
 import ch.uzh.ifi.seal.soprafs16.model.cards.GameDeck;
 import ch.uzh.ifi.seal.soprafs16.model.cards.PlayerDeck;
@@ -40,6 +41,7 @@ import ch.uzh.ifi.seal.soprafs16.model.cards.roundCards.PassengerRebellionCard;
 import ch.uzh.ifi.seal.soprafs16.model.cards.roundCards.PickPocketingCard;
 import ch.uzh.ifi.seal.soprafs16.model.cards.roundCards.PivotablePoleCard;
 import ch.uzh.ifi.seal.soprafs16.model.cards.roundCards.RoundCard;
+import ch.uzh.ifi.seal.soprafs16.model.characters.Doc;
 import ch.uzh.ifi.seal.soprafs16.model.repositories.CardRepository;
 import ch.uzh.ifi.seal.soprafs16.model.repositories.CharacterRepository;
 import ch.uzh.ifi.seal.soprafs16.model.repositories.DeckRepository;
@@ -84,7 +86,7 @@ public class GameLogicService extends GenericService {
     //endregion
 
     public void update(Long id) {
-        if (!gameRepo.exists(id)) return;
+       //if (!gameRepo.exists(id)) return;
 
         Game game = gameRepo.findOne(id);
 
@@ -101,14 +103,16 @@ public class GameLogicService extends GenericService {
                 setNextTurn(game, game.getUsers().size());
                 setNextPlayer(game, game.getUsers().size());
             }
-            processPlayerTurn(game, currentPlayer, users.size());
+            processPlayerTurn(game);
 
         } else if (game.getCurrentPhase() == PhaseType.EXECUTION) {
             // Remove ActionCard and return it to player Deck
             processCommonDeck(game);
+            game = gameRepo.findOne(game.getId());
         }
 
         gameRepo.save(game);
+        game.getUsers().size();
     }
 
     private void setPhase(Game game) {
@@ -124,9 +128,13 @@ public class GameLogicService extends GenericService {
         ActionCard ac = (ActionCard) cardRepo.findOne(commonDeck.remove(0).getId());
         User user = userRepo.findOne(ac.getPlayedByUserId());
         PlayerDeck<HandCard> hiddenDeck = (PlayerDeck<HandCard>) deckRepo.findOne(user.getHiddenDeck().getId());
-
+        ac.setPlayedByUserId(user.getId());
         ac.setDeck(hiddenDeck);
         hiddenDeck.getCards().add(ac);
+
+        for(int i = 0; i < game.getUsers().size(); i++){
+            if(game.getUsers().get(i).getId().equals(ac.getPlayedByUserId())) game.setCurrentPlayer(i);
+        }
 
         cardRepo.save(ac);
         deckRepo.save(hiddenDeck);
@@ -154,7 +162,7 @@ public class GameLogicService extends GenericService {
             return true;
         } else {
             executeRoundAction(game);
-            //resetPlayerDecks(game);
+            resetPlayerDecks(game);
             game.setRoundStarter((game.getRoundStarter() + 1) % game.getUsers().size());
             game.setCurrentPlayer(game.getRoundStarter());
             game.setCurrentTurn(0);
@@ -170,7 +178,7 @@ public class GameLogicService extends GenericService {
         reaHelper.execute(rc, game.getId());
     }
 
-    private void processPlayerTurn(Game game, int currentPlayer, int playerCounter) {
+    private void processPlayerTurn(Game game) {
         createDOPCRequestDTO(game);
         game.setActionRequestCounter(game.getActionRequestCounter() + 1);
     }
@@ -213,7 +221,7 @@ public class GameLogicService extends GenericService {
             PlayerDeck<HandCard> handDeck = (PlayerDeck<HandCard>) deckRepo.findOne(u.getHandDeck().getId());
             PlayerDeck<HandCard> hiddenDeck = (PlayerDeck<HandCard>) deckRepo.findOne(u.getHiddenDeck().getId());
 
-            /*while (handDeck.size() > 0) {
+            while (handDeck.size() > 0) {
                 HandCard hc = (HandCard) handDeck.remove(0);
                 hc = (HandCard) cardRepo.findOne(hc.getId());
                 hc.setDeck(hiddenDeck);
@@ -222,9 +230,9 @@ public class GameLogicService extends GenericService {
                 cardRepo.save(hc);
                 deckRepo.save(handDeck);
                 deckRepo.save(hiddenDeck);
-            }*/
+            }
 
-            /*for (int i = 0; i < 6; i++) {
+            for (int i = 0; i < 6; i++) {
                 HandCard hc = (HandCard) hiddenDeck.remove((int) (Math.random() * hiddenDeck.size()));
                 hc = (HandCard)cardRepo.findOne(hc.getId());
                 hc.setDeck(handDeck);
@@ -233,10 +241,10 @@ public class GameLogicService extends GenericService {
                 cardRepo.save(hc);
                 deckRepo.save(hiddenDeck);
                 deckRepo.save(handDeck);
-            }*/
+            }
 
             // Character Skill Doc
-            if (u.getCharacterType().equals("Doc")) {
+            if (u.getCharacter() instanceof Doc) {
                 HandCard hc = (HandCard) hiddenDeck.remove((int) (Math.random() * hiddenDeck.size()));
                 hc = (HandCard) cardRepo.findOne(hc.getId());
                 hc.setDeck(handDeck);
@@ -251,12 +259,8 @@ public class GameLogicService extends GenericService {
 
     private void createDOPCRequestDTO(Game game) {
         // TODO
-        ShootCard c = new ShootCard();
-        c.setPlayedByUserId(game.getUsers().get(game.getCurrentPlayer()).getId());
-        c.setDeck(game.getCommonDeck());
-        cardRepo.save(c);
-        game.getCommonDeck().add(c);
-        deckRepo.save(game.getCommonDeck());
+        // This is a function that simulates an actionResponse
+        // will be changed to an actual createDOPCrequestdto function
     }
 
     private int mod(int a, int b) {

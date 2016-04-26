@@ -268,12 +268,6 @@ public class GameLogicService extends GenericService {
         return ret < 0 ? b + ret : ret;
     }
 
-    private List<Turn> getCurrentTurns(Game game) {
-        RoundCard rc = (RoundCard) game.getRoundCardDeck().get(game.getCurrentRound());
-        ArrayList<Turn> turns = rc.getArrayList();
-        return turns;
-    }
-
     /// TODO: testing
     private class RoundEndActionHelper {
         private void execute(RoundCard rc, Long gameId) {
@@ -353,6 +347,36 @@ public class GameLogicService extends GenericService {
 
             itemRepo.save(moneyCase);
             wagonLevelRepo.save(wl);
+        }
+
+        private void execute(HostageCard hc, Long gameId) {
+            Game game = gameRepo.findOne(gameId);
+            WagonLevel locTop = wagonLevelRepo.findOne(game.getWagons().get(0).getTopLevel().getId());
+            WagonLevel locBottom = wagonLevelRepo.findOne(game.getWagons().get(0).getBottomLevel().getId());
+
+            for(User u: locTop.getUsers()){
+                Item bag = new Item();
+                bag.setValue(250);
+                bag.setUser(u);
+                bag.setWagonLevel(null);
+                bag.setItemType(ItemType.BAG);
+
+                itemRepo.save(bag);
+                u.getItems().add(bag);
+                userRepo.save(u);
+            }
+
+            for(User u: locBottom.getUsers()){
+                Item bag = new Item();
+                bag.setValue(250);
+                bag.setUser(u);
+                bag.setWagonLevel(null);
+                bag.setItemType(ItemType.BAG);
+
+                itemRepo.save(bag);
+                u.getItems().add(bag);
+                userRepo.save(u);
+            }
         }
 
         private void execute(MarshallsRevengeCard mrc, Long gameId) {

@@ -18,17 +18,22 @@ import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 
 import ch.uzh.ifi.seal.soprafs16.Application;
 import ch.uzh.ifi.seal.soprafs16.constant.GameStatus;
+import ch.uzh.ifi.seal.soprafs16.constant.ItemType;
 import ch.uzh.ifi.seal.soprafs16.constant.PhaseType;
 import ch.uzh.ifi.seal.soprafs16.constant.UserStatus;
 import ch.uzh.ifi.seal.soprafs16.model.Game;
+import ch.uzh.ifi.seal.soprafs16.model.Item;
+import ch.uzh.ifi.seal.soprafs16.model.Marshal;
 import ch.uzh.ifi.seal.soprafs16.model.User;
 import ch.uzh.ifi.seal.soprafs16.model.WagonLevel;
 import ch.uzh.ifi.seal.soprafs16.model.action.ActionRequestDTO;
@@ -40,6 +45,12 @@ import ch.uzh.ifi.seal.soprafs16.model.cards.handCards.BulletCard;
 import ch.uzh.ifi.seal.soprafs16.model.cards.handCards.HandCard;
 import ch.uzh.ifi.seal.soprafs16.model.cards.roundCards.AngryMarshalCard;
 import ch.uzh.ifi.seal.soprafs16.model.cards.roundCards.BrakingCard;
+import ch.uzh.ifi.seal.soprafs16.model.cards.roundCards.GetItAllCard;
+import ch.uzh.ifi.seal.soprafs16.model.cards.roundCards.HostageCard;
+import ch.uzh.ifi.seal.soprafs16.model.cards.roundCards.MarshallsRevengeCard;
+import ch.uzh.ifi.seal.soprafs16.model.cards.roundCards.PassengerRebellionCard;
+import ch.uzh.ifi.seal.soprafs16.model.cards.roundCards.PickPocketingCard;
+import ch.uzh.ifi.seal.soprafs16.model.cards.roundCards.PivotablePoleCard;
 import ch.uzh.ifi.seal.soprafs16.model.cards.roundCards.RoundCard;
 import ch.uzh.ifi.seal.soprafs16.model.repositories.CardRepository;
 import ch.uzh.ifi.seal.soprafs16.model.repositories.CharacterRepository;
@@ -275,7 +286,7 @@ public class GameLogicServiceTest {
         PlayCardResponseDTO pc = new PlayCardResponseDTO();
         pc.setGameId(tester.getId());
         pc.setUserID(user.getId());
-        pc.setPlayedCard((ActionCard)user.getHandDeck().get(0));
+        pc.setPlayedCard((ActionCard) user.getHandDeck().get(0));
         ars.processResponse(pc);
         gls.update(tester.getId());
     }
@@ -394,7 +405,7 @@ public class GameLogicServiceTest {
     }
 
     @Test
-    public void execute_AngryMarshalGivesBullet(){
+    public void execute_AngryMarshalGivesBullet() {
         User u = userRepo.findOne(tester.getUsers().get(0).getId());
         Game game = gameRepo.findOne(gameId);
         GameDeck<RoundCard> roundCardDeck = game.getRoundCardDeck();
@@ -438,18 +449,442 @@ public class GameLogicServiceTest {
         game = gameRepo.findOne(game.getId());
         gls.update(gameId);
 
-        BulletCard bc = (BulletCard)cardRepo.findOne(game.getNeutralBulletsDeck().get(0).getId());
-        for(int i = 0; i < 16; i++){
+        BulletCard bc = (BulletCard) cardRepo.findOne(game.getNeutralBulletsDeck().get(0).getId());
+        for (int i = 0; i < 16; i++) {
             simulatePlayCardResponse();
         }
-        for(int i = 0; i < 16; i++){
+        for (int i = 0; i < 16; i++) {
             gls.update(gameId);
         }
 
         u = userRepo.findOne(u.getId());
         assertTrue(u.getHandDeck().removeById(bc.getId()) || u.getHiddenDeck().removeById(bc.getId()));
     }
-    
+
+    @Test
+    public void execute_BrakingCardMovesUsersOnRoof() {
+        User u = userRepo.findOne(tester.getUsers().get(0).getId());
+        Game game = gameRepo.findOne(gameId);
+        GameDeck<RoundCard> roundCardDeck = game.getRoundCardDeck();
+        roundCardDeck.getCards().clear();
+        for (int i = 0; i < 5; i++) {
+            Turn normal = new NormalTurn();
+            Turn speedup = new SpeedupTurn();
+            Turn reverse = new ReverseTurn();
+            turnRepo.save(normal);
+            turnRepo.save(speedup);
+            turnRepo.save(reverse);
+
+            ArrayList<Turn> turns = new ArrayList<>();
+
+            turns.add(normal);
+            turns.add(speedup);
+            turns.add(reverse);
+
+            BrakingCard rc = new BrakingCard();
+            rc.setPattern(turns);
+            rc.setDeck(roundCardDeck);
+            cardRepo.save(rc);
+
+            normal.setRoundCard(rc);
+            speedup.setRoundCard(rc);
+            reverse.setRoundCard(rc);
+
+            roundCardDeck.add(rc);
+            cardRepo.save(rc);
+        }
+
+        WagonLevel wl = wagonLevelRepo.findOne(u.getWagonLevel().getId());
+        wl.removeUserById(u.getId());
+        WagonLevel newWl = wagonLevelRepo.findOne(u.getWagonLevel().getWagon().getTopLevel().getId());
+        u.setWagonLevel(newWl);
+        newWl.getUsers().add(u);
+        wl = wagonLevelRepo.save(wl);
+        newWl = wagonLevelRepo.save(newWl);
+        userRepo.save(u);
+        game = gameRepo.findOne(game.getId());
+        gls.update(gameId);
+
+        for (int i = 0; i < 16; i++) {
+            simulatePlayCardResponse();
+        }
+        for (int i = 0; i < 16; i++) {
+            gls.update(gameId);
+        }
+
+        u = userRepo.findOne(u.getId());
+        assertEquals(newWl.getWagonLevelBefore().getId(), u.getWagonLevel().getId());
+    }
+
+    @Test
+    public void execute_GetItAllCaseIsPlaced() {
+        Game game = gameRepo.findOne(gameId);
+        Marshal marshal = marshalRepo.findOne(game.getMarshal().getId());
+
+        GameDeck<RoundCard> roundCardDeck = game.getRoundCardDeck();
+        roundCardDeck.getCards().clear();
+        for (int i = 0; i < 5; i++) {
+            Turn normal = new NormalTurn();
+            Turn speedup = new SpeedupTurn();
+            Turn reverse = new ReverseTurn();
+            turnRepo.save(normal);
+            turnRepo.save(speedup);
+            turnRepo.save(reverse);
+
+            ArrayList<Turn> turns = new ArrayList<>();
+
+            turns.add(normal);
+            turns.add(speedup);
+            turns.add(reverse);
+
+            GetItAllCard giac = new GetItAllCard();
+            giac.setPattern(turns);
+            giac.setDeck(roundCardDeck);
+            cardRepo.save(giac);
+
+            normal.setRoundCard(giac);
+            speedup.setRoundCard(giac);
+            reverse.setRoundCard(giac);
+
+            roundCardDeck.add(giac);
+            cardRepo.save(giac);
+        }
+
+        WagonLevel wl = wagonLevelRepo.findOne(marshal.getWagonLevel().getId());
+        wl.setMarshal(null);
+        WagonLevel newWl = wagonLevelRepo.findOne(marshal.getWagonLevel().getWagon().getTopLevel().getId());
+        marshal.setWagonLevel(newWl);
+        newWl.setMarshal(marshal);
+        wl = wagonLevelRepo.save(wl);
+        newWl = wagonLevelRepo.save(newWl);
+        marshalRepo.save(marshal);
+        game = gameRepo.findOne(game.getId());
+        gls.update(gameId);
+
+        for (int i = 0; i < 16; i++) {
+            simulatePlayCardResponse();
+        }
+        for (int i = 0; i < 16; i++) {
+            gls.update(gameId);
+        }
+
+        newWl = wagonLevelRepo.findOne(newWl.getId());
+        assertEquals(ItemType.CASE, newWl.getItems().get(newWl.getItems().size() - 1).getItemType());
+    }
+
+    @Test
+    public void execute_HostageCardUsersInLocGetBag() {
+        Game game = gameRepo.findOne(gameId);
+
+        GameDeck<RoundCard> roundCardDeck = game.getRoundCardDeck();
+        roundCardDeck.getCards().clear();
+        for (int i = 0; i < 5; i++) {
+            Turn normal = new NormalTurn();
+            Turn speedup = new SpeedupTurn();
+            Turn reverse = new ReverseTurn();
+            turnRepo.save(normal);
+            turnRepo.save(speedup);
+            turnRepo.save(reverse);
+
+            ArrayList<Turn> turns = new ArrayList<>();
+
+            turns.add(normal);
+            turns.add(speedup);
+            turns.add(reverse);
+
+            HostageCard hc = new HostageCard();
+            hc.setPattern(turns);
+            hc.setDeck(roundCardDeck);
+            cardRepo.save(hc);
+
+            normal.setRoundCard(hc);
+            speedup.setRoundCard(hc);
+            reverse.setRoundCard(hc);
+
+            roundCardDeck.add(hc);
+            cardRepo.save(hc);
+        }
+
+        User u = userRepo.findOne(game.getUsers().get(0).getId());
+        WagonLevel wl = u.getWagonLevel();
+        WagonLevel newWl = wagonLevelRepo.findOne(game.getWagons().get(0).getTopLevel().getId());
+        wl.removeUserById(u.getId());
+        wl = wagonLevelRepo.save(wl);
+        newWl.getUsers().add(u);
+        u.setWagonLevel(newWl);
+        newWl = wagonLevelRepo.save(newWl);
+        game = gameRepo.findOne(game.getId());
+        gls.update(gameId);
+
+        for (int i = 0; i < 16; i++) {
+            simulatePlayCardResponse();
+        }
+        for (int i = 0; i < 16; i++) {
+            gls.update(gameId);
+        }
+
+        u = userRepo.findOne(u.getId());
+        assertEquals(ItemType.BAG, u.getItems().get(u.getItems().size() - 1).getItemType());
+        assertEquals(250, u.getItems().get(u.getItems().size() - 1).getValue());
+    }
+
+    @Test
+    public void execute_MarshalsRevengeCardUserLosesLeastBag() {
+        Game game = gameRepo.findOne(gameId);
+
+        GameDeck<RoundCard> roundCardDeck = game.getRoundCardDeck();
+        roundCardDeck.getCards().clear();
+        for (int i = 0; i < 5; i++) {
+            Turn normal = new NormalTurn();
+            Turn speedup = new SpeedupTurn();
+            Turn reverse = new ReverseTurn();
+            turnRepo.save(normal);
+            turnRepo.save(speedup);
+            turnRepo.save(reverse);
+
+            ArrayList<Turn> turns = new ArrayList<>();
+
+            turns.add(normal);
+            turns.add(speedup);
+            turns.add(reverse);
+
+            MarshallsRevengeCard mrc = new MarshallsRevengeCard();
+            mrc.setPattern(turns);
+            mrc.setDeck(roundCardDeck);
+            cardRepo.save(mrc);
+
+            normal.setRoundCard(mrc);
+            speedup.setRoundCard(mrc);
+            reverse.setRoundCard(mrc);
+
+            roundCardDeck.add(mrc);
+            cardRepo.save(mrc);
+        }
+
+        User u = userRepo.findOne(game.getUsers().get(0).getId());
+        WagonLevel wl = u.getWagonLevel();
+        WagonLevel newWl = wagonLevelRepo.findOne(game.getMarshal().getWagonLevel().getWagon().getTopLevel().getId());
+        wl.removeUserById(u.getId());
+        wl = wagonLevelRepo.save(wl);
+        newWl.getUsers().add(u);
+        u.setWagonLevel(newWl);
+        newWl = wagonLevelRepo.save(newWl);
+        game = gameRepo.findOne(game.getId());
+        gls.update(gameId);
+
+        Item item = itemRepo.findOne(getMinPurse(u).getId());
+
+        for (int i = 0; i < 16; i++) {
+            simulatePlayCardResponse();
+        }
+        for (int i = 0; i < 16; i++) {
+            gls.update(gameId);
+        }
+
+        u = userRepo.findOne(u.getId());
+        assertFalse(u.removeItemById(item.getId()));
+    }
+
+    @Test
+    public void execute_PassengerRebellionBanditsInsideGetBulletCard() {
+        Game game = gameRepo.findOne(gameId);
+
+        GameDeck<RoundCard> roundCardDeck = game.getRoundCardDeck();
+        roundCardDeck.getCards().clear();
+        for (int i = 0; i < 5; i++) {
+            Turn normal = new NormalTurn();
+            Turn speedup = new SpeedupTurn();
+            Turn reverse = new ReverseTurn();
+            turnRepo.save(normal);
+            turnRepo.save(speedup);
+            turnRepo.save(reverse);
+
+            ArrayList<Turn> turns = new ArrayList<>();
+
+            turns.add(normal);
+            turns.add(speedup);
+            turns.add(reverse);
+
+            PassengerRebellionCard mrc = new PassengerRebellionCard();
+            mrc.setPattern(turns);
+            mrc.setDeck(roundCardDeck);
+            cardRepo.save(mrc);
+
+            normal.setRoundCard(mrc);
+            speedup.setRoundCard(mrc);
+            reverse.setRoundCard(mrc);
+
+            roundCardDeck.add(mrc);
+            cardRepo.save(mrc);
+        }
+
+
+        // On initialize, every user is inside a wagon
+        BulletCard bc0 = (BulletCard)cardRepo.findOne(game.getNeutralBulletsDeck().get(0).getId());
+        BulletCard bc1 = (BulletCard)cardRepo.findOne(game.getNeutralBulletsDeck().get(1).getId());
+        BulletCard bc2 = (BulletCard)cardRepo.findOne(game.getNeutralBulletsDeck().get(2).getId());
+        BulletCard bc3 = (BulletCard)cardRepo.findOne(game.getNeutralBulletsDeck().get(3).getId());
+
+        BulletCard[] bcs = {bc0, bc1, bc2, bc3};
+        gls.update(gameId);
+
+        for (int i = 0; i < 16; i++) {
+            simulatePlayCardResponse();
+        }
+        for (int i = 0; i < 16; i++) {
+            gls.update(gameId);
+        }
+
+        int i = 0;
+        for(User u: game.getUsers()) {
+            u = userRepo.findOne(u.getId());
+            assertTrue(u.getHiddenDeck().removeById(bcs[i].getId()) || u.getHandDeck().removeById(bcs[i].getId()));
+            i++;
+        }
+    }
+
+    @Test
+    public void execute_PickPocketingGrantsLoneBanditPurse() {
+        Game game = gameRepo.findOne(gameId);
+
+        GameDeck<RoundCard> roundCardDeck = game.getRoundCardDeck();
+        roundCardDeck.getCards().clear();
+        for (int i = 0; i < 5; i++) {
+            Turn normal = new NormalTurn();
+            Turn speedup = new SpeedupTurn();
+            Turn reverse = new ReverseTurn();
+            turnRepo.save(normal);
+            turnRepo.save(speedup);
+            turnRepo.save(reverse);
+
+            ArrayList<Turn> turns = new ArrayList<>();
+
+            turns.add(normal);
+            turns.add(speedup);
+            turns.add(reverse);
+
+            PickPocketingCard mrc = new PickPocketingCard();
+            mrc.setPattern(turns);
+            mrc.setDeck(roundCardDeck);
+            cardRepo.save(mrc);
+
+            normal.setRoundCard(mrc);
+            speedup.setRoundCard(mrc);
+            reverse.setRoundCard(mrc);
+
+            roundCardDeck.add(mrc);
+            cardRepo.save(mrc);
+        }
+
+        User u = userRepo.findOne(game.getUsers().get(0).getId());
+        WagonLevel wl = u.getWagonLevel();
+        WagonLevel newWl = wagonLevelRepo.findOne(game.getWagons().get(2).getBottomLevel().getId());
+
+        int itemCounter = u.getItems().size();
+
+        wl.removeUserById(u.getId());
+        wl = wagonLevelRepo.save(wl);
+        newWl.getUsers().add(u);
+        u.setWagonLevel(newWl);
+        newWl = wagonLevelRepo.save(newWl);
+
+        boolean wagonContainedBag = containsBag(newWl.getItems());
+        game = gameRepo.findOne(game.getId());
+        gls.update(gameId);
+
+        for (int i = 0; i < 16; i++) {
+            simulatePlayCardResponse();
+        }
+        for (int i = 0; i < 16; i++) {
+            gls.update(gameId);
+        }
+
+        u = userRepo.findOne(u.getId());
+        if(wagonContainedBag){
+            assertTrue(u.getItems().size() == itemCounter + 1);
+            assertEquals(ItemType.BAG, u.getItems().get(u.getItems().size() - 1).getItemType());
+        }
+        else{
+            assertTrue(u.getItems().size() == itemCounter);
+            Item bag = new Item();
+            bag.setItemType(ItemType.BAG);
+            bag.setUser(null);
+            bag.setWagonLevel(newWl);
+            bag.setValue(250);
+            newWl.getItems().add(bag);
+
+            itemRepo.save(bag);
+            wagonLevelRepo.save(newWl);
+            execute_PickPocketingGrantsLoneBanditPurse();
+        }
+    }
+
+    @Test
+    public void execute_PivotablePoleMovesBanditsOnTopToCaboose() {
+        Game game = gameRepo.findOne(gameId);
+
+        GameDeck<RoundCard> roundCardDeck = game.getRoundCardDeck();
+        roundCardDeck.getCards().clear();
+        for (int i = 0; i < 5; i++) {
+            Turn normal = new NormalTurn();
+            Turn speedup = new SpeedupTurn();
+            Turn reverse = new ReverseTurn();
+            turnRepo.save(normal);
+            turnRepo.save(speedup);
+            turnRepo.save(reverse);
+
+            ArrayList<Turn> turns = new ArrayList<>();
+
+            turns.add(normal);
+            turns.add(speedup);
+            turns.add(reverse);
+
+            PivotablePoleCard ppc = new PivotablePoleCard();
+            ppc.setPattern(turns);
+            ppc.setDeck(roundCardDeck);
+            cardRepo.save(ppc);
+
+            normal.setRoundCard(ppc);
+            speedup.setRoundCard(ppc);
+            reverse.setRoundCard(ppc);
+
+            roundCardDeck.add(ppc);
+            cardRepo.save(ppc);
+        }
+
+        User u = userRepo.findOne(game.getUsers().get(0).getId());
+        WagonLevel wl = u.getWagonLevel();
+        WagonLevel newWl = wagonLevelRepo.findOne(game.getMarshal().getWagonLevel().getWagon().getTopLevel().getId());
+        wl.removeUserById(u.getId());
+        wl = wagonLevelRepo.save(wl);
+        newWl.getUsers().add(u);
+        u.setWagonLevel(newWl);
+        newWl = wagonLevelRepo.save(newWl);
+        game = gameRepo.findOne(game.getId());
+        gls.update(gameId);
+
+        Item item = itemRepo.findOne(getMinPurse(u).getId());
+
+        for (int i = 0; i < 16; i++) {
+            simulatePlayCardResponse();
+        }
+        for (int i = 0; i < 16; i++) {
+            gls.update(gameId);
+        }
+
+        u = userRepo.findOne(u.getId());
+        game = gameRepo.findOne(gameId);
+        assertTrue(game.getWagons().get(game.getWagons().size() - 1).getTopLevel().removeUserById(u.getId()));
+    }
+
+
+    private boolean containsBag(List<Item> items) {
+        for(Item item: items){
+            if(item.getItemType().equals(ItemType.BAG)) return true;
+        }
+        return false;
+    }
+
   /*  @Test
     public void gls_GameFinishesCorrectly(){
         tester.setCurrentRound(4);
@@ -475,9 +910,24 @@ public class GameLogicServiceTest {
         }
     }
 
-    private void simulateTurn(Game game){
-        for(int i = 0; i < game.getUsers().size(); i++){
+    private void simulateTurn(Game game) {
+        for (int i = 0; i < game.getUsers().size(); i++) {
             gls.update(game.getId());
         }
     }
+
+    private Item getMinPurse(User user) {
+        Item min = new Item();
+        min.setValue(Integer.MAX_VALUE);
+        for (Item item : user.getItems()) {
+            if (item.getItemType() == ItemType.BAG && item.getValue() < min.getValue()) {
+                min = item;
+            }
+        }
+        if (min.getValue() < Integer.MAX_VALUE) {
+            return min;
+        }
+        return null;
+    }
+
 }

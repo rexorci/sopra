@@ -33,6 +33,7 @@ import ch.uzh.ifi.seal.soprafs16.model.WagonLevel;
 import ch.uzh.ifi.seal.soprafs16.model.action.actionResponse.CollectItemResponseDTO;
 import ch.uzh.ifi.seal.soprafs16.model.action.actionResponse.DrawCardResponseDTO;
 import ch.uzh.ifi.seal.soprafs16.model.action.actionResponse.MoveMarshalResponseDTO;
+import ch.uzh.ifi.seal.soprafs16.model.action.actionResponse.MoveResponseDTO;
 import ch.uzh.ifi.seal.soprafs16.model.action.actionResponse.PlayCardResponseDTO;
 import ch.uzh.ifi.seal.soprafs16.model.action.actionResponse.PunchResponseDTO;
 import ch.uzh.ifi.seal.soprafs16.model.action.actionResponse.ShootResponseDTO;
@@ -298,12 +299,12 @@ public class GameServiceControllerTest {
     @Test
     public void processResponse_CollectItemResponseIsAdded() {
         User user1 = new User();
-        user1.setName("name1_actionResponseTest");
-        user1.setUsername("username1_actionResponseTest");
+        user1.setName("name1_collectItemResponseTest");
+        user1.setUsername("username1_collectItemResponseTest");
         UserAuthenticationWrapper userAuthenticationWrapper1 = template.postForObject(base + "users", user1, UserAuthenticationWrapper.class);
 
         Game game1 = new Game();
-        game1.setName("game1_actionResponseTest");
+        game1.setName("game1_collectItemResponseTest");
         Long gameId1 = template.postForObject(base + "games?token=" + userAuthenticationWrapper1.getUserToken(), game1, Long.class);
         template.postForObject(base + "games/" + gameId1 + "/start?token=" + userAuthenticationWrapper1.getUserToken(), null, Void.class);
 
@@ -326,7 +327,7 @@ public class GameServiceControllerTest {
         UserAuthenticationWrapper userAuthenticationWrapper1 = template.postForObject(base + "users", user1, UserAuthenticationWrapper.class);
 
         Game game1 = new Game();
-        game1.setName("game1_actionResponseTest");
+        game1.setName("game1_drawCardResponseTest");
         Long gameId1 = template.postForObject(base + "games?token=" + userAuthenticationWrapper1.getUserToken(), game1, Long.class);
 
         String characterType1 = "Cheyenne";
@@ -355,7 +356,7 @@ public class GameServiceControllerTest {
         UserAuthenticationWrapper userAuthenticationWrapper1 = template.postForObject(base + "users", user1, UserAuthenticationWrapper.class);
 
         Game game1 = new Game();
-        game1.setName("game1_actionResponseTest");
+        game1.setName("game1_moveMarshalResponseTest");
         Long gameId1 = template.postForObject(base + "games?token=" + userAuthenticationWrapper1.getUserToken(), game1, Long.class);
 
         String characterType1 = "Cheyenne";
@@ -384,10 +385,10 @@ public class GameServiceControllerTest {
         UserAuthenticationWrapper userAuthenticationWrapper1 = template.postForObject(base + "users", user1, UserAuthenticationWrapper.class);
 
         Game game1 = new Game();
-        game1.setName("game1_actionResponseTest");
+        game1.setName("game1_playCardResponseTest");
         Long gameId1 = template.postForObject(base + "games?token=" + userAuthenticationWrapper1.getUserToken(), game1, Long.class);
 
-        String characterType1 = "Cheyenne";
+        String characterType1 = "Doc";
         UriComponentsBuilder builder1 = UriComponentsBuilder.fromHttpUrl(base + "games/" + gameId1 + "/users")
                 .queryParam("token", userAuthenticationWrapper1.getUserToken())
                 .queryParam("character", characterType1.toString());
@@ -404,6 +405,36 @@ public class GameServiceControllerTest {
 
         Assert.assertEquals(gameId1, gameId_ActionResponse);
     }
+    
+    @Test
+    public void processResponse_MoveResponseIsAdded() {
+        User user1 = new User();
+        user1.setName("name1_moveResponseIsAdded");
+        user1.setUsername("username1_moveResponseIsAdded");
+        UserAuthenticationWrapper userAuthenticationWrapper1 = template.postForObject(base + "users", user1, UserAuthenticationWrapper.class);
+
+        Game game1 = new Game();
+        game1.setName("game1_moveResponseTest");
+            Long gameId1 = template.postForObject(base + "games?token=" + userAuthenticationWrapper1.getUserToken(), game1, Long.class);
+
+        String characterType1 = "Doc";
+        UriComponentsBuilder builder1 = UriComponentsBuilder.fromHttpUrl(base + "games/" + gameId1 + "/users")
+                .queryParam("token", userAuthenticationWrapper1.getUserToken())
+                .queryParam("character", characterType1.toString());
+        HttpEntity<User> userResponse1 = template.exchange(builder1.build().encode().toUri(), HttpMethod.PUT, null, User.class);
+
+        template.postForObject(base + "games/" + gameId1 + "/start?token=" + userAuthenticationWrapper1.getUserToken(), null, Void.class);
+        game1 = template.getForObject(base + "games/" + gameId1, Game.class);
+       
+        MoveResponseDTO movelResponseDTO = new MoveResponseDTO();
+        movelResponseDTO.setUserID(userAuthenticationWrapper1.getUserId());
+        movelResponseDTO.setSpielId(gameId1);
+        movelResponseDTO.setWagonLevelID(game1.getWagons().get(1).getTopLevel().getId());
+
+        Long gameId_ActionResponse = template.postForObject(base + "games/" + gameId1 + "/actions?token=" + userAuthenticationWrapper1.getUserToken(), movelResponseDTO, Long.class);
+
+        Assert.assertEquals(gameId1, gameId_ActionResponse);
+    }
 
 
     @Test
@@ -414,10 +445,10 @@ public class GameServiceControllerTest {
         UserAuthenticationWrapper userAuthenticationWrapper1 = template.postForObject(base + "users", user1, UserAuthenticationWrapper.class);
 
         Game game1 = new Game();
-        game1.setName("game1_actionResponseTest");
+        game1.setName("game1_punchCardResponseTest");
         Long gameId1 = template.postForObject(base + "games?token=" + userAuthenticationWrapper1.getUserToken(), game1, Long.class);
 
-        String characterType1 = "Cheyenne";
+        String characterType1 = "Doc";
         UriComponentsBuilder builder1 = UriComponentsBuilder.fromHttpUrl(base + "games/" + gameId1 + "/users")
                 .queryParam("token", userAuthenticationWrapper1.getUserToken())
                 .queryParam("character", characterType1.toString());
@@ -445,7 +476,7 @@ public class GameServiceControllerTest {
         UserAuthenticationWrapper userAuthenticationWrapper1 = template.postForObject(base + "users", user1, UserAuthenticationWrapper.class);
 
         Game game1 = new Game();
-        game1.setName("game1_actionResponseTest");
+        game1.setName("game1_shootResponseTest");
         Long gameId1 = template.postForObject(base + "games?token=" + userAuthenticationWrapper1.getUserToken(), game1, Long.class);
 
         String characterType1 = "Cheyenne";

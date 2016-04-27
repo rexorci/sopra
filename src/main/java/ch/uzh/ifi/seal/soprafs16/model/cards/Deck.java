@@ -21,7 +21,7 @@ public class Deck<T extends Card> implements Serializable {
     @GeneratedValue
     private Long id;
 
-    @OneToMany(targetEntity = Card.class)
+    @OneToMany(targetEntity = Card.class, mappedBy = "deck")
     private List<T> cards;
 
     public Deck(){

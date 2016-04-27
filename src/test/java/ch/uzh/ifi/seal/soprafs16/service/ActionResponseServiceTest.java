@@ -121,12 +121,12 @@ public class ActionResponseServiceTest {
         Long gameId1_2 = template.postForObject(base + "games?token=" + userAuthenticationWrapper1.getUserToken(), tester, Long.class);
         Long userIdGameJoined9 = template.postForObject(base + "games/" + gameId1_2 + "/users?token=" + userAuthenticationWrapper2.getUserToken(), null, Long.class);
 
-        String characterType1 = "Cheyenne";
+        String characterType1 = "Ghost";
         UriComponentsBuilder builder1 = UriComponentsBuilder.fromHttpUrl(base + "games/" + gameId1_2 + "/users")
                 .queryParam("token", userAuthenticationWrapper1.getUserToken())
                 .queryParam("character", characterType1.toString());
         HttpEntity<User> userResponse1 = template.exchange(builder1.build().encode().toUri(), HttpMethod.PUT, null, User.class);
-        String characterType2 = "Ghost";
+        String characterType2 = "Tuco";
         UriComponentsBuilder builder2 = UriComponentsBuilder.fromHttpUrl(base + "games/" + gameId1_2 + "/users")
                 .queryParam("token", userAuthenticationWrapper2.getUserToken())
                 .queryParam("character", characterType2.toString());

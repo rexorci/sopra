@@ -60,7 +60,6 @@ public class ActionResponseService {
     private MarshalRepository marshalRepo;
 
     public void processResponse(ActionResponseDTO ar){
-        Game game = gameRepo.findOne(ar.getSpielId());
         if(ar instanceof DrawCardResponseDTO){
             processResponse((DrawCardResponseDTO) ar);
         }
@@ -82,7 +81,6 @@ public class ActionResponseService {
         else if(ar instanceof MoveMarshalResponseDTO){
             processResponse((MoveMarshalResponseDTO)ar);
         }
-        gameRepo.save(game);
     }
 
     public void processResponse(DrawCardResponseDTO dcr) {
@@ -94,14 +92,12 @@ public class ActionResponseService {
             if(hiddenDeck.size() > 0){
                 HandCard hc = (HandCard)hiddenDeck.get(0);
                 hc = (HandCard)cardRepo.findOne(hc.getId());
-                hiddenDeck.removeById(hc.getId());
+                hiddenDeck.getCards().remove(hc);
                 hiddenDeck = deckRepo.save(hiddenDeck);
-                gameRepo.save(game);
                 handDeck.getCards().add(hc);
                 hc.setDeck(handDeck);
 
                 cardRepo.save(hc);
-                deckRepo.save(hiddenDeck);
                 deckRepo.save(handDeck);
             }
         }
@@ -132,11 +128,12 @@ public class ActionResponseService {
         WagonLevel old_wl = wagonLevelRepo.findOne(user.getWagonLevel().getId());
 
         old_wl.removeUserById(user.getId());
+        wagonLevelRepo.save(old_wl);
+
         new_wl.getUsers().add(user);
 
         user.setWagonLevel(new_wl);
 
-        wagonLevelRepo.save(old_wl);
         wagonLevelRepo.save(new_wl);
         userRepo.save(user);
     }
@@ -145,8 +142,9 @@ public class ActionResponseService {
         User user = userRepo.findOne(cir.getUserID());
 
         WagonLevel wl = wagonLevelRepo.findOne(user.getWagonLevel().getId());
-        Item item = itemRepo.findOne(getRandomItem(cir.getCollectedItemType(), wl).getId());
+        Item item = getRandomItem(cir.getCollectedItemType(), wl);
         if(item != null) {
+            item = itemRepo.findOne(item.getId());
             wl.removeItemById(item.getId());
 
             item.setWagonLevel(null);
@@ -172,8 +170,7 @@ public class ActionResponseService {
             item = itemRepo.findOne(item.getId());
             // Drop Item
             victim.getItems().remove(item);
-            drop_wl.getItems().add(item);
-
+            drop_wl = wagonLevelRepo.save(drop_wl);
             // Cheyenne Character Skill
             if(user.getCharacter().getClass().equals(Cheyenne.class)){
                 item.setUser(user);
@@ -182,23 +179,24 @@ public class ActionResponseService {
             else{
                 item.setUser(null);
                 item.setWagonLevel(drop_wl);
+                drop_wl.getItems().add(item);
             }
             itemRepo.save(item);
         }
 
         // Move user
-        drop_wl.removeUserById(victim.getId());
+        drop_wl.getUsers().remove(victim);
 
         victim.setWagonLevel(move_wl);
         Hibernate.initialize(move_wl.getUsers());
         move_wl.getUsers().add(victim);
 
-//        game = gameRepo.findOne(game.getId());
-//
-//        userRepo.save(user);
-//        userRepo.save(victim);
-//        wagonLevelRepo.save(drop_wl);
-//        wagonLevelRepo.save(move_wl);
+        game = gameRepo.findOne(game.getId());
+
+        userRepo.save(user);
+        userRepo.save(victim);
+        wagonLevelRepo.save(drop_wl);
+        wagonLevelRepo.save(move_wl);
     }
 
     public void processResponse(ShootResponseDTO sr) {

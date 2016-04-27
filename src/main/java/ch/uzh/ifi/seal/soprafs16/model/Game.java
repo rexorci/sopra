@@ -67,11 +67,9 @@ public class Game implements Serializable {
     @Column
     private PhaseType currentPhase;
 
-    @JsonIgnore
     @Column
     private int roundStarter;
 
-    @JsonIgnore
     @Column
     private Integer actionRequestCounter;
 

@@ -73,8 +73,6 @@ public class GameServiceController extends GenericService {
     @Autowired
     private ActionResponseService actionResponseService;
     @Autowired
-    private ActionResponseRepository actionResponseRepo;
-    @Autowired
     private GameLogicService gameLogicService;
     //endregion
 
@@ -90,7 +88,7 @@ public class GameServiceController extends GenericService {
         return result;
     }
 
-    //games - GET
+    //games - GET v
     @RequestMapping(value = CONTEXT, params = {"status"})
     @ResponseStatus(HttpStatus.OK)
     public List<Game> listGamesFiltered(@RequestParam("status") String statusFilter) {
@@ -352,7 +350,7 @@ public class GameServiceController extends GenericService {
                 return (long) -1;
             }
             if (actionResponseDTO != null) {
-                actionResponseDTO = actionResponseRepo.save(actionResponseDTO);
+                //actionResponseDTO = actionResponseRepo.save(actionResponseDTO);
                 actionResponseService.processResponse(actionResponseDTO);
                 //gameLogicService.update(gameId);
                 return gameId;

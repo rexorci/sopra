@@ -1,5 +1,6 @@
 package ch.uzh.ifi.seal.soprafs16.service;
 
+import org.hibernate.Hibernate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -44,19 +45,19 @@ import ch.uzh.ifi.seal.soprafs16.model.repositories.WagonLevelRepository;
 @Transactional
 public class ActionResponseService {
     @Autowired
-    public UserRepository userRepo;
+    private UserRepository userRepo;
     @Autowired
-    public GameRepository gameRepo;
+    private GameRepository gameRepo;
     @Autowired
-    public WagonLevelRepository wagonLevelRepo;
+    private WagonLevelRepository wagonLevelRepo;
     @Autowired
-    public ItemRepository itemRepo;
+    private ItemRepository itemRepo;
     @Autowired
-    public CardRepository cardRepo;
+    private CardRepository cardRepo;
     @Autowired
-    public DeckRepository deckRepo;
+    private DeckRepository deckRepo;
     @Autowired
-    public MarshalRepository marshalRepo;
+    private MarshalRepository marshalRepo;
 
     public void processResponse(ActionResponseDTO ar){
         Game game = gameRepo.findOne(ar.getSpielId());
@@ -145,15 +146,17 @@ public class ActionResponseService {
 
         WagonLevel wl = wagonLevelRepo.findOne(user.getWagonLevel().getId());
         Item item = itemRepo.findOne(getRandomItem(cir.getCollectedItemType(), wl).getId());
-        wl.removeItemById(item.getId());
+        if(item != null) {
+            wl.removeItemById(item.getId());
 
-        item.setWagonLevel(null);
-        item.setUser(user);
-        user.getItems().add(item);
+            item.setWagonLevel(null);
+            item.setUser(user);
+            user.getItems().add(item);
 
-        itemRepo.save(item);
-        wagonLevelRepo.save(wl);
-        userRepo.save(user);
+            itemRepo.save(item);
+            wagonLevelRepo.save(wl);
+            userRepo.save(user);
+        }
     }
 
     public void processResponse(PunchResponseDTO pr) {
@@ -187,6 +190,7 @@ public class ActionResponseService {
         drop_wl.removeUserById(victim.getId());
 
         victim.setWagonLevel(move_wl);
+        Hibernate.initialize(move_wl.getUsers());
         move_wl.getUsers().add(victim);
 
 //        game = gameRepo.findOne(game.getId());

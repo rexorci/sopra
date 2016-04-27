@@ -347,14 +347,14 @@ public class GameServiceController extends GenericService {
         logger.debug("Post Action: " + gameId);
         try {
             Game game = gameRepo.findOne(gameId);
-            //if(!userToken.equals(game.getUsers().get(game.getCurrentPlayer()).getToken())){
-//                logger.error("Authentication error with token: " + userToken);
-//                return (long) -1;
-//            }
+            if(!userToken.equals(game.getUsers().get(game.getCurrentPlayer()).getToken())){
+                logger.error("Authentication error with token: " + userToken);
+                return (long) -1;
+            }
             if (actionResponseDTO != null) {
                 actionResponseDTO = actionResponseRepo.save(actionResponseDTO);
                 actionResponseService.processResponse(actionResponseDTO);
-                gameLogicService.update(gameId);
+                //gameLogicService.update(gameId);
                 return gameId;
             } else {
                 logger.error("Actionresponse is null");

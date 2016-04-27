@@ -280,7 +280,7 @@ public class GameLogicServiceTest {
         PlayCardResponseDTO pc = new PlayCardResponseDTO();
         pc.setSpielId(tester.getId());
         pc.setUserID(user.getId());
-        pc.setPlayedCardId(user.getHandDeck().get(0).getId());
+        pc.setPlayedCard((ActionCard) user.getHandDeck().get(0));
         ars.processResponse(pc);
         gls.update(tester.getId());
     }

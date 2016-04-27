@@ -326,7 +326,7 @@ public class GameServiceControllerTest {
         UserAuthenticationWrapper userAuthenticationWrapper1 = template.postForObject(base + "users", user1, UserAuthenticationWrapper.class);
 
         Game game1 = new Game();
-        game1.setName("game1_drawCardResponseTest");
+        game1.setName("game1_actionResponseTest");
         Long gameId1 = template.postForObject(base + "games?token=" + userAuthenticationWrapper1.getUserToken(), game1, Long.class);
 
         String characterType1 = "Cheyenne";
@@ -379,42 +379,30 @@ public class GameServiceControllerTest {
     @Test
     public void processResponse_PlayCardResponseIsAdded() {
         User user1 = new User();
-        user1.setName("name1_startGameTest");
-        user1.setUsername("username1_startGameTest");
+        user1.setName("name1_playCardResponseIsAdded");
+        user1.setUsername("username1_playCardResponseIsAdded");
         UserAuthenticationWrapper userAuthenticationWrapper1 = template.postForObject(base + "users", user1, UserAuthenticationWrapper.class);
-        User user2 = new User();
-        user2.setName("name2_startGameTest");
-        user2.setUsername("username9_startGameTest");
-        UserAuthenticationWrapper userAuthenticationWrapper2 = template.postForObject(base + "users", user2, UserAuthenticationWrapper.class);
 
         Game game1 = new Game();
-        game1.setName("game1_2_startGameTest");
-        Long gameId = template.postForObject(base + "games?token=" + userAuthenticationWrapper1.getUserToken(), game1, Long.class);
-        Long userIdGameJoined9 = template.postForObject(base + "games/" + gameId + "/users?token=" + userAuthenticationWrapper2.getUserToken(), null, Long.class);
+        game1.setName("game1_actionResponseTest");
+        Long gameId1 = template.postForObject(base + "games?token=" + userAuthenticationWrapper1.getUserToken(), game1, Long.class);
 
         String characterType1 = "Cheyenne";
-        UriComponentsBuilder builder1 = UriComponentsBuilder.fromHttpUrl(base + "games/" + gameId + "/users")
+        UriComponentsBuilder builder1 = UriComponentsBuilder.fromHttpUrl(base + "games/" + gameId1 + "/users")
                 .queryParam("token", userAuthenticationWrapper1.getUserToken())
                 .queryParam("character", characterType1.toString());
         HttpEntity<User> userResponse1 = template.exchange(builder1.build().encode().toUri(), HttpMethod.PUT, null, User.class);
-        String characterType2 = "Ghost";
-        UriComponentsBuilder builder2 = UriComponentsBuilder.fromHttpUrl(base + "games/" + gameId + "/users")
-                .queryParam("token", userAuthenticationWrapper2.getUserToken())
-                .queryParam("character", characterType2.toString());
-        HttpEntity<User> userResponse2 = template.exchange(builder2.build().encode().toUri(), HttpMethod.PUT, null, User.class);
 
-        template.postForObject(base + "games/" + gameId + "/start?token=" + userAuthenticationWrapper1.getUserToken(), null, Void.class);
-        Game testerResponse = template.getForObject(base + "games/" + gameId, Game.class);
-        Long gameResponseId = testerResponse.getId();
-
+        template.postForObject(base + "games/" + gameId1 + "/start?token=" + userAuthenticationWrapper1.getUserToken(), null, Void.class);
+        game1 = template.getForObject(base + "games/" + gameId1, Game.class);
         PlayCardResponseDTO playCardlResponseDTO = new PlayCardResponseDTO();
         playCardlResponseDTO.setUserID(userAuthenticationWrapper1.getUserId());
-        playCardlResponseDTO.setSpielId(gameResponseId);
-        playCardlResponseDTO.setPlayedCardId(testerResponse.getUsers().get(0).getHandDeck().get(0).getId());
+        playCardlResponseDTO.setSpielId(gameId1);
+        playCardlResponseDTO.setPlayedCard((ActionCard) game1.getUsers().get(0).getHandDeck().get(1));
 
-        Long gameId_ActionResponse = template.postForObject(base + "games/" + gameResponseId + "/actions?token=" + userAuthenticationWrapper1.getUserToken(), playCardlResponseDTO, Long.class);
+        Long gameId_ActionResponse = template.postForObject(base + "games/" + gameId1 + "/actions?token=" + userAuthenticationWrapper1.getUserToken(), playCardlResponseDTO, Long.class);
 
-        Assert.assertEquals(gameResponseId, gameId_ActionResponse);
+        Assert.assertEquals(gameId1, gameId_ActionResponse);
     }
 
 

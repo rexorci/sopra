@@ -1,7 +1,5 @@
 package ch.uzh.ifi.seal.soprafs16.service;
 
-import org.hibernate.Query;
-import org.hibernate.Session;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -24,8 +22,6 @@ import ch.uzh.ifi.seal.soprafs16.model.action.actionResponse.MoveResponseDTO;
 import ch.uzh.ifi.seal.soprafs16.model.action.actionResponse.PlayCardResponseDTO;
 import ch.uzh.ifi.seal.soprafs16.model.action.actionResponse.PunchResponseDTO;
 import ch.uzh.ifi.seal.soprafs16.model.action.actionResponse.ShootResponseDTO;
-import ch.uzh.ifi.seal.soprafs16.model.cards.Card;
-import ch.uzh.ifi.seal.soprafs16.model.cards.Deck;
 import ch.uzh.ifi.seal.soprafs16.model.cards.GameDeck;
 import ch.uzh.ifi.seal.soprafs16.model.cards.PlayerDeck;
 import ch.uzh.ifi.seal.soprafs16.model.cards.handCards.ActionCard;
@@ -48,19 +44,19 @@ import ch.uzh.ifi.seal.soprafs16.model.repositories.WagonLevelRepository;
 @Transactional
 public class ActionResponseService {
     @Autowired
-    private UserRepository userRepo;
+    public UserRepository userRepo;
     @Autowired
-    private GameRepository gameRepo;
+    public GameRepository gameRepo;
     @Autowired
-    private WagonLevelRepository wagonLevelRepo;
+    public WagonLevelRepository wagonLevelRepo;
     @Autowired
-    private ItemRepository itemRepo;
+    public ItemRepository itemRepo;
     @Autowired
-    private CardRepository cardRepo;
+    public CardRepository cardRepo;
     @Autowired
-    private DeckRepository deckRepo;
+    public DeckRepository deckRepo;
     @Autowired
-    private MarshalRepository marshalRepo;
+    public MarshalRepository marshalRepo;
 
     public void processResponse(ActionResponseDTO ar){
         Game game = gameRepo.findOne(ar.getSpielId());
@@ -97,10 +93,10 @@ public class ActionResponseService {
             if(hiddenDeck.size() > 0){
                 HandCard hc = (HandCard)hiddenDeck.get(0);
                 hc = (HandCard)cardRepo.findOne(hc.getId());
-                boolean tr = hiddenDeck.removeById(hc.getId());
+                hiddenDeck.removeById(hc.getId());
                 hiddenDeck = deckRepo.save(hiddenDeck);
                 gameRepo.save(game);
-                //handDeck.getCards().add(hc);
+                handDeck.getCards().add(hc);
                 hc.setDeck(handDeck);
 
                 cardRepo.save(hc);
@@ -114,12 +110,11 @@ public class ActionResponseService {
         Game game = gameRepo.findOne(pcr.getSpielId());
         User user = userRepo.findOne(pcr.getUserID());
         
-        ActionCard ac = (ActionCard)cardRepo.findOne(pcr.getPlayedCardId());
+        ActionCard ac = (ActionCard)cardRepo.findOne(pcr.getPlayedCard().getId());
         PlayerDeck<HandCard> handDeck = user.getHandDeck();
-        handDeck.getCards().remove(ac);
+        handDeck.removeById(ac.getId());
 
         GameDeck<ActionCard> commonDeck = game.getCommonDeck();
-        ac = cardRepo.save(ac);
         commonDeck.add(ac);
         ac.setDeck(commonDeck);
         ac.setPlayedByUserId(user.getId());
@@ -127,7 +122,6 @@ public class ActionResponseService {
         cardRepo.save(ac);
         deckRepo.save(handDeck);
         deckRepo.save(commonDeck);
-
     }
 
     public void processResponse(MoveResponseDTO mr) {

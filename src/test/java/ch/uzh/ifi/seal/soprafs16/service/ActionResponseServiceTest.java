@@ -198,7 +198,7 @@ public class ActionResponseServiceTest {
         PlayCardResponseDTO pcr = new PlayCardResponseDTO();
         pcr.setUserID(user.getId());
         pcr.setSpielId(game.getId());
-        pcr.setPlayedCardId(ac.getId());
+        pcr.setPlayedCard(ac);
 
         ars.processResponse(pcr);
 

@@ -14,13 +14,13 @@ import ch.uzh.ifi.seal.soprafs16.model.cards.handCards.ActionCard;
 public class PlayCardResponseDTO extends ActionResponseDTO implements Serializable {
 
     private static final long serialVersionUID = 1L;
-    private Long playedCardId;
+    private ActionCard playedCard;
 
-    public void setPlayedCardId(Long playedCardId) {
-        this.playedCardId = playedCardId;
+    public void setPlayedCard(ActionCard playedCard) {
+        this.playedCard = playedCard;
     }
 
-    public Long getPlayedCardId() {
-        return playedCardId;
+    public ActionCard getPlayedCard() {
+        return playedCard;
     }
 }

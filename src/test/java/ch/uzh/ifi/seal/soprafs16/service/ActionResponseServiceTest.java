@@ -7,11 +7,6 @@ import org.hibernate.Hibernate;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.IntegrationTest;
@@ -30,7 +25,6 @@ import java.net.URL;
 import ch.uzh.ifi.seal.soprafs16.Application;
 import ch.uzh.ifi.seal.soprafs16.constant.ItemType;
 import ch.uzh.ifi.seal.soprafs16.model.Game;
-import ch.uzh.ifi.seal.soprafs16.model.Item;
 import ch.uzh.ifi.seal.soprafs16.model.Marshal;
 import ch.uzh.ifi.seal.soprafs16.model.User;
 import ch.uzh.ifi.seal.soprafs16.model.UserAuthenticationWrapper;
@@ -57,6 +51,11 @@ import ch.uzh.ifi.seal.soprafs16.model.repositories.TurnRepository;
 import ch.uzh.ifi.seal.soprafs16.model.repositories.UserRepository;
 import ch.uzh.ifi.seal.soprafs16.model.repositories.WagonLevelRepository;
 import ch.uzh.ifi.seal.soprafs16.model.repositories.WagonRepository;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
 
 /**
  * Created by Nico on 20.04.2016.

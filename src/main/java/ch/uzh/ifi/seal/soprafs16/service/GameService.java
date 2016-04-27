@@ -8,8 +8,6 @@ import java.util.ArrayList;
 import java.util.Random;
 import java.util.stream.IntStream;
 
-import javax.swing.Action;
-
 import ch.uzh.ifi.seal.soprafs16.constant.GameStatus;
 import ch.uzh.ifi.seal.soprafs16.constant.ItemType;
 import ch.uzh.ifi.seal.soprafs16.constant.LevelType;

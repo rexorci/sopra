@@ -1,8 +1,5 @@
 package ch.uzh.ifi.seal.soprafs16.model;
 
-import com.fasterxml.jackson.annotation.JsonCreator;
-import com.fasterxml.jackson.annotation.JsonTypeName;
-
 import java.io.Serializable;
 
 /**

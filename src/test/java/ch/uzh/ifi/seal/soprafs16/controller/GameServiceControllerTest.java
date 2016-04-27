@@ -5,6 +5,8 @@ import java.util.LinkedHashMap;
 import java.util.List;
 
 import ch.uzh.ifi.seal.soprafs16.model.characters.Character;
+
+import ch.uzh.ifi.seal.soprafs16.model.characters.Tuco;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -16,12 +18,14 @@ import org.springframework.boot.test.TestRestTemplate;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
-import org.springframework.http.converter.HttpMessageConverter;
-import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.context.web.WebAppConfiguration;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
+
+import java.net.URL;
+import java.util.LinkedHashMap;
+import java.util.List;
 
 import ch.uzh.ifi.seal.soprafs16.Application;
 import ch.uzh.ifi.seal.soprafs16.constant.GameStatus;
@@ -31,7 +35,8 @@ import ch.uzh.ifi.seal.soprafs16.model.User;
 import ch.uzh.ifi.seal.soprafs16.model.UserAuthenticationWrapper;
 import ch.uzh.ifi.seal.soprafs16.model.WagonLevel;
 import ch.uzh.ifi.seal.soprafs16.model.cards.roundCards.StationCard;
-import ch.uzh.ifi.seal.soprafs16.model.characters.*;
+import ch.uzh.ifi.seal.soprafs16.model.characters.Cheyenne;
+import ch.uzh.ifi.seal.soprafs16.model.characters.Doc;
 
 
 @RunWith(SpringJUnit4ClassRunner.class)

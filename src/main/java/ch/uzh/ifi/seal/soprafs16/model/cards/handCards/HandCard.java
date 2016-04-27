@@ -19,9 +19,5 @@ import ch.uzh.ifi.seal.soprafs16.model.cards.Card;
 })
 public class HandCard extends Card implements Serializable {
 
-    /**
-     *
-     */
     private static final long serialVersionUID = 1L;
-
 }

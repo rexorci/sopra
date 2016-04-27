@@ -10,7 +10,6 @@ import javax.persistence.Id;
 import javax.persistence.ManyToOne;
 
 import ch.uzh.ifi.seal.soprafs16.model.Game;
-import ch.uzh.ifi.seal.soprafs16.model.User;
 
 /**
  * Created by Timon Willi on 17.04.2016.

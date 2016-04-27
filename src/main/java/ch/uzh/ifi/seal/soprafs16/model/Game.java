@@ -194,6 +194,7 @@ public class Game implements Serializable {
         return actions;
     }
 
+    @JsonIgnore
     public Turn getCurrentTurnType(){
         if(roundCardDeck != null) {
             return ((RoundCard) roundCardDeck.getCards().get(currentRound)).getPattern().get(currentTurn);

@@ -5,6 +5,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import java.io.Serializable;
 import java.util.List;
 
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -39,7 +40,7 @@ public class WagonLevel implements Serializable {
     @OneToOne
     private Marshal marshal;
 
-    @OneToMany
+    @OneToMany(mappedBy = "wagonLevel")
     private List<User> users;
 
     @JsonIgnore

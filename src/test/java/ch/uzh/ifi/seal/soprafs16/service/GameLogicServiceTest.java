@@ -213,7 +213,6 @@ public class GameLogicServiceTest {
 
     @Test
     public void gls_nextPlayerIsCorrect() {
-        gls.update(gameId);
         for (int i = 0; i < 5; i++) {
             // 4 responses for Normal Turn
             tester = gameRepo.findOne(gameId);
@@ -278,7 +277,7 @@ public class GameLogicServiceTest {
     private void simulatePlayCardResponse() {
         User user = userRepo.findOne(tester.getUsers().get(tester.getCurrentPlayer()).getId());
         PlayCardResponseDTO pc = new PlayCardResponseDTO();
-        pc.setGameId(tester.getId());
+        pc.setSpielId(tester.getId());
         pc.setUserID(user.getId());
         pc.setPlayedCard((ActionCard) user.getHandDeck().get(0));
         ars.processResponse(pc);
@@ -287,8 +286,6 @@ public class GameLogicServiceTest {
 
     @Test
     public void gls_TurnIsCorrect() {
-        // call on game start
-        gls.update(gameId);
         // P1 Request
         for (int i = 0; i < 5; i++) {
             tester = gameRepo.findOne(gameId);
@@ -362,7 +359,6 @@ public class GameLogicServiceTest {
 
     @Test
     public void gls_PhaseIsCorrect() {
-        gls.update(gameId);
         // simulate 16 ActionResponses (first round)
         for (int i = 0; i < 16; i++) {
             tester = gameRepo.findOne(gameId);
@@ -377,8 +373,6 @@ public class GameLogicServiceTest {
 
     @Test
     public void gls_RoundIsCorrect() {
-        // initial call to update
-        gls.update(gameId);
         tester = gameRepo.findOne(gameId);
         assertEquals(0, (long) tester.getCurrentRound());
         // simulate 16 ActionResponses (first round)

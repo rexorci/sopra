@@ -41,6 +41,7 @@ import ch.uzh.ifi.seal.soprafs16.model.cards.PlayerDeck;
 import ch.uzh.ifi.seal.soprafs16.model.cards.handCards.ActionCard;
 import ch.uzh.ifi.seal.soprafs16.model.cards.handCards.BulletCard;
 import ch.uzh.ifi.seal.soprafs16.model.cards.handCards.HandCard;
+import ch.uzh.ifi.seal.soprafs16.model.characters.Tuco;
 import ch.uzh.ifi.seal.soprafs16.model.repositories.CardRepository;
 import ch.uzh.ifi.seal.soprafs16.model.repositories.CharacterRepository;
 import ch.uzh.ifi.seal.soprafs16.model.repositories.DeckRepository;
@@ -126,12 +127,14 @@ public class ActionResponseServiceTest {
 
         UriComponentsBuilder builder1 = UriComponentsBuilder.fromHttpUrl(base + "games/" + gameId1_2 + "/users")
                 .queryParam("token", userAuthenticationWrapper1.getUserToken());
-        HttpEntity<Character> characterRequest1 = new HttpEntity<>(new Cheyenne());
+        HttpEntity<Character> characterRequest1 = new HttpEntity<>(new Ghost());
         HttpEntity<User> userResponse1 = template.exchange(builder1.build().encode().toUri(), HttpMethod.PUT, characterRequest1, User.class);
+
         UriComponentsBuilder builder2 = UriComponentsBuilder.fromHttpUrl(base + "games/" + gameId1_2 + "/users")
                 .queryParam("token", userAuthenticationWrapper2.getUserToken());
-        HttpEntity<Character> characterRequest2 = new HttpEntity<>(new Ghost());
+        HttpEntity<Character> characterRequest2 = new HttpEntity<>(new Tuco());
         HttpEntity<User> userResponse2 = template.exchange(builder2.build().encode().toUri(), HttpMethod.PUT, characterRequest2, User.class);
+
 
         template.postForObject(base + "games/" + gameId1_2 + "/start?token=" + userAuthenticationWrapper1.getUserToken(), null, Void.class);
         Game testerResponse = template.getForObject(base + "games/" + gameId1_2, Game.class);
@@ -151,7 +154,7 @@ public class ActionResponseServiceTest {
 
         DrawCardResponseDTO dcr = new DrawCardResponseDTO();
         dcr.setUserID(user.getId());
-        dcr.setGameId(gameId);
+        dcr.setSpielId(gameId);
         ars.processResponse(dcr);
 
         hiddenDeck = (PlayerDeck<HandCard>)deckRepo.findOne(user.getHiddenDeck().getId());
@@ -175,7 +178,7 @@ public class ActionResponseServiceTest {
 
         DrawCardResponseDTO dcr = new DrawCardResponseDTO();
         dcr.setUserID(user.getId());
-        dcr.setGameId(gameId);
+        dcr.setSpielId(gameId);
         ars.processResponse(dcr);
         ars.processResponse(dcr);
 
@@ -198,7 +201,7 @@ public class ActionResponseServiceTest {
 
         PlayCardResponseDTO pcr = new PlayCardResponseDTO();
         pcr.setUserID(user.getId());
-        pcr.setGameId(game.getId());
+        pcr.setSpielId(game.getId());
         pcr.setPlayedCard(ac);
 
         ars.processResponse(pcr);
@@ -219,8 +222,8 @@ public class ActionResponseServiceTest {
 
         MoveResponseDTO mr = new MoveResponseDTO();
         mr.setUserID(user.getId());
-        mr.setGameId(game.getId());
-        mr.setWagonLevelId(wl.getWagonLevelBefore().getId());
+        mr.setSpielId(game.getId());
+        mr.setWagonLevelID(wl.getWagonLevelBefore().getId());
 
         ars.processResponse(mr);
 
@@ -239,7 +242,7 @@ public class ActionResponseServiceTest {
 
         CollectItemResponseDTO cir = new CollectItemResponseDTO();
         cir.setUserID(user.getId());
-        cir.setGameId(game.getId());
+        cir.setSpielId(game.getId());
         cir.setCollectedItemType(wl.getItems().get(0).getItemType());
 
         int userItemCount = user.getItems().size();
@@ -272,7 +275,7 @@ public class ActionResponseServiceTest {
         pr.setVictimID(victim.getId());
         pr.setItemType(ItemType.BAG);
         pr.setWagonLevelID(newWl.getId());
-        pr.setGameId(gameId);
+        pr.setSpielId(gameId);
         pr.setUserID(user.getId());
 
         ars.processResponse(pr);
@@ -301,9 +304,9 @@ public class ActionResponseServiceTest {
         BulletCard bc = (BulletCard)user.getBulletsDeck().getCards().get(user.getBulletsDeck().size() - 1);
 
         ShootResponseDTO sr = new ShootResponseDTO();
-        sr.setGameId(game.getId());
+        sr.setSpielId(game.getId());
         sr.setUserID(user.getId());
-        sr.setVictimId(victim.getId());
+        sr.setVictimID(victim.getId());
 
         ars.processResponse(sr);
 
@@ -326,9 +329,9 @@ public class ActionResponseServiceTest {
         WagonLevel newWl = wagonLevelRepo.findOne(marshal.getWagonLevel().getWagonLevelAfter().getId());
 
         MoveMarshalResponseDTO mmr = new MoveMarshalResponseDTO();
-        mmr.setGameId(game.getId());
+        mmr.setSpielId(game.getId());
         mmr.setUserID(user.getId());
-        mmr.setWagonLevelId(newWl.getId());
+        mmr.setWagonLevelID(newWl.getId());
 
         ars.processResponse(mmr);
 

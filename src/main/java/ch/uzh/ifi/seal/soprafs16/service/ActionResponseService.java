@@ -1,5 +1,6 @@
 package ch.uzh.ifi.seal.soprafs16.service;
 
+import org.hibernate.Hibernate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -44,19 +45,19 @@ import ch.uzh.ifi.seal.soprafs16.model.repositories.WagonLevelRepository;
 @Transactional
 public class ActionResponseService {
     @Autowired
-    public UserRepository userRepo;
+    private UserRepository userRepo;
     @Autowired
-    public GameRepository gameRepo;
+    private GameRepository gameRepo;
     @Autowired
-    public WagonLevelRepository wagonLevelRepo;
+    private WagonLevelRepository wagonLevelRepo;
     @Autowired
-    public ItemRepository itemRepo;
+    private ItemRepository itemRepo;
     @Autowired
-    public CardRepository cardRepo;
+    private CardRepository cardRepo;
     @Autowired
-    public DeckRepository deckRepo;
+    private DeckRepository deckRepo;
     @Autowired
-    public MarshalRepository marshalRepo;
+    private MarshalRepository marshalRepo;
 
     public void processResponse(ActionResponseDTO ar){
         if(ar instanceof DrawCardResponseDTO){
@@ -84,23 +85,26 @@ public class ActionResponseService {
 
     public void processResponse(DrawCardResponseDTO dcr) {
         User user = userRepo.findOne(dcr.getUserID());
-        
+        Game game = gameRepo.findOne(dcr.getSpielId());
         PlayerDeck<HandCard> hiddenDeck = (PlayerDeck<HandCard>)deckRepo.findOne(user.getHiddenDeck().getId());
         PlayerDeck<HandCard> handDeck = (PlayerDeck<HandCard>)deckRepo.findOne(user.getHandDeck().getId());
         for(int i = 0; i < 3; i++){
             if(hiddenDeck.size() > 0){
-                HandCard hc = (HandCard)hiddenDeck.remove(hiddenDeck.size() - 1);
-                handDeck.add(hc);
+                HandCard hc = (HandCard)hiddenDeck.get(0);
+                hc = (HandCard)cardRepo.findOne(hc.getId());
+                hiddenDeck.getCards().remove(hc);
+                hiddenDeck = deckRepo.save(hiddenDeck);
+                handDeck.getCards().add(hc);
                 hc.setDeck(handDeck);
+
                 cardRepo.save(hc);
+                deckRepo.save(handDeck);
             }
         }
-        deckRepo.save(hiddenDeck);
-        deckRepo.save(handDeck);
     }
 
     public void processResponse(PlayCardResponseDTO pcr) {
-        Game game = gameRepo.findOne(pcr.getGameId());
+        Game game = gameRepo.findOne(pcr.getSpielId());
         User user = userRepo.findOne(pcr.getUserID());
         
         ActionCard ac = (ActionCard)cardRepo.findOne(pcr.getPlayedCard().getId());
@@ -120,15 +124,16 @@ public class ActionResponseService {
     public void processResponse(MoveResponseDTO mr) {
         User user = userRepo.findOne(mr.getUserID());
         
-        WagonLevel new_wl = wagonLevelRepo.findOne(mr.getWagonLevelId());
+        WagonLevel new_wl = wagonLevelRepo.findOne(mr.getWagonLevelID());
         WagonLevel old_wl = wagonLevelRepo.findOne(user.getWagonLevel().getId());
 
         old_wl.removeUserById(user.getId());
+        wagonLevelRepo.save(old_wl);
+
         new_wl.getUsers().add(user);
 
         user.setWagonLevel(new_wl);
 
-        wagonLevelRepo.save(old_wl);
         wagonLevelRepo.save(new_wl);
         userRepo.save(user);
     }
@@ -137,58 +142,68 @@ public class ActionResponseService {
         User user = userRepo.findOne(cir.getUserID());
 
         WagonLevel wl = wagonLevelRepo.findOne(user.getWagonLevel().getId());
-        Item item = itemRepo.findOne(getRandomItem(cir.getCollectedItemType(), wl).getId());
-        wl.removeItemById(item.getId());
+        Item item = getRandomItem(cir.getCollectedItemType(), wl);
+        if(item != null) {
+            item = itemRepo.findOne(item.getId());
+            wl.removeItemById(item.getId());
 
-        item.setWagonLevel(null);
-        item.setUser(user);
-        user.getItems().add(item);
+            item.setWagonLevel(null);
+            item.setUser(user);
+            user.getItems().add(item);
 
-        itemRepo.save(item);
-        wagonLevelRepo.save(wl);
-        userRepo.save(user);
+            itemRepo.save(item);
+            wagonLevelRepo.save(wl);
+            userRepo.save(user);
+        }
     }
 
     public void processResponse(PunchResponseDTO pr) {
         User user = userRepo.findOne(pr.getUserID());
+        Game game = gameRepo.findOne(pr.getSpielId());
 
         User victim = userRepo.findOne(pr.getVictimID());
         WagonLevel move_wl = wagonLevelRepo.findOne(pr.getWagonLevelID());
         WagonLevel drop_wl = wagonLevelRepo.findOne(victim.getWagonLevel().getId());
         Item item = getRandomItem(pr.getItemType(), victim);
-        item = itemRepo.findOne(item.getId());
-        // Drop Item
-        victim.getItems().remove(item);
-        drop_wl.getItems().add(item);
 
+        if(item != null){
+            item = itemRepo.findOne(item.getId());
+            // Drop Item
+            victim.getItems().remove(item);
+            drop_wl = wagonLevelRepo.save(drop_wl);
+            // Cheyenne Character Skill
+            if(user.getCharacter().getClass().equals(Cheyenne.class)){
+                item.setUser(user);
+                user.getItems().add(item);
+            }
+            else{
+                item.setUser(null);
+                item.setWagonLevel(drop_wl);
+                drop_wl.getItems().add(item);
+            }
+            itemRepo.save(item);
+        }
 
-        // Cheyenne Character Skill
-        if(user.getCharacter().getClass().equals(Cheyenne.class)){
-            item.setUser(user);
-            user.getItems().add(item);
-        }
-        else{
-            item.setUser(null);
-            item.setWagonLevel(drop_wl);
-        }
         // Move user
         drop_wl.getUsers().remove(victim);
-        move_wl.getUsers().add(victim);
 
         victim.setWagonLevel(move_wl);
+        Hibernate.initialize(move_wl.getUsers());
+        move_wl.getUsers().add(victim);
 
-        wagonLevelRepo.save(drop_wl);
-        wagonLevelRepo.save(move_wl);
+        game = gameRepo.findOne(game.getId());
+
         userRepo.save(user);
         userRepo.save(victim);
-        itemRepo.save(item);
+        wagonLevelRepo.save(drop_wl);
+        wagonLevelRepo.save(move_wl);
     }
 
     public void processResponse(ShootResponseDTO sr) {
         User user = userRepo.findOne(sr.getUserID());
 
         if(user.getBulletsDeck().size() > 0){
-            User victim = userRepo.findOne(sr.getVictimId());
+            User victim = userRepo.findOne(sr.getVictimID());
             PlayerDeck<BulletCard> bulletCardDeck = user.getBulletsDeck();
             PlayerDeck<HandCard> hiddenDeck = victim.getHiddenDeck();
             BulletCard bc = (BulletCard)bulletCardDeck.remove(user.getBulletsDeck().size() - 1);
@@ -223,11 +238,11 @@ public class ActionResponseService {
     }
 
     public void processResponse(MoveMarshalResponseDTO mmr){
-        Game game = gameRepo.findOne(mmr.getGameId());
+        Game game = gameRepo.findOne(mmr.getSpielId());
 
         Marshal marshal = marshalRepo.findOne(game.getMarshal().getId());
         WagonLevel wl = wagonLevelRepo.findOne(marshal.getWagonLevel().getId());
-        WagonLevel newWl = wagonLevelRepo.findOne(mmr.getWagonLevelId());
+        WagonLevel newWl = wagonLevelRepo.findOne(mmr.getWagonLevelID());
 
         wl.setMarshal(null);
         newWl.setMarshal(marshal);

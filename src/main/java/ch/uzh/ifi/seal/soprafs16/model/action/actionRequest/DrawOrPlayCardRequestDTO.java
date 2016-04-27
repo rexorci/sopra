@@ -11,17 +11,8 @@ public class DrawOrPlayCardRequestDTO extends ActionRequestDTO implements Serial
 
     private static final long serialVersionUID = 1L;
 
-    private long gameId;
-
     private long userId;
 
-    public long getGameId() {
-        return gameId;
-    }
-
-    public void setGameId(long gameId) {
-        this.gameId = gameId;
-    }
 
     public long getUserId() {
         return userId;

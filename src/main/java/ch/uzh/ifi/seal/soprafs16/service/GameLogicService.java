@@ -299,12 +299,12 @@ public class GameLogicService extends GenericService {
                     shootable.add(wagonLevel.getWagonLevelAfter().getUsers().get(i));
                 }
                 if (shootable.size() == 0){
-                    getShootableUsersBeforeR(user, shootable, wagonLevel.getWagonLevelBefore());
+                    getShootableUsersAfterR(user, shootable, wagonLevel.getWagonLevelAfter());
 
                 }
                 if (user.getCharacterType() == "Django")
                 {
-                    getShootableUsersBeforeR(user, shootable, wagonLevel.getWagonLevelBefore());
+                    getShootableUsersAfterR(user, shootable, wagonLevel.getWagonLevelAfter());
                 }
             }
         }

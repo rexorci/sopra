@@ -538,6 +538,37 @@ public class ActionServiceControllerTest {
 
 
     }
+    @Test
+    public void processRequest_ShootableIsCorrect_Django_Roof()
+    {
+        Game game = gameRepo.findOne(gameId);
+        User user1 = userRepo.findOne(game.getUsers().get(3).getId());
+
+        ShootCard sc = new ShootCard();
+
+        ActionRequestDTO test = gls.createActionRequest(sc, gameId, user1.getId());
+        if (test instanceof ShootRequestDTO)
+        {
+            ShootRequestDTO srq = (ShootRequestDTO) test;
+            assertEquals(5, srq.getShootableUserIds().size());
+        }
+    }
+
+    @Test
+    public void processRequest_ShootableIsCorrect_Django_Bottom()
+    {
+        Game game = gameRepo.findOne(gameId);
+        User user1 = userRepo.findOne(game.getUsers().get(2).getId());
+
+        ShootCard sc = new ShootCard();
+
+        ActionRequestDTO test = gls.createActionRequest(sc, gameId, user1.getId());
+        if (test instanceof ShootRequestDTO)
+        {
+            ShootRequestDTO srq = (ShootRequestDTO) test;
+            assertEquals(3, srq.getShootableUserIds().size());
+        }
+    }
 
     @Test
     public void processRequest_MovableIsCorrect_Roof() {

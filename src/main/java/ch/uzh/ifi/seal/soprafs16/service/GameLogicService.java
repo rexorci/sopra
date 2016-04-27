@@ -123,7 +123,7 @@ public class GameLogicService extends GenericService {
         PlayerDeck<HandCard> hiddenDeck = (PlayerDeck<HandCard>) deckRepo.findOne(user.getHiddenDeck().getId());
         ac.setPlayedByUserId(user.getId());
         ac.setDeck(hiddenDeck);
-        hiddenDeck.getCards().add(ac);
+        hiddenDeck.add(ac);
 
         for(int i = 0; i < game.getUsers().size(); i++){
             if(game.getUsers().get(i).getId().equals(ac.getPlayedByUserId())) game.setCurrentPlayer(i);

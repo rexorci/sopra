@@ -2,22 +2,25 @@ package ch.uzh.ifi.seal.soprafs16.model.action.actionResponse;
 
 import java.io.Serializable;
 
+import javax.persistence.Entity;
+
 import ch.uzh.ifi.seal.soprafs16.model.action.ActionResponseDTO;
 
 /**
  * Created by Nico on 22.04.2016.
  */
+@Entity
 public class MoveMarshalResponseDTO extends ActionResponseDTO implements Serializable{
 
     private static final long serialVersionUID = 1L;
 
-    private Long wagonLevelId;
+    private Long wagonLevelID;
 
-    public void setWagonLevelId(Long wagonLevelId) {
-        this.wagonLevelId = wagonLevelId;
+    public void setWagonLevelID(Long wagonLevelID) {
+        this.wagonLevelID = wagonLevelID;
     }
 
-    public Long getWagonLevelId() {
-        return wagonLevelId;
+    public Long getWagonLevelID() {
+        return wagonLevelID;
     }
 }

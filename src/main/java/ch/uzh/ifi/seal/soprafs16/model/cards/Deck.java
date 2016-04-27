@@ -50,7 +50,7 @@ public class Deck<T extends Card> implements Serializable {
 
     public boolean removeById(Long id){
         for(T t: cards){
-            if(t.getId() == id){
+            if(t.getId().equals(id)){
                 return cards.remove(t);
             }
         }

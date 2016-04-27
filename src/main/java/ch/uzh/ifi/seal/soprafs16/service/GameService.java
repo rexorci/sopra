@@ -202,7 +202,7 @@ public class GameService {
                         bulletCard.setBulletCounter(i + 1);
                         SourceType st = SourceType.valueOf(user.getCharacter().getClass().getSimpleName().toUpperCase());
                         bulletCard.setSourceType(st);
-                        bulletsDeck.getCards().add(bulletCard);
+                        bulletsDeck.add(bulletCard);
                         bulletCard.setDeck(bulletsDeck);
                         cardRepo.save(bulletCard);
                     }
@@ -223,7 +223,7 @@ public class GameService {
 
                 final int[] randomChosenHandCards = new Random().ints(0, 10).distinct().limit(drawCardsAmount).toArray();
                 for (int randomIndex : randomChosenHandCards) {
-                    handDeck.getCards().add(allActionCards.get(randomIndex));
+                    handDeck.add(allActionCards.remove(randomIndex));
                     allActionCards.get(randomIndex).setDeck(handDeck);
                     allActionCards.get(randomIndex).setPlayedByUserId(user.getId());
                 }
@@ -238,7 +238,7 @@ public class GameService {
                 for (int i = 0; i < 10; i++) {
                     final int finalI = i;
                     if (!IntStream.of(randomChosenHandCards).anyMatch(x -> x == finalI)) {
-                        hiddenDeck.getCards().add(allActionCards.get(i));
+                        hiddenDeck.add(allActionCards.remove(i));
                         allActionCards.get(i).setDeck(hiddenDeck);
                     }
                 }
@@ -263,7 +263,7 @@ public class GameService {
             gameRepo.save(game);
 
             for (int randomIndex : randomChosenRoundCards) {
-                roundCardDeck.getCards().add(possibleRoundCards.get(randomIndex));
+                roundCardDeck.add(possibleRoundCards.get(randomIndex));
                 possibleRoundCards.get(randomIndex).setDeck(roundCardDeck);
             }
 
@@ -273,7 +273,7 @@ public class GameService {
             int stationCardId = rn.nextInt(3);
 
             RoundCard stationCard = setPatternOnStationCards().get(stationCardId);
-            roundCardDeck.getCards().add(stationCard);
+            roundCardDeck.add(stationCard);
             stationCard.setDeck(roundCardDeck);
             //endregion
             //region neutralBulletsDeck
@@ -286,7 +286,7 @@ public class GameService {
                 BulletCard bulletCard = new BulletCard();
                 bulletCard.setBulletCounter(i + 1);
                 bulletCard.setSourceType(SourceType.MARSHAL);
-                neutralBulletsDeck.getCards().add(bulletCard);
+                neutralBulletsDeck.add(bulletCard);
                 bulletCard.setDeck(neutralBulletsDeck);
                 cardRepo.save(bulletCard);
             }
@@ -819,7 +819,7 @@ public class GameService {
         deckRepo.save(bulletsDeckFromUser);
 
         bulletCard.setDeck(handDeckToUser);
-        handDeckToUser.getCards().add(bulletCard);
+        handDeckToUser.add(bulletCard);
         cardRepo.save(bulletCard);
 
         relevelHandDeck(toUser);
@@ -836,7 +836,7 @@ public class GameService {
         deckRepo.save(bulletsDeckFrom);
 
         bulletCard.setDeck(handDeckToUser);
-        handDeckToUser.getCards().add(bulletCard);
+        handDeckToUser.add(bulletCard);
         cardRepo.save(bulletCard);
 
         relevelHandDeck(toUser);
@@ -849,7 +849,7 @@ public class GameService {
         deckRepo.save(user.getHandDeck());
 
         handCard.setDeck(user.getHiddenDeck());
-        user.getHiddenDeck().getCards().add(handCard);
+        user.getHiddenDeck().add(handCard);
         cardRepo.save(handCard);
     }
 

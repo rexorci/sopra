@@ -27,6 +27,7 @@ import ch.uzh.ifi.seal.soprafs16.model.characters.Django;
 import ch.uzh.ifi.seal.soprafs16.model.characters.Doc;
 import ch.uzh.ifi.seal.soprafs16.model.characters.Ghost;
 import ch.uzh.ifi.seal.soprafs16.model.characters.Tuco;
+import ch.uzh.ifi.seal.soprafs16.model.repositories.ActionResponseRepository;
 import ch.uzh.ifi.seal.soprafs16.model.repositories.CardRepository;
 import ch.uzh.ifi.seal.soprafs16.model.repositories.CharacterRepository;
 import ch.uzh.ifi.seal.soprafs16.model.repositories.DeckRepository;
@@ -38,6 +39,7 @@ import ch.uzh.ifi.seal.soprafs16.model.repositories.UserRepository;
 import ch.uzh.ifi.seal.soprafs16.model.repositories.WagonLevelRepository;
 import ch.uzh.ifi.seal.soprafs16.model.repositories.WagonRepository;
 import ch.uzh.ifi.seal.soprafs16.service.ActionResponseService;
+import ch.uzh.ifi.seal.soprafs16.service.GameLogicService;
 import ch.uzh.ifi.seal.soprafs16.service.GameService;
 
 @RestController
@@ -70,6 +72,10 @@ public class GameServiceController extends GenericService {
     private GameService gameService;
     @Autowired
     private ActionResponseService actionResponseService;
+    @Autowired
+    private ActionResponseRepository actionResponseRepo;
+    @Autowired
+    private GameLogicService gameLogicService;
     //endregion
 
     private final String CONTEXT = "/games";
@@ -337,14 +343,18 @@ public class GameServiceController extends GenericService {
     //games/{game-id}/actions - POST
     @RequestMapping(value = CONTEXT + "/{gameId}/actions", method = RequestMethod.POST)
     @ResponseStatus(HttpStatus.OK)
-    public Long processResponse(@PathVariable Long gameId, @RequestBody ActionResponseDTO actionResponseDTO) {
+    public Long processResponse(@PathVariable Long gameId, @RequestParam("token") String userToken, @RequestBody ActionResponseDTO actionResponseDTO) {
         logger.debug("Post Action: " + gameId);
         try {
-
+            Game game = gameRepo.findOne(gameId);
+            //if(!userToken.equals(game.getUsers().get(game.getCurrentPlayer()).getToken())){
+//                logger.error("Authentication error with token: " + userToken);
+//                return (long) -1;
+//            }
             if (actionResponseDTO != null) {
-
-                //actionResponseRepo.save(actionResponseDTO)
-                //actionResponseService.processResponse(actionResponseDTO);
+                actionResponseDTO = actionResponseRepo.save(actionResponseDTO);
+                actionResponseService.processResponse(actionResponseDTO);
+                gameLogicService.update(gameId);
                 return gameId;
             } else {
                 logger.error("Actionresponse is null");
@@ -353,6 +363,7 @@ public class GameServiceController extends GenericService {
 
         } catch (Exception ex) {
             logger.error("Error adding Actionresponse");
+            ex.printStackTrace();
             return (long) -1;
         }
     }

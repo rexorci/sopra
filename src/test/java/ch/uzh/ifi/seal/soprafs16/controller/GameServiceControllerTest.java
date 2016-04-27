@@ -1,5 +1,7 @@
 package ch.uzh.ifi.seal.soprafs16.controller;
 
+import org.hibernate.event.service.spi.DuplicationStrategy;
+import org.hibernate.mapping.Bag;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -22,11 +24,20 @@ import java.util.List;
 
 import ch.uzh.ifi.seal.soprafs16.Application;
 import ch.uzh.ifi.seal.soprafs16.constant.GameStatus;
+import ch.uzh.ifi.seal.soprafs16.constant.ItemType;
 import ch.uzh.ifi.seal.soprafs16.constant.PhaseType;
 import ch.uzh.ifi.seal.soprafs16.model.Game;
 import ch.uzh.ifi.seal.soprafs16.model.User;
 import ch.uzh.ifi.seal.soprafs16.model.UserAuthenticationWrapper;
 import ch.uzh.ifi.seal.soprafs16.model.WagonLevel;
+import ch.uzh.ifi.seal.soprafs16.model.action.actionResponse.CollectItemResponseDTO;
+import ch.uzh.ifi.seal.soprafs16.model.action.actionResponse.DrawCardResponseDTO;
+import ch.uzh.ifi.seal.soprafs16.model.action.actionResponse.MoveMarshalResponseDTO;
+import ch.uzh.ifi.seal.soprafs16.model.action.actionResponse.PlayCardResponseDTO;
+import ch.uzh.ifi.seal.soprafs16.model.action.actionResponse.PunchResponseDTO;
+import ch.uzh.ifi.seal.soprafs16.model.action.actionResponse.ShootResponseDTO;
+import ch.uzh.ifi.seal.soprafs16.model.cards.handCards.ActionCard;
+import ch.uzh.ifi.seal.soprafs16.model.cards.handCards.HandCard;
 import ch.uzh.ifi.seal.soprafs16.model.cards.roundCards.StationCard;
 import ch.uzh.ifi.seal.soprafs16.model.characters.Cheyenne;
 import ch.uzh.ifi.seal.soprafs16.model.characters.Doc;
@@ -284,9 +295,8 @@ public class GameServiceControllerTest {
         //endregion
     }
 
-
     @Test
-    public void testActionResponse() {
+    public void processResponse_CollectItemResponseIsAdded() {
         User user1 = new User();
         user1.setName("name1_actionResponseTest");
         user1.setUsername("username1_actionResponseTest");
@@ -295,12 +305,178 @@ public class GameServiceControllerTest {
         Game game1 = new Game();
         game1.setName("game1_actionResponseTest");
         Long gameId1 = template.postForObject(base + "games?token=" + userAuthenticationWrapper1.getUserToken(), game1, Long.class);
+        template.postForObject(base + "games/" + gameId1 + "/start?token=" + userAuthenticationWrapper1.getUserToken(), null, Void.class);
 
-        Long gameId_ActionResponse = template.postForObject(base + "games/" + gameId1 + "/actions", game1, Long.class);
+        CollectItemResponseDTO collectItemResponseDTO = new CollectItemResponseDTO();
+        collectItemResponseDTO.setCollectedItemType(ItemType.BAG);
+        collectItemResponseDTO.setUserID(userAuthenticationWrapper1.getUserId());
+        collectItemResponseDTO.setSpielId(gameId1);
+
+        Long gameId_ActionResponse = template.postForObject(base + "games/" + gameId1 + "/actions?token=" + userAuthenticationWrapper1.getUserToken(), collectItemResponseDTO, Long.class);
 
         Assert.assertEquals(gameId1, gameId_ActionResponse);
     }
 
+
+    @Test
+    public void processResponse_DrawCardResponseIsAdded() {
+        User user1 = new User();
+        user1.setName("name1_drawCardResponseIsAdded");
+        user1.setUsername("username1_drawCardResponseIsAdded");
+        UserAuthenticationWrapper userAuthenticationWrapper1 = template.postForObject(base + "users", user1, UserAuthenticationWrapper.class);
+
+        Game game1 = new Game();
+        game1.setName("game1_drawCardResponseTest");
+        Long gameId1 = template.postForObject(base + "games?token=" + userAuthenticationWrapper1.getUserToken(), game1, Long.class);
+
+        String characterType1 = "Cheyenne";
+        UriComponentsBuilder builder1 = UriComponentsBuilder.fromHttpUrl(base + "games/" + gameId1 + "/users")
+                .queryParam("token", userAuthenticationWrapper1.getUserToken())
+                .queryParam("character", characterType1.toString());
+        HttpEntity<User> userResponse1 = template.exchange(builder1.build().encode().toUri(), HttpMethod.PUT, null, User.class);
+
+        template.postForObject(base + "games/" + gameId1 + "/start?token=" + userAuthenticationWrapper1.getUserToken(), null, Void.class);
+        game1 = template.getForObject(base + "games/" + gameId1, Game.class);
+        DrawCardResponseDTO drawCardResponseDTO = new DrawCardResponseDTO();
+        drawCardResponseDTO.setUserID(userAuthenticationWrapper1.getUserId());
+        drawCardResponseDTO.setSpielId(gameId1);
+
+        Long gameId_ActionResponse = template.postForObject(base + "games/" + gameId1 + "/actions?token=" + userAuthenticationWrapper1.getUserToken(), drawCardResponseDTO, Long.class);
+
+        Assert.assertEquals(gameId1, gameId_ActionResponse);
+    }
+
+
+    @Test
+    public void processResponse_MoveMarshalResponseIsAdded() {
+        User user1 = new User();
+        user1.setName("name1_moveMarshal");
+        user1.setUsername("username1_moveMarshal");
+        UserAuthenticationWrapper userAuthenticationWrapper1 = template.postForObject(base + "users", user1, UserAuthenticationWrapper.class);
+
+        Game game1 = new Game();
+        game1.setName("game1_actionResponseTest");
+        Long gameId1 = template.postForObject(base + "games?token=" + userAuthenticationWrapper1.getUserToken(), game1, Long.class);
+
+        String characterType1 = "Cheyenne";
+        UriComponentsBuilder builder1 = UriComponentsBuilder.fromHttpUrl(base + "games/" + gameId1 + "/users")
+                .queryParam("token", userAuthenticationWrapper1.getUserToken())
+                .queryParam("character", characterType1.toString());
+        HttpEntity<User> userResponse1 = template.exchange(builder1.build().encode().toUri(), HttpMethod.PUT, null, User.class);
+
+        template.postForObject(base + "games/" + gameId1 + "/start?token=" + userAuthenticationWrapper1.getUserToken(), null, Void.class);
+        game1 = template.getForObject(base + "games/" + gameId1, Game.class);
+        MoveMarshalResponseDTO moveMarshallResponseDTO = new MoveMarshalResponseDTO();
+        moveMarshallResponseDTO.setUserID(userAuthenticationWrapper1.getUserId());
+        moveMarshallResponseDTO.setSpielId(gameId1);
+        moveMarshallResponseDTO.setWagonLevelID(game1.getWagons().get(0).getTopLevel().getId());
+
+        Long gameId_ActionResponse = template.postForObject(base + "games/" + gameId1 + "/actions?token=" + userAuthenticationWrapper1.getUserToken(), moveMarshallResponseDTO, Long.class);
+
+        Assert.assertEquals(gameId1, gameId_ActionResponse);
+    }
+
+    @Test
+    public void processResponse_PlayCardResponseIsAdded() {
+        User user1 = new User();
+        user1.setName("name1_startGameTest");
+        user1.setUsername("username1_startGameTest");
+        UserAuthenticationWrapper userAuthenticationWrapper1 = template.postForObject(base + "users", user1, UserAuthenticationWrapper.class);
+        User user2 = new User();
+        user2.setName("name2_startGameTest");
+        user2.setUsername("username9_startGameTest");
+        UserAuthenticationWrapper userAuthenticationWrapper2 = template.postForObject(base + "users", user2, UserAuthenticationWrapper.class);
+
+        Game game1 = new Game();
+        game1.setName("game1_2_startGameTest");
+        Long gameId = template.postForObject(base + "games?token=" + userAuthenticationWrapper1.getUserToken(), game1, Long.class);
+        Long userIdGameJoined9 = template.postForObject(base + "games/" + gameId + "/users?token=" + userAuthenticationWrapper2.getUserToken(), null, Long.class);
+
+        String characterType1 = "Cheyenne";
+        UriComponentsBuilder builder1 = UriComponentsBuilder.fromHttpUrl(base + "games/" + gameId + "/users")
+                .queryParam("token", userAuthenticationWrapper1.getUserToken())
+                .queryParam("character", characterType1.toString());
+        HttpEntity<User> userResponse1 = template.exchange(builder1.build().encode().toUri(), HttpMethod.PUT, null, User.class);
+        String characterType2 = "Ghost";
+        UriComponentsBuilder builder2 = UriComponentsBuilder.fromHttpUrl(base + "games/" + gameId + "/users")
+                .queryParam("token", userAuthenticationWrapper2.getUserToken())
+                .queryParam("character", characterType2.toString());
+        HttpEntity<User> userResponse2 = template.exchange(builder2.build().encode().toUri(), HttpMethod.PUT, null, User.class);
+
+        template.postForObject(base + "games/" + gameId + "/start?token=" + userAuthenticationWrapper1.getUserToken(), null, Void.class);
+        Game testerResponse = template.getForObject(base + "games/" + gameId, Game.class);
+        Long gameResponseId = testerResponse.getId();
+
+        PlayCardResponseDTO playCardlResponseDTO = new PlayCardResponseDTO();
+        playCardlResponseDTO.setUserID(userAuthenticationWrapper1.getUserId());
+        playCardlResponseDTO.setSpielId(gameResponseId);
+        playCardlResponseDTO.setPlayedCardId(testerResponse.getUsers().get(0).getHandDeck().get(0).getId());
+
+        Long gameId_ActionResponse = template.postForObject(base + "games/" + gameResponseId + "/actions?token=" + userAuthenticationWrapper1.getUserToken(), playCardlResponseDTO, Long.class);
+
+        Assert.assertEquals(gameResponseId, gameId_ActionResponse);
+    }
+
+
+    @Test
+    public void processResponse_PunchResponseIsAdded() {
+        User user1 = new User();
+        user1.setName("name1_punchCardResponseIsAdded");
+        user1.setUsername("username1_punchCardResponseIsAdded");
+        UserAuthenticationWrapper userAuthenticationWrapper1 = template.postForObject(base + "users", user1, UserAuthenticationWrapper.class);
+
+        Game game1 = new Game();
+        game1.setName("game1_actionResponseTest");
+        Long gameId1 = template.postForObject(base + "games?token=" + userAuthenticationWrapper1.getUserToken(), game1, Long.class);
+
+        String characterType1 = "Cheyenne";
+        UriComponentsBuilder builder1 = UriComponentsBuilder.fromHttpUrl(base + "games/" + gameId1 + "/users")
+                .queryParam("token", userAuthenticationWrapper1.getUserToken())
+                .queryParam("character", characterType1.toString());
+        HttpEntity<User> userResponse1 = template.exchange(builder1.build().encode().toUri(), HttpMethod.PUT, null, User.class);
+
+        template.postForObject(base + "games/" + gameId1 + "/start?token=" + userAuthenticationWrapper1.getUserToken(), null, Void.class);
+        game1 = template.getForObject(base + "games/" + gameId1, Game.class);
+        PunchResponseDTO punchlResponseDTO = new PunchResponseDTO();
+        punchlResponseDTO.setUserID(userAuthenticationWrapper1.getUserId());
+        punchlResponseDTO.setSpielId(gameId1);
+        punchlResponseDTO.setVictimID(userAuthenticationWrapper1.getUserId());
+        punchlResponseDTO.setWagonLevelID(game1.getWagons().get(1).getTopLevel().getId());
+        punchlResponseDTO.setItemType(ItemType.BAG);
+
+        Long gameId_ActionResponse = template.postForObject(base + "games/" + gameId1 + "/actions?token=" + userAuthenticationWrapper1.getUserToken(), punchlResponseDTO, Long.class);
+
+        Assert.assertEquals(gameId1, gameId_ActionResponse);
+    }
+
+    @Test
+    public void processResponse_ShootResponseIsAdded() {
+        User user1 = new User();
+        user1.setName("name1_shootCardResponseIsAdded");
+        user1.setUsername("username1_shootCardResponseIsAdded");
+        UserAuthenticationWrapper userAuthenticationWrapper1 = template.postForObject(base + "users", user1, UserAuthenticationWrapper.class);
+
+        Game game1 = new Game();
+        game1.setName("game1_actionResponseTest");
+        Long gameId1 = template.postForObject(base + "games?token=" + userAuthenticationWrapper1.getUserToken(), game1, Long.class);
+
+        String characterType1 = "Cheyenne";
+        UriComponentsBuilder builder1 = UriComponentsBuilder.fromHttpUrl(base + "games/" + gameId1 + "/users")
+                .queryParam("token", userAuthenticationWrapper1.getUserToken())
+                .queryParam("character", characterType1.toString());
+        HttpEntity<User> userResponse1 = template.exchange(builder1.build().encode().toUri(), HttpMethod.PUT, null, User.class);
+
+        template.postForObject(base + "games/" + gameId1 + "/start?token=" + userAuthenticationWrapper1.getUserToken(), null, Void.class);
+        game1 = template.getForObject(base + "games/" + gameId1, Game.class);
+        ShootResponseDTO shootlResponseDTO = new ShootResponseDTO();
+        shootlResponseDTO.setUserID(userAuthenticationWrapper1.getUserId());
+        shootlResponseDTO.setSpielId(gameId1);
+        shootlResponseDTO.setVictimID(userAuthenticationWrapper1.getUserId());
+
+        Long gameId_ActionResponse = template.postForObject(base + "games/" + gameId1 + "/actions?token=" + userAuthenticationWrapper1.getUserToken(), shootlResponseDTO, Long.class);
+
+        Assert.assertEquals(gameId1, gameId_ActionResponse);
+    }
     //region helper methods
     private static boolean containsUserName(List<User> list, String username) {
         for (User user : list) {

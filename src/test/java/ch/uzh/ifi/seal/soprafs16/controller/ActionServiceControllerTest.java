@@ -39,10 +39,12 @@ import ch.uzh.ifi.seal.soprafs16.model.Wagon;
 import ch.uzh.ifi.seal.soprafs16.model.WagonLevel;
 import ch.uzh.ifi.seal.soprafs16.model.action.ActionRequestDTO;
 import ch.uzh.ifi.seal.soprafs16.model.action.actionRequest.CollectItemRequestDTO;
+import ch.uzh.ifi.seal.soprafs16.model.action.actionRequest.MoveMarshalRequestDTO;
 import ch.uzh.ifi.seal.soprafs16.model.action.actionRequest.MoveRequestDTO;
 import ch.uzh.ifi.seal.soprafs16.model.action.actionRequest.PunchRequestDTO;
 import ch.uzh.ifi.seal.soprafs16.model.action.actionRequest.ShootRequestDTO;
 import ch.uzh.ifi.seal.soprafs16.model.cards.handCards.CollectCard;
+import ch.uzh.ifi.seal.soprafs16.model.cards.handCards.MarshalCard;
 import ch.uzh.ifi.seal.soprafs16.model.cards.handCards.MoveCard;
 import ch.uzh.ifi.seal.soprafs16.model.cards.handCards.PunchCard;
 import ch.uzh.ifi.seal.soprafs16.model.cards.handCards.ShootCard;
@@ -409,6 +411,11 @@ public class ActionServiceControllerTest {
         Marshal marshal1 = new Marshal();
         marshal1.setWagonLevel(wagonlevel1_1);
         wagonlevel1_1.setMarshal(marshal1);
+        marshalRepo.save(marshal1);
+        marshal1.setGame(game1);
+        game1.setMarshal(marshal1);
+        marshalRepo.save(marshal1);
+        gameRepo.save(game1);
 
         Item item1_bag = new Item();
         item1_bag.setItemType(ItemType.BAG);
@@ -591,6 +598,20 @@ public class ActionServiceControllerTest {
             assertEquals(1, prq.getPunchableUserIds().size());
         }
 
+    }
+    @Test
+    public void processRequest_MarshalIsCorrect()
+    {
+        Game game = gameRepo.findOne(gameId);
+        Marshal marshal = marshalRepo.findOne(game.getMarshal().getId());
+
+        MarshalCard mc = new MarshalCard();
+        ActionRequestDTO test = gls.createActionRequest(mc, gameId, marshal.getId());
+        if (test instanceof MoveMarshalRequestDTO)
+        {
+            MoveMarshalRequestDTO mmrq = (MoveMarshalRequestDTO) test;
+            assertEquals(1, mmrq.getMovableWagonsLvlIds().size());
+        }
     }
 
 

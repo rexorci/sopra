@@ -224,7 +224,7 @@ public class GameLogicService extends GenericService {
 
             if (ac instanceof MarshalCard)
             {
-                return generateMoveMarshalRequest(gameId);
+                return generateMoveMarshalRequest(gameId,userId);
             }
             return null;
 
@@ -541,13 +541,19 @@ public class GameLogicService extends GenericService {
             return prq;
         }
 
-        public MoveMarshalRequestDTO generateMoveMarshalRequest(Long gameId)
+        public MoveMarshalRequestDTO generateMoveMarshalRequest(Long gameId, Long marshalId)
         {
             Game game = gameRepo.findOne(gameId);
             MoveMarshalRequestDTO mmrq = new MoveMarshalRequestDTO();
-            mmrq.getMovableWagonsLvlIds().add(game.getMarshal().getWagonLevel().getWagonLevelBefore().getId());
-            mmrq.getMovableWagonsLvlIds().add(game.getMarshal().getWagonLevel().getWagonLevelAfter().getId());
 
+            if (game.getMarshal().getWagonLevel().getWagonLevelBefore() != null)
+            {
+                mmrq.getMovableWagonsLvlIds().add(game.getMarshal().getWagonLevel().getWagonLevelBefore().getId());
+            }
+            if (game.getMarshal().getWagonLevel().getWagonLevelAfter() != null)
+            {
+                mmrq.getMovableWagonsLvlIds().add(game.getMarshal().getWagonLevel().getWagonLevelAfter().getId());
+            }
 
             mmrq.setSpielId(game.getId());
             game.getActions().add(mmrq);

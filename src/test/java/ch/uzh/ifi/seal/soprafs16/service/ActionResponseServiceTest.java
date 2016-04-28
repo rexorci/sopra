@@ -39,6 +39,7 @@ import ch.uzh.ifi.seal.soprafs16.model.cards.handCards.ActionCard;
 import ch.uzh.ifi.seal.soprafs16.model.cards.handCards.BulletCard;
 import ch.uzh.ifi.seal.soprafs16.model.cards.handCards.HandCard;
 import ch.uzh.ifi.seal.soprafs16.model.characters.Character;
+import ch.uzh.ifi.seal.soprafs16.model.characters.Cheyenne;
 import ch.uzh.ifi.seal.soprafs16.model.characters.Ghost;
 import ch.uzh.ifi.seal.soprafs16.model.characters.Tuco;
 import ch.uzh.ifi.seal.soprafs16.model.repositories.CardRepository;
@@ -362,10 +363,11 @@ public class ActionResponseServiceTest {
         assertTrue(newWl.removeUserById(user.getId()));
     }
 
-/*    @Test
+    @Test
     public void processResponse_Punch_CheyenneCollectsItem(){
         Game game = gameRepo.findOne(gameId);
-        User user = userRepo.findOne(game.getUsers().get(0).getId());
+        User cheyenne = userRepo.findOne(game.getUsers().get(0).getId());
+        cheyenne.setCharacter(new Cheyenne());
 
         User victim = userRepo.findOne(game.getUsers().get(1).getId());
         WagonLevel wl = wagonLevelRepo.findOne(victim.getWagonLevel().getId());
@@ -375,23 +377,57 @@ public class ActionResponseServiceTest {
         Hibernate.initialize(wl.getItems());
         int vicItemCount = victim.getItems().size();
         int wlItemCount = wl.getItems().size();
+        int cheyenneItemCount = cheyenne.getItems().size();
 
         PunchResponseDTO pr = new PunchResponseDTO();
         pr.setVictimId(victim.getId());
         pr.setItemType(ItemType.BAG);
         pr.setWagonLevelId(newWl.getId());
         pr.setSpielId(gameId);
-        pr.setUserId(user.getId());
+        pr.setUserId(cheyenne.getId());
 
         ars.processResponse(pr);
 
         wl = wagonLevelRepo.findOne(wl.getId());
         newWl = wagonLevelRepo.findOne(newWl.getId());
-        victim = userRepo.findOne(game.getUsers().get(1).getId());
+        victim = userRepo.findOne(victim.getId());
+        cheyenne = userRepo.findOne(cheyenne.getId());
 
         assertEquals(vicItemCount - 1, victim.getItems().size());
-        assertEquals(wlItemCount + 1, wl.getItems().size());
+        assertEquals(wlItemCount, wl.getItems().size());
+        assertEquals(cheyenneItemCount + 1, cheyenne.getItems().size());
         assertEquals(newWl.getId(), victim.getWagonLevel().getId());
         assertTrue(newWl.removeUserById(victim.getId()));
+    }
+
+
+   /* @Test
+    public void processResponse_DjangoShooter_VictimIsMoved(){
+        Game game = gameRepo.findOne(gameId);
+        User user = userRepo.findOne(game.getUsers().get(0).getId());
+
+        User victim = userRepo.findOne(game.getUsers().get(1).getId());
+
+        Hibernate.initialize(user.getBulletsDeck());
+        Hibernate.initialize(victim.getHiddenDeck());
+        int bulletCounter = user.getBulletsDeck().size();
+        int victimHiddenDeckSize = victim.getHiddenDeck().size();
+        BulletCard bc = (BulletCard)user.getBulletsDeck().getCards().get(user.getBulletsDeck().size() - 1);
+
+        ShootResponseDTO sr = new ShootResponseDTO();
+        sr.setSpielId(game.getId());
+        sr.setUserId(user.getId());
+        sr.setVictimId(victim.getId());
+
+        ars.processResponse(sr);
+
+        user = userRepo.findOne(game.getUsers().get(0).getId());
+        victim = userRepo.findOne(game.getUsers().get(1).getId());
+        bc = (BulletCard)cardRepo.findOne(bc.getId());
+
+        assertEquals(bulletCounter - 1, user.getBulletsDeck().size());
+        assertEquals(victimHiddenDeckSize + 1, victim.getHiddenDeck().getCards().size());
+        assertEquals(victim.getHiddenDeck().getId(), bc.getDeck().getId());
     }*/
+
 }

@@ -319,7 +319,7 @@ public class GameServiceController extends GenericService {
     @ResponseStatus(HttpStatus.OK)
     public ActionRequestDTO getActionRequest(@PathVariable Long gameId)
     {
-        logger.debug("Get on actionRequest");
+        System.out.println("Get on actionRequest");
         Game game = gameRepo.findOne(gameId);
         Long id = game.getActions().get(game.getActions().size()-1).getId();
         return actionRepo.findOne(id);

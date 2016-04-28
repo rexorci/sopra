@@ -3,7 +3,6 @@ package ch.uzh.ifi.seal.soprafs16.service;
 import ch.uzh.ifi.seal.soprafs16.model.cards.roundCards.AngryMarshalCard;
 import ch.uzh.ifi.seal.soprafs16.model.characters.*;
 import ch.uzh.ifi.seal.soprafs16.model.characters.Character;
-import ch.uzh.ifi.seal.soprafs16.model.turns.*;
 
 import org.hibernate.Hibernate;
 import org.junit.Before;
@@ -39,7 +38,6 @@ import ch.uzh.ifi.seal.soprafs16.model.action.actionResponse.PlayCardResponseDTO
 import ch.uzh.ifi.seal.soprafs16.model.cards.GameDeck;
 import ch.uzh.ifi.seal.soprafs16.model.cards.handCards.ActionCard;
 import ch.uzh.ifi.seal.soprafs16.model.cards.handCards.BulletCard;
-import ch.uzh.ifi.seal.soprafs16.model.cards.roundCards.AngryMarshalCard;
 import ch.uzh.ifi.seal.soprafs16.model.cards.roundCards.BrakingCard;
 import ch.uzh.ifi.seal.soprafs16.model.cards.roundCards.GetItAllCard;
 import ch.uzh.ifi.seal.soprafs16.model.cards.roundCards.HostageCard;

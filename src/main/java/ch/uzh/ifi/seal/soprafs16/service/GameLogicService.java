@@ -28,7 +28,6 @@ import ch.uzh.ifi.seal.soprafs16.model.action.actionRequest.MoveMarshalRequestDT
 import ch.uzh.ifi.seal.soprafs16.model.action.actionRequest.MoveRequestDTO;
 import ch.uzh.ifi.seal.soprafs16.model.action.actionRequest.PunchRequestDTO;
 import ch.uzh.ifi.seal.soprafs16.model.action.actionRequest.ShootRequestDTO;
-import ch.uzh.ifi.seal.soprafs16.model.cards.Card;
 import ch.uzh.ifi.seal.soprafs16.model.cards.GameDeck;
 import ch.uzh.ifi.seal.soprafs16.model.cards.PlayerDeck;
 import ch.uzh.ifi.seal.soprafs16.model.cards.handCards.ActionCard;

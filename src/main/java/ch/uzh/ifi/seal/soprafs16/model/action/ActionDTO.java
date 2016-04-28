@@ -29,7 +29,7 @@ public class ActionDTO implements Serializable {
     @Id
     @GeneratedValue
     private Long id;
-    //
+
     @Column
     private Long spielId;
 

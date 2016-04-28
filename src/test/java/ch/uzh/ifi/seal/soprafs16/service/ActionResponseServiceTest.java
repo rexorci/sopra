@@ -1,7 +1,6 @@
 package ch.uzh.ifi.seal.soprafs16.service;
 
 import ch.uzh.ifi.seal.soprafs16.model.characters.Character;
-import ch.uzh.ifi.seal.soprafs16.model.characters.Cheyenne;
 import ch.uzh.ifi.seal.soprafs16.model.characters.Ghost;
 import org.hibernate.Hibernate;
 import org.junit.Before;

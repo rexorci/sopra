@@ -38,7 +38,6 @@ import ch.uzh.ifi.seal.soprafs16.model.repositories.ItemRepository;
 import ch.uzh.ifi.seal.soprafs16.model.repositories.MarshalRepository;
 import ch.uzh.ifi.seal.soprafs16.model.repositories.UserRepository;
 import ch.uzh.ifi.seal.soprafs16.model.repositories.WagonLevelRepository;
-import ch.uzh.ifi.seal.soprafs16.model.turns.ReverseTurn;
 import ch.uzh.ifi.seal.soprafs16.model.turns.TunnelTurn;
 
 /**

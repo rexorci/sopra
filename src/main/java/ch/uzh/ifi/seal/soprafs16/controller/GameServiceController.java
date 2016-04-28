@@ -21,15 +21,8 @@ import ch.uzh.ifi.seal.soprafs16.model.Game;
 import ch.uzh.ifi.seal.soprafs16.model.User;
 import ch.uzh.ifi.seal.soprafs16.model.action.ActionRequestDTO;
 import ch.uzh.ifi.seal.soprafs16.model.action.ActionResponseDTO;
-import ch.uzh.ifi.seal.soprafs16.model.characters.Belle;
 import ch.uzh.ifi.seal.soprafs16.model.characters.Character;
-import ch.uzh.ifi.seal.soprafs16.model.characters.Cheyenne;
-import ch.uzh.ifi.seal.soprafs16.model.characters.Django;
-import ch.uzh.ifi.seal.soprafs16.model.characters.Doc;
-import ch.uzh.ifi.seal.soprafs16.model.characters.Ghost;
-import ch.uzh.ifi.seal.soprafs16.model.characters.Tuco;
 import ch.uzh.ifi.seal.soprafs16.model.repositories.ActionRepository;
-import ch.uzh.ifi.seal.soprafs16.model.repositories.ActionResponseRepository;
 import ch.uzh.ifi.seal.soprafs16.model.repositories.CardRepository;
 import ch.uzh.ifi.seal.soprafs16.model.repositories.CharacterRepository;
 import ch.uzh.ifi.seal.soprafs16.model.repositories.DeckRepository;
@@ -307,7 +300,7 @@ public class GameServiceController extends GenericService {
             if (actionResponseDTO != null) {
                 //actionResponseDTO = actionResponseRepo.save(actionResponseDTO);
                 actionResponseService.processResponse(actionResponseDTO);
-                //gameLogicService.update(gameId);
+                gameLogicService.update(gameId);
                 return gameId;
             } else {
                 logger.error("Actionresponse is null");

@@ -1,13 +1,5 @@
 package ch.uzh.ifi.seal.soprafs16.controller;
 
-import java.net.URL;
-import java.util.LinkedHashMap;
-import java.util.List;
-
-import ch.uzh.ifi.seal.soprafs16.model.characters.Character;
-
-import ch.uzh.ifi.seal.soprafs16.model.characters.Ghost;
-import ch.uzh.ifi.seal.soprafs16.model.characters.Tuco;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -23,6 +15,10 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.context.web.WebAppConfiguration;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
+
+import java.net.URL;
+import java.util.LinkedHashMap;
+import java.util.List;
 
 import ch.uzh.ifi.seal.soprafs16.Application;
 import ch.uzh.ifi.seal.soprafs16.constant.GameStatus;
@@ -41,8 +37,11 @@ import ch.uzh.ifi.seal.soprafs16.model.action.actionResponse.PunchResponseDTO;
 import ch.uzh.ifi.seal.soprafs16.model.action.actionResponse.ShootResponseDTO;
 import ch.uzh.ifi.seal.soprafs16.model.cards.handCards.ActionCard;
 import ch.uzh.ifi.seal.soprafs16.model.cards.roundCards.StationCard;
+import ch.uzh.ifi.seal.soprafs16.model.characters.Character;
 import ch.uzh.ifi.seal.soprafs16.model.characters.Cheyenne;
 import ch.uzh.ifi.seal.soprafs16.model.characters.Doc;
+import ch.uzh.ifi.seal.soprafs16.model.characters.Ghost;
+import ch.uzh.ifi.seal.soprafs16.model.characters.Tuco;
 
 
 @RunWith(SpringJUnit4ClassRunner.class)
@@ -297,9 +296,18 @@ public class GameServiceControllerTest {
         user1.setUsername("username1_collectItemResponseTest");
         UserAuthenticationWrapper userAuthenticationWrapper1 = template.postForObject(base + "users", user1, UserAuthenticationWrapper.class);
 
+
+
         Game game1 = new Game();
         game1.setName("game1_collectItemResponseTest");
         Long gameId1 = template.postForObject(base + "games?token=" + userAuthenticationWrapper1.getUserToken(), game1, Long.class);
+
+        UriComponentsBuilder builder1 = UriComponentsBuilder.fromHttpUrl(base + "games/" + gameId1+ "/users")
+                .queryParam("token", userAuthenticationWrapper1.getUserToken());
+        HttpEntity<Character> characterRequest1 = new HttpEntity<>(new Cheyenne());
+        HttpEntity<User> userResponse1 = template.exchange(builder1.build().encode().toUri(), HttpMethod.PUT, characterRequest1, User.class);
+
+
         template.postForObject(base + "games/" + gameId1 + "/start?token=" + userAuthenticationWrapper1.getUserToken(), null, Void.class);
 
         CollectItemResponseDTO collectItemResponseDTO = new CollectItemResponseDTO();
@@ -410,11 +418,10 @@ public class GameServiceControllerTest {
         game1.setName("game1_moveResponseTest");
             Long gameId1 = template.postForObject(base + "games?token=" + userAuthenticationWrapper1.getUserToken(), game1, Long.class);
 
-        String characterType1 = "Doc";
         UriComponentsBuilder builder1 = UriComponentsBuilder.fromHttpUrl(base + "games/" + gameId1 + "/users")
-                .queryParam("token", userAuthenticationWrapper1.getUserToken())
-                .queryParam("character", characterType1.toString());
-        HttpEntity<User> userResponse1 = template.exchange(builder1.build().encode().toUri(), HttpMethod.PUT, null, User.class);
+                .queryParam("token", userAuthenticationWrapper1.getUserToken());
+        HttpEntity<Character> characterRequest1 = new HttpEntity<>(new Cheyenne());
+        HttpEntity<User> userResponse1 = template.exchange(builder1.build().encode().toUri(), HttpMethod.PUT, characterRequest1, User.class);
 
         template.postForObject(base + "games/" + gameId1 + "/start?token=" + userAuthenticationWrapper1.getUserToken(), null, Void.class);
         game1 = template.getForObject(base + "games/" + gameId1, Game.class);

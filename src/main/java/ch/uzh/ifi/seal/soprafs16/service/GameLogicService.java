@@ -599,9 +599,8 @@ public class GameLogicService extends GenericService {
                 for (int i = 0; i < size; i++) {
                     shootable.add(wagonLevel.getWagonLevelBefore().getUsers().get(i));
                 }
-                if (shootable.size() == 0) {
+                if (shootable.isEmpty()) {
                     getShootableUsersBeforeR(user, shootable, wagonLevel.getWagonLevelBefore());
-
                 }
                 if (user.getCharacter() instanceof Django) {
                     getShootableUsersBeforeR(user, shootable, wagonLevel.getWagonLevelBefore());

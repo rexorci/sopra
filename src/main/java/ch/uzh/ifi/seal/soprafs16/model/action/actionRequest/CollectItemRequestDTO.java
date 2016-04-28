@@ -1,7 +1,6 @@
 package ch.uzh.ifi.seal.soprafs16.model.action.actionRequest;
 
 import com.fasterxml.jackson.annotation.JsonTypeName;
-import com.sun.org.apache.xpath.internal.operations.Bool;
 
 import java.io.Serializable;
 import java.util.ArrayList;

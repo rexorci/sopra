@@ -1,6 +1,5 @@
 package ch.uzh.ifi.seal.soprafs16.model.characters;
 
-import ch.uzh.ifi.seal.soprafs16.model.User;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
@@ -12,6 +11,8 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.OneToOne;
+
+import ch.uzh.ifi.seal.soprafs16.model.User;
 
 @Entity
 @JsonTypeName("character")

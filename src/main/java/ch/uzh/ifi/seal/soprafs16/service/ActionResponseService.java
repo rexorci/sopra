@@ -166,42 +166,42 @@ public class ActionResponseService {
         Game game = gameRepo.findOne(pr.getSpielId());
 
         User victim = userRepo.findOne(pr.getVictimID());
-        WagonLevel move_wl = wagonLevelRepo.findOne(pr.getWagonLevelID());
-        WagonLevel drop_wl = wagonLevelRepo.findOne(victim.getWagonLevel().getId());
+        WagonLevel moveWl = wagonLevelRepo.findOne(pr.getWagonLevelID());
+        WagonLevel dropWl = wagonLevelRepo.findOne(victim.getWagonLevel().getId());
         Item item = getRandomItem(pr.getItemType(), victim);
 
         if (item != null) {
             item = itemRepo.findOne(item.getId());
             // Drop Item
             victim.getItems().remove(item);
-            drop_wl = wagonLevelRepo.save(drop_wl);
+            dropWl = wagonLevelRepo.save(dropWl);
             // Cheyenne Character Skill
             if (user.getCharacter().getClass().equals(Cheyenne.class)) {
                 item.setUser(user);
                 user.getItems().add(item);
             } else {
                 item.setUser(null);
-                item.setWagonLevel(drop_wl);
-                drop_wl.getItems().add(item);
+                item.setWagonLevel(dropWl);
+                dropWl.getItems().add(item);
             }
             itemRepo.save(item);
         }
 
         // Move user
-        drop_wl.getUsers().remove(victim);
+        dropWl.getUsers().remove(victim);
 
-        victim.setWagonLevel(move_wl);
-        Hibernate.initialize(move_wl.getUsers());
-        move_wl.getUsers().add(victim);
+        victim.setWagonLevel(moveWl);
+        Hibernate.initialize(moveWl.getUsers());
+        moveWl.getUsers().add(victim);
 
         game = gameRepo.findOne(game.getId());
 
         userRepo.save(user);
         userRepo.save(victim);
-        wagonLevelRepo.save(drop_wl);
-        wagonLevelRepo.save(move_wl);
+        wagonLevelRepo.save(dropWl);
+        wagonLevelRepo.save(moveWl);
 
-        if(move_wl.getLevelType() == LevelType.TOP) checkMarshal(user.getGame());
+        if(moveWl.getLevelType() == LevelType.TOP) checkMarshal(user.getGame());
     }
 
     public void processResponse(ShootResponseDTO sr) {

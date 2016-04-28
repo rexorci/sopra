@@ -1,7 +1,5 @@
 package ch.uzh.ifi.seal.soprafs16.service;
 
-import ch.uzh.ifi.seal.soprafs16.model.characters.Character;
-import ch.uzh.ifi.seal.soprafs16.model.characters.Ghost;
 import org.hibernate.Hibernate;
 import org.junit.Before;
 import org.junit.Test;
@@ -40,6 +38,8 @@ import ch.uzh.ifi.seal.soprafs16.model.cards.PlayerDeck;
 import ch.uzh.ifi.seal.soprafs16.model.cards.handCards.ActionCard;
 import ch.uzh.ifi.seal.soprafs16.model.cards.handCards.BulletCard;
 import ch.uzh.ifi.seal.soprafs16.model.cards.handCards.HandCard;
+import ch.uzh.ifi.seal.soprafs16.model.characters.Character;
+import ch.uzh.ifi.seal.soprafs16.model.characters.Ghost;
 import ch.uzh.ifi.seal.soprafs16.model.characters.Tuco;
 import ch.uzh.ifi.seal.soprafs16.model.repositories.CardRepository;
 import ch.uzh.ifi.seal.soprafs16.model.repositories.CharacterRepository;
@@ -361,4 +361,37 @@ public class ActionResponseServiceTest {
         assertFalse(wl.removeUserById(user.getId()));
         assertTrue(newWl.removeUserById(user.getId()));
     }
+
+/*    @Test
+    public void processResponse_Punch_CheyenneCollectsItem(){
+        Game game = gameRepo.findOne(gameId);
+        User user = userRepo.findOne(game.getUsers().get(0).getId());
+
+        User victim = userRepo.findOne(game.getUsers().get(1).getId());
+        WagonLevel wl = wagonLevelRepo.findOne(victim.getWagonLevel().getId());
+        WagonLevel newWl = wagonLevelRepo.findOne(victim.getWagonLevel().getWagonLevelBefore().getId());
+
+        Hibernate.initialize(victim.getItems());
+        Hibernate.initialize(wl.getItems());
+        int vicItemCount = victim.getItems().size();
+        int wlItemCount = wl.getItems().size();
+
+        PunchResponseDTO pr = new PunchResponseDTO();
+        pr.setVictimID(victim.getId());
+        pr.setItemType(ItemType.BAG);
+        pr.setWagonLevelID(newWl.getId());
+        pr.setSpielId(gameId);
+        pr.setUserID(user.getId());
+
+        ars.processResponse(pr);
+
+        wl = wagonLevelRepo.findOne(wl.getId());
+        newWl = wagonLevelRepo.findOne(newWl.getId());
+        victim = userRepo.findOne(game.getUsers().get(1).getId());
+
+        assertEquals(vicItemCount - 1, victim.getItems().size());
+        assertEquals(wlItemCount + 1, wl.getItems().size());
+        assertEquals(newWl.getId(), victim.getWagonLevel().getId());
+        assertTrue(newWl.removeUserById(victim.getId()));
+    }*/
 }

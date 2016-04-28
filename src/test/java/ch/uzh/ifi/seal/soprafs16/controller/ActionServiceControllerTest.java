@@ -1,17 +1,9 @@
 package ch.uzh.ifi.seal.soprafs16.controller;
 
 
-import org.hibernate.Hibernate;
-import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.IntegrationTest;
@@ -24,8 +16,6 @@ import org.springframework.web.client.RestTemplate;
 
 import java.net.URL;
 import java.util.ArrayList;
-
-import javax.swing.Action;
 
 import ch.uzh.ifi.seal.soprafs16.Application;
 import ch.uzh.ifi.seal.soprafs16.constant.ItemType;
@@ -62,7 +52,8 @@ import ch.uzh.ifi.seal.soprafs16.model.repositories.UserRepository;
 import ch.uzh.ifi.seal.soprafs16.model.repositories.WagonLevelRepository;
 import ch.uzh.ifi.seal.soprafs16.model.repositories.WagonRepository;
 import ch.uzh.ifi.seal.soprafs16.service.GameLogicService;
-import ch.uzh.ifi.seal.soprafs16.service.GameService;
+
+import static org.junit.Assert.assertEquals;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @SpringApplicationConfiguration(classes = Application.class)

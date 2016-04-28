@@ -1,9 +1,5 @@
 package ch.uzh.ifi.seal.soprafs16.service;
 
-import ch.uzh.ifi.seal.soprafs16.model.cards.roundCards.AngryMarshalCard;
-import ch.uzh.ifi.seal.soprafs16.model.characters.*;
-import ch.uzh.ifi.seal.soprafs16.model.characters.Character;
-
 import org.hibernate.Hibernate;
 import org.junit.Before;
 import org.junit.Test;
@@ -38,6 +34,7 @@ import ch.uzh.ifi.seal.soprafs16.model.action.actionResponse.PlayCardResponseDTO
 import ch.uzh.ifi.seal.soprafs16.model.cards.GameDeck;
 import ch.uzh.ifi.seal.soprafs16.model.cards.handCards.ActionCard;
 import ch.uzh.ifi.seal.soprafs16.model.cards.handCards.BulletCard;
+import ch.uzh.ifi.seal.soprafs16.model.cards.roundCards.AngryMarshalCard;
 import ch.uzh.ifi.seal.soprafs16.model.cards.roundCards.BrakingCard;
 import ch.uzh.ifi.seal.soprafs16.model.cards.roundCards.GetItAllCard;
 import ch.uzh.ifi.seal.soprafs16.model.cards.roundCards.HostageCard;
@@ -46,6 +43,11 @@ import ch.uzh.ifi.seal.soprafs16.model.cards.roundCards.PassengerRebellionCard;
 import ch.uzh.ifi.seal.soprafs16.model.cards.roundCards.PickPocketingCard;
 import ch.uzh.ifi.seal.soprafs16.model.cards.roundCards.PivotablePoleCard;
 import ch.uzh.ifi.seal.soprafs16.model.cards.roundCards.RoundCard;
+import ch.uzh.ifi.seal.soprafs16.model.characters.Character;
+import ch.uzh.ifi.seal.soprafs16.model.characters.Cheyenne;
+import ch.uzh.ifi.seal.soprafs16.model.characters.Doc;
+import ch.uzh.ifi.seal.soprafs16.model.characters.Ghost;
+import ch.uzh.ifi.seal.soprafs16.model.characters.Tuco;
 import ch.uzh.ifi.seal.soprafs16.model.repositories.CardRepository;
 import ch.uzh.ifi.seal.soprafs16.model.repositories.CharacterRepository;
 import ch.uzh.ifi.seal.soprafs16.model.repositories.DeckRepository;
@@ -430,8 +432,8 @@ public class GameLogicServiceTest {
         WagonLevel newWl = wagonLevelRepo.findOne(tester.getMarshal().getWagonLevel().getWagon().getTopLevel().getId());
         u.setWagonLevel(newWl);
         newWl.getUsers().add(u);
-        wl = wagonLevelRepo.save(wl);
-        newWl = wagonLevelRepo.save(newWl);
+        wagonLevelRepo.save(wl);
+        wagonLevelRepo.save(newWl);
         userRepo.save(u);
         game = gameRepo.findOne(game.getId());
         gls.update(gameId);
@@ -542,10 +544,10 @@ public class GameLogicServiceTest {
         WagonLevel newWl = wagonLevelRepo.findOne(marshal.getWagonLevel().getWagon().getTopLevel().getId());
         marshal.setWagonLevel(newWl);
         newWl.setMarshal(marshal);
-        wl = wagonLevelRepo.save(wl);
+        wagonLevelRepo.save(wl);
         newWl = wagonLevelRepo.save(newWl);
         marshalRepo.save(marshal);
-        game = gameRepo.findOne(game.getId());
+        gameRepo.findOne(game.getId());
         gls.update(gameId);
 
         for (int i = 0; i < 16; i++) {
@@ -592,15 +594,26 @@ public class GameLogicServiceTest {
             cardRepo.save(hc);
         }
 
-        User u = userRepo.findOne(game.getUsers().get(0).getId());
-        WagonLevel wl = u.getWagonLevel();
-        WagonLevel newWl = wagonLevelRepo.findOne(game.getWagons().get(0).getTopLevel().getId());
-        wl.removeUserById(u.getId());
-        wl = wagonLevelRepo.save(wl);
-        newWl.getUsers().add(u);
-        u.setWagonLevel(newWl);
-        newWl = wagonLevelRepo.save(newWl);
-        game = gameRepo.findOne(game.getId());
+        User u1 = userRepo.findOne(game.getUsers().get(0).getId());
+        WagonLevel wl = u1.getWagonLevel();
+        WagonLevel wlLocTop = wagonLevelRepo.findOne(game.getWagons().get(0).getTopLevel().getId());
+        wl.removeUserById(u1.getId());
+        wagonLevelRepo.save(wl);
+        wlLocTop.getUsers().add(u1);
+        u1.setWagonLevel(wlLocTop);
+        wagonLevelRepo.save(wlLocTop);
+        
+        User u2 = userRepo.findOne(game.getUsers().get(1).getId());
+        WagonLevel wl2 = u2.getWagonLevel();
+        WagonLevel wlLocBot = wagonLevelRepo.findOne(game.getWagons().get(0).getBottomLevel().getId());
+        wl2.removeUserById(u2.getId());
+        wagonLevelRepo.save(wl2);
+        wlLocBot.getUsers().add(u2);
+        u2.setWagonLevel(wlLocBot);
+        wagonLevelRepo.save(wlLocTop);
+        
+        
+        gameRepo.findOne(game.getId());
         gls.update(gameId);
 
         for (int i = 0; i < 16; i++) {
@@ -610,9 +623,11 @@ public class GameLogicServiceTest {
             gls.update(gameId);
         }
 
-        u = userRepo.findOne(u.getId());
-        assertEquals(ItemType.BAG, u.getItems().get(u.getItems().size() - 1).getItemType());
-        assertEquals(250, u.getItems().get(u.getItems().size() - 1).getValue());
+        u1 = userRepo.findOne(u1.getId());
+        assertEquals(ItemType.BAG, u1.getItems().get(u1.getItems().size() - 1).getItemType());
+        assertEquals(250, u1.getItems().get(u1.getItems().size() - 1).getValue());
+        assertEquals(ItemType.BAG, u2.getItems().get(u2.getItems().size() - 1).getItemType());
+        assertEquals(250, u2.getItems().get(u2.getItems().size() - 1).getValue());
     }
 
     @Test

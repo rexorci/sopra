@@ -21,7 +21,6 @@ import ch.uzh.ifi.seal.soprafs16.model.Wagon;
 import ch.uzh.ifi.seal.soprafs16.model.WagonLevel;
 import ch.uzh.ifi.seal.soprafs16.model.cards.Card;
 import ch.uzh.ifi.seal.soprafs16.model.cards.Deck;
-import ch.uzh.ifi.seal.soprafs16.model.action.ActionRequestDTO;
 import ch.uzh.ifi.seal.soprafs16.model.cards.GameDeck;
 import ch.uzh.ifi.seal.soprafs16.model.cards.PlayerDeck;
 import ch.uzh.ifi.seal.soprafs16.model.cards.handCards.ActionCard;

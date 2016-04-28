@@ -204,7 +204,7 @@ public class GameLogicService extends GenericService {
             if (game.getCurrentTurn() < ((RoundCard) (game.getRoundCardDeck().get(
                     game.getCurrentRound()))).getPattern().size()
                     && game.getCurrentTurnType() instanceof ReverseTurn) {
-                game.setCurrentPlayer(game.getRoundStarter() + 1); // correction
+                game.setCurrentPlayer((game.getRoundStarter() + 1) % playerCounter); // correction
             }
         }
     }

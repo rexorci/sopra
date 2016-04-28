@@ -133,7 +133,7 @@ public class GameServiceController extends GenericService {
     @RequestMapping(value = CONTEXT + "/{gameId}")
     @ResponseStatus(HttpStatus.OK)
     public Game getGame(@PathVariable Long gameId) {
-        
+
         Game game = gameRepo.findOne(gameId);
 
         return game;

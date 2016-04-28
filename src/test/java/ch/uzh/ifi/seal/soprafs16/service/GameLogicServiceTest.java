@@ -30,10 +30,12 @@ import ch.uzh.ifi.seal.soprafs16.model.Marshal;
 import ch.uzh.ifi.seal.soprafs16.model.User;
 import ch.uzh.ifi.seal.soprafs16.model.UserAuthenticationWrapper;
 import ch.uzh.ifi.seal.soprafs16.model.WagonLevel;
+import ch.uzh.ifi.seal.soprafs16.model.action.ActionRequestDTO;
 import ch.uzh.ifi.seal.soprafs16.model.action.actionResponse.PlayCardResponseDTO;
 import ch.uzh.ifi.seal.soprafs16.model.cards.GameDeck;
 import ch.uzh.ifi.seal.soprafs16.model.cards.handCards.ActionCard;
 import ch.uzh.ifi.seal.soprafs16.model.cards.handCards.BulletCard;
+import ch.uzh.ifi.seal.soprafs16.model.cards.handCards.ChangeLevelCard;
 import ch.uzh.ifi.seal.soprafs16.model.cards.roundCards.AngryMarshalCard;
 import ch.uzh.ifi.seal.soprafs16.model.cards.roundCards.BrakingCard;
 import ch.uzh.ifi.seal.soprafs16.model.cards.roundCards.GetItAllCard;
@@ -269,9 +271,16 @@ public class GameLogicServiceTest {
             assertEquals((1 + i) % 4, (long) tester.getCurrentPlayer());
             tester = gameRepo.findOne(gameId);
             simulatePlayCardResponse();
-            for (int y = 0; y < 16; y++) {
+
+            Game game = gameRepo.findOne(gameId);
+            GameDeck<ActionCard> commonDeck = (GameDeck<ActionCard>)deckRepo.findOne(game.getCommonDeck().getId());
+
+            while(!commonDeck.getCards().isEmpty()){
                 gls.update(tester.getId());
+                commonDeck = (GameDeck<ActionCard>)deckRepo.findOne(commonDeck.getId());
             }
+
+            gls.update(tester.getId());
         }
     }
 
@@ -354,7 +363,14 @@ public class GameLogicServiceTest {
             simulatePlayCardResponse();
             // P4 response
             // Simulate responses
-            simulateRound(tester);
+            Game game = gameRepo.findOne(gameId);
+            GameDeck<ActionCard> commonDeck = (GameDeck<ActionCard>)deckRepo.findOne(game.getCommonDeck().getId());
+
+            while(!commonDeck.getCards().isEmpty()){
+                gls.update(tester.getId());
+                commonDeck = (GameDeck<ActionCard>)deckRepo.findOne(commonDeck.getId());
+            }
+            gls.update(tester.getId());
         }
     }
 
@@ -382,13 +398,16 @@ public class GameLogicServiceTest {
                 simulatePlayCardResponse();
             }
 
-            // ActionResponses for ActionCards
-            for (int i = 0; i < 16; i++) {
+            Game game = gameRepo.findOne(gameId);
+            GameDeck<ActionCard> commonDeck = (GameDeck<ActionCard>)deckRepo.findOne(game.getCommonDeck().getId());
+
+            while(!commonDeck.getCards().isEmpty()){
                 tester = gameRepo.findOne(gameId);
                 assertEquals(y, (long) tester.getCurrentRound());
                 gls.update(tester.getId());
-                tester = gameRepo.findOne(gameId);
+                commonDeck = (GameDeck<ActionCard>)deckRepo.findOne(commonDeck.getId());
             }
+            gls.update(tester.getId());
             // last update call for ActionCard - Actions
         }
     }

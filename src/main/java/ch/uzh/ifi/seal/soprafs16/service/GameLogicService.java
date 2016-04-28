@@ -32,6 +32,7 @@ import ch.uzh.ifi.seal.soprafs16.model.cards.GameDeck;
 import ch.uzh.ifi.seal.soprafs16.model.cards.PlayerDeck;
 import ch.uzh.ifi.seal.soprafs16.model.cards.handCards.ActionCard;
 import ch.uzh.ifi.seal.soprafs16.model.cards.handCards.BulletCard;
+import ch.uzh.ifi.seal.soprafs16.model.cards.handCards.ChangeLevelCard;
 import ch.uzh.ifi.seal.soprafs16.model.cards.handCards.CollectCard;
 import ch.uzh.ifi.seal.soprafs16.model.cards.handCards.HandCard;
 import ch.uzh.ifi.seal.soprafs16.model.cards.handCards.MarshalCard;
@@ -149,7 +150,12 @@ public class GameLogicService extends GenericService {
         deckRepo.save(commonDeck);
 
         ActionRequestHelper actionRequestHelper = new ActionRequestHelper();
-        actionRequestHelper.execute(ac, game.getId(), user.getId());
+        ActionRequestDTO ardto = actionRequestHelper.execute(ac, game.getId(), user.getId());
+
+        // If card was ChangeLevel
+        if(ardto == null){
+            update(game.getId());
+        }
     }
 
     private int calculatePlanningARcounter(Game game) {
@@ -560,9 +566,11 @@ public class GameLogicService extends GenericService {
             if (ac instanceof ShootCard) {
                 return generateShootRequest(gameId, userId);
             }
-
             if (ac instanceof MarshalCard) {
                 return generateMoveMarshalRequest(gameId, userId);
+            }
+            if (ac instanceof ChangeLevelCard){
+                return null;
             }
             return null;
 
@@ -661,6 +669,7 @@ public class GameLogicService extends GenericService {
 
         //region collectRequest
         public CollectItemRequestDTO generateCollectRequest(Long gameId, Long userId) {
+            System.out.println("collectRequest");
             Game game = gameRepo.findOne(gameId);
             User user = userRepo.findOne(userId);
             CollectItemRequestDTO crq = new CollectItemRequestDTO();
@@ -693,6 +702,7 @@ public class GameLogicService extends GenericService {
 
         //endregion collectrequest
         public MoveRequestDTO generateMoveRequest(Long gameId, Long userId) {
+            System.out.println("moveRequest");
             User user = userRepo.findOne(userId);
             Game game = gameRepo.findOne(gameId);
             MoveRequestDTO mrq = new MoveRequestDTO();
@@ -764,6 +774,7 @@ public class GameLogicService extends GenericService {
         }
 
         public PunchRequestDTO generatePunchRequest(Long gameId, Long userId) {
+            System.out.println("punchRequest");
             User user = userRepo.findOne(userId);
             Game game = gameRepo.findOne(gameId);
 
@@ -828,6 +839,7 @@ public class GameLogicService extends GenericService {
         }
 
         public MoveMarshalRequestDTO generateMoveMarshalRequest(Long gameId, Long userId) {
+            System.out.println("moveMarshalRequest");
             Game game = gameRepo.findOne(gameId);
             MoveMarshalRequestDTO mmrq = new MoveMarshalRequestDTO();
 

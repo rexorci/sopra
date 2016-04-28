@@ -153,6 +153,10 @@ public class GameLogicService extends GenericService {
 
         ActionRequestHelper actionRequestHelper = new ActionRequestHelper();
         ActionRequestDTO ardto = actionRequestHelper.execute(ac, game.getId(), user.getId());
+
+        if(ardto == null){
+            update(game.getId());
+        }
     }
 
     private int calculatePlanningARcounter(Game game) {

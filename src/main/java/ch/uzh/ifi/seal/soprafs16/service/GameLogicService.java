@@ -97,6 +97,7 @@ public class GameLogicService extends GenericService {
 
     public void update(Long id) {
         Game game = gameRepo.findOne(id);
+        logger.debug("update started");
 
         Hibernate.initialize(game.getUsers());
         setPhase(game);
@@ -157,6 +158,9 @@ public class GameLogicService extends GenericService {
                 sum += 4;
             }
         }
+
+
+        logger.debug("calcPlanningARcounter: " + sum);
         return sum;
     }
 
@@ -179,17 +183,20 @@ public class GameLogicService extends GenericService {
     }
 
     private void executeRoundAction(Game game) {
+        logger.debug("executeRoundAction");
         RoundCard rc = (RoundCard) cardRepo.findOne(game.getRoundCardDeck().get(game.getCurrentRound()).getId());
         RoundEndActionHelper reaHelper = new RoundEndActionHelper();
         reaHelper.execute(rc, game.getId());
     }
 
     private void processPlayerTurn(Game game) {
+        logger.debug("processPlayerTurn");
         createDOPCRequestDTO(game);
         game.setActionRequestCounter(game.getActionRequestCounter() + 1);
     }
 
     private void setNextTurn(Game game, int playerCounter) {
+        logger.debug("setNextTurn");
         // Turn end
         if ((!(game.getCurrentTurnType() instanceof SpeedupTurn) && game.getActionRequestCounter() % playerCounter == 0)
                 || (game.getCurrentTurnType() instanceof SpeedupTurn && game.getActionRequestCounter() == (game.getCurrentTurn() + 2) * playerCounter)) {

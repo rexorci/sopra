@@ -20,12 +20,6 @@ public class DrawOrPlayCardRequestDTO extends ActionRequestDTO implements Serial
 
     private static final long serialVersionUID = 1L;
 
-
-
-    //private long gameId;
-
-//    @Column
-//    private long userId;
     @ElementCollection
     private List<Long> playableCardsId;
 
@@ -33,22 +27,6 @@ public class DrawOrPlayCardRequestDTO extends ActionRequestDTO implements Serial
     {
         this.playableCardsId = new ArrayList<Long>();
     }
-
-//    public long getSpielId() {
-//        return gameId;
-//    }
-
-//    public void setSpielId(long gameId) {
-//        this.gameId = gameId;
-//    }
-
-//    public long getUserId() {
-//        return userId;
-//    }
-//
-//    public void setUserId(long userId) {
-//        this.userId = userId;
-//    }
 
     public List<Long> getPlayableCardsId() {
         return playableCardsId;

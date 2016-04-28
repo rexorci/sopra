@@ -21,10 +21,6 @@ public class PunchRequestDTO extends ActionRequestDTO implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
-//    private long gameId;
-
-//    @Column
-//    private long userId;
     @ElementCollection
     private List<Long> punchableUserIds;
     @ElementCollection
@@ -52,22 +48,6 @@ public class PunchRequestDTO extends ActionRequestDTO implements Serializable {
     public void setPunchableUserIds(List<Long> punchableUserIds) {
         this.punchableUserIds = punchableUserIds;
     }
-
-//    public long getSpielId() {
-//        return gameId;
-//    }
-//
-//    public void setSpielId(long gameId) {
-//        this.gameId = gameId;
-//    }
-
-//    public long getUserId() {
-//        return userId;
-//    }
-//
-//    public void setUserId(long userId) {
-//        this.userId = userId;
-//    }
 
     public List<Boolean> getHasGem() {
         return hasGem;

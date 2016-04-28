@@ -312,7 +312,7 @@ public class GameServiceControllerTest {
 
         CollectItemResponseDTO collectItemResponseDTO = new CollectItemResponseDTO();
         collectItemResponseDTO.setCollectedItemType(ItemType.BAG);
-        collectItemResponseDTO.setUserID(userAuthenticationWrapper1.getUserId());
+        collectItemResponseDTO.setUserId(userAuthenticationWrapper1.getUserId());
         collectItemResponseDTO.setSpielId(gameId1);
 
         Long gameId_ActionResponse = template.postForObject(base + "games/" + gameId1 + "/actions?token=" + userAuthenticationWrapper1.getUserToken(), collectItemResponseDTO, Long.class);
@@ -340,7 +340,7 @@ public class GameServiceControllerTest {
         template.postForObject(base + "games/" + gameId1 + "/start?token=" + userAuthenticationWrapper1.getUserToken(), null, Void.class);
         game1 = template.getForObject(base + "games/" + gameId1, Game.class);
         DrawCardResponseDTO drawCardResponseDTO = new DrawCardResponseDTO();
-        drawCardResponseDTO.setUserID(userAuthenticationWrapper1.getUserId());
+        drawCardResponseDTO.setUserId(userAuthenticationWrapper1.getUserId());
         drawCardResponseDTO.setSpielId(gameId1);
 
         Long gameId_ActionResponse = template.postForObject(base + "games/" + gameId1 + "/actions?token=" + userAuthenticationWrapper1.getUserToken(), drawCardResponseDTO, Long.class);
@@ -369,9 +369,9 @@ public class GameServiceControllerTest {
         template.postForObject(base + "games/" + gameId1 + "/start?token=" + userAuthenticationWrapper1.getUserToken(), null, Void.class);
         game1 = template.getForObject(base + "games/" + gameId1, Game.class);
         MoveMarshalResponseDTO moveMarshallResponseDTO = new MoveMarshalResponseDTO();
-        moveMarshallResponseDTO.setUserID(userAuthenticationWrapper1.getUserId());
+        moveMarshallResponseDTO.setUserId(userAuthenticationWrapper1.getUserId());
         moveMarshallResponseDTO.setSpielId(gameId1);
-        moveMarshallResponseDTO.setWagonLevelID(game1.getWagons().get(0).getTopLevel().getId());
+        moveMarshallResponseDTO.setWagonLevelId(game1.getWagons().get(0).getTopLevel().getId());
 
         Long gameId_ActionResponse = template.postForObject(base + "games/" + gameId1 + "/actions?token=" + userAuthenticationWrapper1.getUserToken(), moveMarshallResponseDTO, Long.class);
 
@@ -398,9 +398,9 @@ public class GameServiceControllerTest {
         template.postForObject(base + "games/" + gameId1 + "/start?token=" + userAuthenticationWrapper1.getUserToken(), null, Void.class);
         game1 = template.getForObject(base + "games/" + gameId1, Game.class);
         PlayCardResponseDTO playCardlResponseDTO = new PlayCardResponseDTO();
-        playCardlResponseDTO.setUserID(userAuthenticationWrapper1.getUserId());
+        playCardlResponseDTO.setUserId(userAuthenticationWrapper1.getUserId());
         playCardlResponseDTO.setSpielId(gameId1);
-        playCardlResponseDTO.setPlayedCard((ActionCard) game1.getUsers().get(0).getHandDeck().get(1));
+        playCardlResponseDTO.setPlayedCardId(game1.getUsers().get(0).getHandDeck().get(1).getId());
 
         Long gameId_ActionResponse = template.postForObject(base + "games/" + gameId1 + "/actions?token=" + userAuthenticationWrapper1.getUserToken(), playCardlResponseDTO, Long.class);
 
@@ -427,9 +427,9 @@ public class GameServiceControllerTest {
         game1 = template.getForObject(base + "games/" + gameId1, Game.class);
        
         MoveResponseDTO movelResponseDTO = new MoveResponseDTO();
-        movelResponseDTO.setUserID(userAuthenticationWrapper1.getUserId());
+        movelResponseDTO.setUserId(userAuthenticationWrapper1.getUserId());
         movelResponseDTO.setSpielId(gameId1);
-        movelResponseDTO.setWagonLevelID(game1.getWagons().get(1).getTopLevel().getId());
+        movelResponseDTO.setWagonLevelId(game1.getWagons().get(1).getTopLevel().getId());
 
         Long gameId_ActionResponse = template.postForObject(base + "games/" + gameId1 + "/actions?token=" + userAuthenticationWrapper1.getUserToken(), movelResponseDTO, Long.class);
 
@@ -457,10 +457,10 @@ public class GameServiceControllerTest {
         template.postForObject(base + "games/" + gameId1 + "/start?token=" + userAuthenticationWrapper1.getUserToken(), null, Void.class);
         game1 = template.getForObject(base + "games/" + gameId1, Game.class);
         PunchResponseDTO punchlResponseDTO = new PunchResponseDTO();
-        punchlResponseDTO.setUserID(userAuthenticationWrapper1.getUserId());
+        punchlResponseDTO.setUserId(userAuthenticationWrapper1.getUserId());
         punchlResponseDTO.setSpielId(gameId1);
-        punchlResponseDTO.setVictimID(userAuthenticationWrapper1.getUserId());
-        punchlResponseDTO.setWagonLevelID(game1.getWagons().get(1).getTopLevel().getId());
+        punchlResponseDTO.setVictimId(userAuthenticationWrapper1.getUserId());
+        punchlResponseDTO.setWagonLevelId(game1.getWagons().get(1).getTopLevel().getId());
         punchlResponseDTO.setItemType(ItemType.BAG);
 
         Long gameId_ActionResponse = template.postForObject(base + "games/" + gameId1 + "/actions?token=" + userAuthenticationWrapper1.getUserToken(), punchlResponseDTO, Long.class);
@@ -488,9 +488,9 @@ public class GameServiceControllerTest {
         template.postForObject(base + "games/" + gameId1 + "/start?token=" + userAuthenticationWrapper1.getUserToken(), null, Void.class);
         game1 = template.getForObject(base + "games/" + gameId1, Game.class);
         ShootResponseDTO shootlResponseDTO = new ShootResponseDTO();
-        shootlResponseDTO.setUserID(userAuthenticationWrapper1.getUserId());
+        shootlResponseDTO.setUserId(userAuthenticationWrapper1.getUserId());
         shootlResponseDTO.setSpielId(gameId1);
-        shootlResponseDTO.setVictimID(userAuthenticationWrapper1.getUserId());
+        shootlResponseDTO.setVictimId(userAuthenticationWrapper1.getUserId());
 
         Long gameId_ActionResponse = template.postForObject(base + "games/" + gameId1 + "/actions?token=" + userAuthenticationWrapper1.getUserToken(), shootlResponseDTO, Long.class);
 

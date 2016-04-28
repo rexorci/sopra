@@ -80,7 +80,7 @@ public class ActionResponseService {
     }
 
     public void processResponse(DrawCardResponseDTO dcr) {
-        User user = userRepo.findOne(dcr.getUserID());
+        User user = userRepo.findOne(dcr.getUserId());
         Game game = gameRepo.findOne(dcr.getSpielId());
         PlayerDeck<HandCard> hiddenDeck = (PlayerDeck<HandCard>) deckRepo.findOne(user.getHiddenDeck().getId());
         PlayerDeck<HandCard> handDeck = (PlayerDeck<HandCard>) deckRepo.findOne(user.getHandDeck().getId());
@@ -101,9 +101,9 @@ public class ActionResponseService {
 
     public void processResponse(PlayCardResponseDTO pcr) {
         Game game = gameRepo.findOne(pcr.getSpielId());
-        User user = userRepo.findOne(pcr.getUserID());
+        User user = userRepo.findOne(pcr.getUserId());
 
-        ActionCard ac = (ActionCard) cardRepo.findOne(pcr.getPlayedCard().getId());
+        ActionCard ac = (ActionCard) cardRepo.findOne(pcr.getPlayedCardId());
         PlayerDeck<HandCard> handDeck = user.getHandDeck();
         handDeck.removeById(ac.getId());
 
@@ -124,9 +124,9 @@ public class ActionResponseService {
     }
 
     public void processResponse(MoveResponseDTO mr) {
-        User user = userRepo.findOne(mr.getUserID());
+        User user = userRepo.findOne(mr.getUserId());
 
-        WagonLevel newWl = wagonLevelRepo.findOne(mr.getWagonLevelID());
+        WagonLevel newWl = wagonLevelRepo.findOne(mr.getWagonLevelId());
         WagonLevel oldWl = wagonLevelRepo.findOne(user.getWagonLevel().getId());
 
         oldWl.removeUserById(user.getId());
@@ -143,7 +143,7 @@ public class ActionResponseService {
     }
 
     public void processResponse(CollectItemResponseDTO cir) {
-        User user = userRepo.findOne(cir.getUserID());
+        User user = userRepo.findOne(cir.getUserId());
 
         WagonLevel wl = wagonLevelRepo.findOne(user.getWagonLevel().getId());
         Item item = getRandomItem(cir.getCollectedItemType(), wl);
@@ -162,11 +162,11 @@ public class ActionResponseService {
     }
 
     public void processResponse(PunchResponseDTO pr) {
-        User user = userRepo.findOne(pr.getUserID());
+        User user = userRepo.findOne(pr.getUserId());
         Game game = gameRepo.findOne(pr.getSpielId());
 
-        User victim = userRepo.findOne(pr.getVictimID());
-        WagonLevel moveWl = wagonLevelRepo.findOne(pr.getWagonLevelID());
+        User victim = userRepo.findOne(pr.getVictimId());
+        WagonLevel moveWl = wagonLevelRepo.findOne(pr.getWagonLevelId());
         WagonLevel dropWl = wagonLevelRepo.findOne(victim.getWagonLevel().getId());
         Item item = getRandomItem(pr.getItemType(), victim);
 
@@ -205,10 +205,10 @@ public class ActionResponseService {
     }
 
     public void processResponse(ShootResponseDTO sr) {
-        User user = userRepo.findOne(sr.getUserID());
+        User user = userRepo.findOne(sr.getUserId());
 
         if (user.getBulletsDeck().size() > 0) {
-            User victim = userRepo.findOne(sr.getVictimID());
+            User victim = userRepo.findOne(sr.getVictimId());
             PlayerDeck<BulletCard> bulletCardDeck = user.getBulletsDeck();
             PlayerDeck<HandCard> hiddenDeck = victim.getHiddenDeck();
             BulletCard bc = (BulletCard) bulletCardDeck.remove(user.getBulletsDeck().size() - 1);
@@ -248,7 +248,7 @@ public class ActionResponseService {
 
         Marshal marshal = marshalRepo.findOne(game.getMarshal().getId());
         WagonLevel wl = wagonLevelRepo.findOne(marshal.getWagonLevel().getId());
-        WagonLevel newWl = wagonLevelRepo.findOne(mmr.getWagonLevelID());
+        WagonLevel newWl = wagonLevelRepo.findOne(mmr.getWagonLevelId());
 
         wl.setMarshal(null);
         newWl.setMarshal(marshal);

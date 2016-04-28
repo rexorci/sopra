@@ -279,8 +279,8 @@ public class GameLogicServiceTest {
         User user = userRepo.findOne(tester.getUsers().get(tester.getCurrentPlayer()).getId());
         PlayCardResponseDTO pc = new PlayCardResponseDTO();
         pc.setSpielId(tester.getId());
-        pc.setUserID(user.getId());
-        pc.setPlayedCard((ActionCard) user.getHandDeck().get(0));
+        pc.setUserId(user.getId());
+        pc.setPlayedCardId(user.getHandDeck().get(0).getId());
         ars.processResponse(pc);
         gls.update(tester.getId());
     }

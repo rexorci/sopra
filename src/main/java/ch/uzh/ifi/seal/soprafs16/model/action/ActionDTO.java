@@ -30,6 +30,16 @@ public class ActionDTO implements Serializable {
     @GeneratedValue
     private Long id;
 
+    private Long userId;
+
+    public void setUserId(Long userID) {
+        this.userId = userID;
+    }
+
+    public Long getUserId() {
+        return userId;
+    }
+
     @Column
     private Long spielId;
 

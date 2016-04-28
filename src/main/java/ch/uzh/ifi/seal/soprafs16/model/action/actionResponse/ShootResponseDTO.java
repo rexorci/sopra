@@ -17,13 +17,13 @@ public class ShootResponseDTO extends ActionResponseDTO implements Serializable 
 
     private static final long serialVersionUID = 1L;
 
-    private Long victimID;
+    private Long victimId;
 
-    public Long getVictimID() {
-        return victimID;
+    public Long getVictimId() {
+        return victimId;
     }
 
-    public void setVictimID(Long victimID) {
-        this.victimID = victimID;
+    public void setVictimId(Long victimId) {
+        this.victimId = victimId;
     }
 }

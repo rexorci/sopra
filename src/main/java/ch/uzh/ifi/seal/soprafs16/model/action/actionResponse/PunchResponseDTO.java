@@ -18,28 +18,28 @@ public class PunchResponseDTO extends ActionResponseDTO implements Serializable 
 
     private static final long serialVersionUID = 1L;
 
-    private Long victimID;
-    private Long wagonLevelID;
+    private Long victimId;
+    private Long wagonLevelId;
     private ItemType itemType;
 
     public ItemType getItemType() {
         return itemType;
     }
 
-    public Long getWagonLevelID() {
-        return wagonLevelID;
+    public Long getWagonLevelId() {
+        return wagonLevelId;
     }
 
-    public Long getVictimID() {
-        return victimID;
+    public Long getVictimId() {
+        return victimId;
     }
 
-    public void setVictimID(Long victimID) {
-        this.victimID = victimID;
+    public void setVictimId(Long victimId) {
+        this.victimId = victimId;
     }
 
-    public void setWagonLevelID(Long wagonLevelID) {
-        this.wagonLevelID = wagonLevelID;
+    public void setWagonLevelId(Long wagonLevelId) {
+        this.wagonLevelId = wagonLevelId;
     }
 
     public void setItemType(ItemType itemType) {

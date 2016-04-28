@@ -37,14 +37,4 @@ import ch.uzh.ifi.seal.soprafs16.model.action.actionResponse.ShootResponseDTO;
 public class ActionResponseDTO extends ActionDTO implements Serializable {
 
     private static final long serialVersionUID = 1L;
-
-    private Long userID;
-
-    public void setUserID(Long userID) {
-        this.userID = userID;
-    }
-
-    public Long getUserID() {
-        return userID;
-    }
 }

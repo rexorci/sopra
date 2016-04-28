@@ -17,13 +17,13 @@ public class MoveMarshalResponseDTO extends ActionResponseDTO implements Seriali
 
     private static final long serialVersionUID = 1L;
 
-    private Long wagonLevelID;
+    private Long wagonLevelId;
 
-    public void setWagonLevelID(Long wagonLevelID) {
-        this.wagonLevelID = wagonLevelID;
+    public void setWagonLevelId(Long wagonLevelId) {
+        this.wagonLevelId = wagonLevelId;
     }
 
-    public Long getWagonLevelID() {
-        return wagonLevelID;
+    public Long getWagonLevelId() {
+        return wagonLevelId;
     }
 }

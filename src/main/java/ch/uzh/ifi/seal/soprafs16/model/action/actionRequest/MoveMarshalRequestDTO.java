@@ -22,8 +22,6 @@ public class MoveMarshalRequestDTO extends ActionRequestDTO implements Serializa
     @ElementCollection
     private List<Long> movableWagonsLvlIds;
 
-    //private long gameId;
-
     public MoveMarshalRequestDTO()
     {
         this.movableWagonsLvlIds = new ArrayList<Long>();
@@ -36,12 +34,4 @@ public class MoveMarshalRequestDTO extends ActionRequestDTO implements Serializa
     public void setMovableWagonsLvlIds(List<Long> movableWagonsLvlIds) {
         this.movableWagonsLvlIds = movableWagonsLvlIds;
     }
-//
-//    public long getSpielId() {
-//        return gameId;
-//    }
-//
-//    public void setSpielId(long gameId) {
-//        this.gameId = gameId;
-//    }
 }

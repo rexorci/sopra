@@ -152,7 +152,7 @@ public class ActionResponseServiceTest {
         assertEquals(6, handDeck.size());
 
         DrawCardResponseDTO dcr = new DrawCardResponseDTO();
-        dcr.setUserID(user.getId());
+        dcr.setUserId(user.getId());
         dcr.setSpielId(gameId);
         ars.processResponse(dcr);
 
@@ -176,7 +176,7 @@ public class ActionResponseServiceTest {
         assertEquals(6, handDeck.size());
 
         DrawCardResponseDTO dcr = new DrawCardResponseDTO();
-        dcr.setUserID(user.getId());
+        dcr.setUserId(user.getId());
         dcr.setSpielId(gameId);
         ars.processResponse(dcr);
         ars.processResponse(dcr);
@@ -199,9 +199,9 @@ public class ActionResponseServiceTest {
         ActionCard ac = (ActionCard)cardRepo.findOne(handDeck.get(0).getId());
 
         PlayCardResponseDTO pcr = new PlayCardResponseDTO();
-        pcr.setUserID(user.getId());
+        pcr.setUserId(user.getId());
         pcr.setSpielId(game.getId());
-        pcr.setPlayedCard(ac);
+        pcr.setPlayedCardId(ac.getId());
 
         ars.processResponse(pcr);
 
@@ -220,9 +220,9 @@ public class ActionResponseServiceTest {
         WagonLevel wl = wagonLevelRepo.findOne(user.getWagonLevel().getId());
 
         MoveResponseDTO mr = new MoveResponseDTO();
-        mr.setUserID(user.getId());
+        mr.setUserId(user.getId());
         mr.setSpielId(game.getId());
-        mr.setWagonLevelID(wl.getWagonLevelBefore().getId());
+        mr.setWagonLevelId(wl.getWagonLevelBefore().getId());
 
         ars.processResponse(mr);
 
@@ -240,7 +240,7 @@ public class ActionResponseServiceTest {
         WagonLevel wl = wagonLevelRepo.findOne(user.getWagonLevel().getId());
 
         CollectItemResponseDTO cir = new CollectItemResponseDTO();
-        cir.setUserID(user.getId());
+        cir.setUserId(user.getId());
         cir.setSpielId(game.getId());
         cir.setCollectedItemType(wl.getItems().get(0).getItemType());
 
@@ -271,11 +271,11 @@ public class ActionResponseServiceTest {
         int wlItemCount = wl.getItems().size();
 
         PunchResponseDTO pr = new PunchResponseDTO();
-        pr.setVictimID(victim.getId());
+        pr.setVictimId(victim.getId());
         pr.setItemType(ItemType.BAG);
-        pr.setWagonLevelID(newWl.getId());
+        pr.setWagonLevelId(newWl.getId());
         pr.setSpielId(gameId);
-        pr.setUserID(user.getId());
+        pr.setUserId(user.getId());
 
         ars.processResponse(pr);
 
@@ -304,8 +304,8 @@ public class ActionResponseServiceTest {
 
         ShootResponseDTO sr = new ShootResponseDTO();
         sr.setSpielId(game.getId());
-        sr.setUserID(user.getId());
-        sr.setVictimID(victim.getId());
+        sr.setUserId(user.getId());
+        sr.setVictimId(victim.getId());
 
         ars.processResponse(sr);
 
@@ -329,8 +329,8 @@ public class ActionResponseServiceTest {
 
         MoveMarshalResponseDTO mmr = new MoveMarshalResponseDTO();
         mmr.setSpielId(game.getId());
-        mmr.setUserID(user.getId());
-        mmr.setWagonLevelID(newWl.getId());
+        mmr.setUserId(user.getId());
+        mmr.setWagonLevelId(newWl.getId());
 
         ars.processResponse(mmr);
 
@@ -377,11 +377,11 @@ public class ActionResponseServiceTest {
         int wlItemCount = wl.getItems().size();
 
         PunchResponseDTO pr = new PunchResponseDTO();
-        pr.setVictimID(victim.getId());
+        pr.setVictimId(victim.getId());
         pr.setItemType(ItemType.BAG);
-        pr.setWagonLevelID(newWl.getId());
+        pr.setWagonLevelId(newWl.getId());
         pr.setSpielId(gameId);
-        pr.setUserID(user.getId());
+        pr.setUserId(user.getId());
 
         ars.processResponse(pr);
 

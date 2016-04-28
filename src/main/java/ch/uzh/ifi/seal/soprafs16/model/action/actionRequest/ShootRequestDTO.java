@@ -21,8 +21,8 @@ public class ShootRequestDTO extends ActionRequestDTO implements Serializable {
     private List<Long> shootableUserIds;
 //    private Long gameId;
 
-    @Column
-    private Long userId;
+//    @Column
+//    private Long userId;
 
     public ShootRequestDTO()
     {
@@ -44,11 +44,11 @@ public class ShootRequestDTO extends ActionRequestDTO implements Serializable {
 //        this.gameId = gameId;
 //    }
 
-    public long getUserId() {
-        return userId;
-    }
-
-    public void setUserId(long userId) {
-        this.userId = userId;
-    }
+//    public long getUserId() {
+//        return userId;
+//    }
+//
+//    public void setUserId(long userId) {
+//        this.userId = userId;
+//    }
 }

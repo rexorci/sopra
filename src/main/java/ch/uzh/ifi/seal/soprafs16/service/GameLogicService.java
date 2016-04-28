@@ -48,6 +48,8 @@ import ch.uzh.ifi.seal.soprafs16.model.cards.roundCards.PassengerRebellionCard;
 import ch.uzh.ifi.seal.soprafs16.model.cards.roundCards.PickPocketingCard;
 import ch.uzh.ifi.seal.soprafs16.model.cards.roundCards.PivotablePoleCard;
 import ch.uzh.ifi.seal.soprafs16.model.cards.roundCards.RoundCard;
+import ch.uzh.ifi.seal.soprafs16.model.characters.Belle;
+import ch.uzh.ifi.seal.soprafs16.model.characters.Django;
 import ch.uzh.ifi.seal.soprafs16.model.characters.Doc;
 import ch.uzh.ifi.seal.soprafs16.model.repositories.ActionRepository;
 import ch.uzh.ifi.seal.soprafs16.model.repositories.CardRepository;
@@ -588,7 +590,7 @@ public class GameLogicService extends GenericService {
             {
                 for(int i = 0; i < userList.size(); i++)
                 {
-                    if(userList.get(i).getCharacterType() =="Belle")
+                    if(userList.get(i).getCharacter() instanceof Belle)
                     {
                         userList.remove(i);
                     }
@@ -620,7 +622,7 @@ public class GameLogicService extends GenericService {
                     getShootableUsersBeforeR(user, shootable, wagonLevel.getWagonLevelBefore());
 
                 }
-                if (user.getCharacterType() == "Django")
+                if (user.getCharacter() instanceof Django)
                 {
                     getShootableUsersBeforeR(user, shootable, wagonLevel.getWagonLevelBefore());
                 }
@@ -639,7 +641,7 @@ public class GameLogicService extends GenericService {
                     getShootableUsersAfterR(user, shootable, wagonLevel.getWagonLevelAfter());
 
                 }
-                if (user.getCharacterType() == "Django")
+                if (user.getCharacter() instanceof  Django)
                 {
                     getShootableUsersAfterR(user, shootable, wagonLevel.getWagonLevelAfter());
                 }
@@ -655,7 +657,7 @@ public class GameLogicService extends GenericService {
                 {
                     shootable.add(wagonLevel.getWagonLevelBefore().getUsers().get(i));
                 }
-                if (user.getCharacterType() =="Django" && shootable.isEmpty())
+                if (user.getCharacter() instanceof Django && shootable.isEmpty())
                 {
                     getShootableUsersBeforeB(user, shootable, wagonLevel.getWagonLevelBefore());
                 }
@@ -672,7 +674,7 @@ public class GameLogicService extends GenericService {
                 {
                     shootable.add(wagonLevel.getWagonLevelAfter().getUsers().get(i));
                 }
-                if(shootable.isEmpty() && user.getCharacterType() =="Django")
+                if(shootable.isEmpty() && user.getCharacter() instanceof Django)
                 {
                     getShootableUsersAfterB(user, shootable, wagonLevel.getWagonLevelAfter());
                 }
@@ -828,7 +830,7 @@ public class GameLogicService extends GenericService {
             {
                 for(int i = 0; i < userList.size(); i++)
                 {
-                    if(userList.get(i).getCharacterType()== ("Belle"))
+                    if(userList.get(i).getCharacter()instanceof  Belle)
                     {
                         userList.remove(i);
                     }
@@ -905,4 +907,3 @@ public class GameLogicService extends GenericService {
 }
 
 
-}

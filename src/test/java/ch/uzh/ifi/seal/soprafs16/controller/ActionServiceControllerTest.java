@@ -48,6 +48,9 @@ import ch.uzh.ifi.seal.soprafs16.model.cards.handCards.MarshalCard;
 import ch.uzh.ifi.seal.soprafs16.model.cards.handCards.MoveCard;
 import ch.uzh.ifi.seal.soprafs16.model.cards.handCards.PunchCard;
 import ch.uzh.ifi.seal.soprafs16.model.cards.handCards.ShootCard;
+import ch.uzh.ifi.seal.soprafs16.model.characters.Belle;
+import ch.uzh.ifi.seal.soprafs16.model.characters.Cheyenne;
+import ch.uzh.ifi.seal.soprafs16.model.characters.Django;
 import ch.uzh.ifi.seal.soprafs16.model.repositories.CardRepository;
 import ch.uzh.ifi.seal.soprafs16.model.repositories.CharacterRepository;
 import ch.uzh.ifi.seal.soprafs16.model.repositories.DeckRepository;
@@ -177,7 +180,7 @@ public class ActionServiceControllerTest {
         userRepo.save(user3);
         user3.setGame(game1);
         game1.getUsers().add(user3);
-        user3.setCharacterType("Django");
+        user3.setCharacter(new Django());
 
 
         User user4 = new User();
@@ -186,7 +189,7 @@ public class ActionServiceControllerTest {
         user4.setToken("t4" + i);
         user4.setStatus(UserStatus.ONLINE);
         user4.setItems(new ArrayList<Item>());
-        user4.setCharacterType("Django");
+        user4.setCharacter(new Django());
         userRepo.save(user4);
         user4.setGame(game1);
         game1.getUsers().add(user4);
@@ -210,7 +213,7 @@ public class ActionServiceControllerTest {
         user6.setToken("t6" + i);
         user6.setStatus(UserStatus.ONLINE);
         user6.setItems(new ArrayList<Item>());
-        user6.setCharacterType("Cheyenne");
+        user6.setCharacter(new Cheyenne());
         userRepo.save(user6);
         user6.setGame(game1);
         game1.getUsers().add(user6);
@@ -222,7 +225,7 @@ public class ActionServiceControllerTest {
         user7.setToken("t7" + i);
         user7.setStatus(UserStatus.ONLINE);
         user7.setItems(new ArrayList<Item>());
-        user7.setCharacterType("Belle");
+        user7.setCharacter(new Belle());
         userRepo.save(user7);
         user7.setGame(game1);
         game1.getUsers().add(user7);
@@ -234,7 +237,7 @@ public class ActionServiceControllerTest {
         user8.setUsername("username8_" + i);
         user8.setToken("t8" + i);
         user8.setStatus(UserStatus.ONLINE);
-        user8.setCharacterType("Cheyenne");
+        user8.setCharacter(new Cheyenne());
         user8.setItems(new ArrayList<Item>());
         userRepo.save(user8);
         user8.setGame(game1);

@@ -152,9 +152,9 @@ public class User implements Serializable {
 //        return characterType;
 //    }
 
-    public void setCharacterType(String characterType) {
-        this.characterType = characterType;
-    }
+//    public void setCharacterType(String characterType) {
+//        this.characterType = characterType;
+//    }
 
     public PlayerDeck<HandCard> getHandDeck() {
         return handDeck;

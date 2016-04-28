@@ -39,7 +39,15 @@ public class ActionRequestDTO extends ActionDTO implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
+    private Long userID;
 
+    public void setUserId(Long userID) {
+        this.userID = userID;
+    }
+
+    public Long getUserId() {
+        return userID;
+    }
 
     @ManyToOne
     @JsonIgnore

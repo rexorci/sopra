@@ -22,8 +22,8 @@ public class MoveRequestDTO extends ActionRequestDTO implements Serializable {
 
 //    private long gameId;
 
-    @Column
-    private long userId;
+//    @Column
+//    private long userId;
 
     public MoveRequestDTO()
     {
@@ -46,11 +46,11 @@ public class MoveRequestDTO extends ActionRequestDTO implements Serializable {
 //        this.gameId = gameId;
 //    }
 
-    public long getUserId() {
-        return userId;
-    }
-
-    public void setUserId(long userId) {
-        this.userId = userId;
-    }
+//    public long getUserId() {
+//        return userId;
+//    }
+//
+//    public void setUserId(long userId) {
+//        this.userId = userId;
+//    }
 }

@@ -24,8 +24,8 @@ public class CollectItemRequestDTO extends ActionRequestDTO implements Serializa
     private List<Long> collectableItemIds;
 
 
-    @Column
-    private Long userId;
+//    @Column
+//    private Long userId;
 
     @Column
     private Boolean hasCase;
@@ -49,13 +49,13 @@ public class CollectItemRequestDTO extends ActionRequestDTO implements Serializa
     }
 
 
-    public long getUserId() {
-        return userId;
-    }
-
-    public void setUserId(long userId) {
-        this.userId = userId;
-    }
+//    public long getUserId() {
+//        return userId;
+//    }
+//
+//    public void setUserId(long userId) {
+//        this.userId = userId;
+//    }
 
     public Boolean getHasCase() {
         return hasCase;

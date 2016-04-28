@@ -532,7 +532,7 @@ public class ActionServiceControllerTest {
 
         ShootCard sc = new ShootCard();
 
-        ActionRequestDTO test =gls.createActionRequest(sc, gameId, user1.getId());
+        ActionRequestDTO test = gls.createActionRequest(sc, gameId, user1.getId());
         if (test instanceof ShootRequestDTO) {
             ShootRequestDTO srq = (ShootRequestDTO) test;
             assertEquals(2, srq.getShootableUserIds().size());
@@ -541,33 +541,30 @@ public class ActionServiceControllerTest {
 
 
     }
+
     @Test
-    public void processRequest_ShootableIsCorrect_Django_Roof()
-    {
+    public void processRequest_ShootableIsCorrect_Django_Roof() {
         Game game = gameRepo.findOne(gameId);
         User user1 = userRepo.findOne(game.getUsers().get(3).getId());
 
         ShootCard sc = new ShootCard();
 
         ActionRequestDTO test = gls.createActionRequest(sc, gameId, user1.getId());
-        if (test instanceof ShootRequestDTO)
-        {
+        if (test instanceof ShootRequestDTO) {
             ShootRequestDTO srq = (ShootRequestDTO) test;
             assertEquals(5, srq.getShootableUserIds().size());
         }
     }
 
     @Test
-    public void processRequest_ShootableIsCorrect_Django_Bottom()
-    {
+    public void processRequest_ShootableIsCorrect_Django_Bottom() {
         Game game = gameRepo.findOne(gameId);
         User user1 = userRepo.findOne(game.getUsers().get(2).getId());
 
         ShootCard sc = new ShootCard();
 
         ActionRequestDTO test = gls.createActionRequest(sc, gameId, user1.getId());
-        if (test instanceof ShootRequestDTO)
-        {
+        if (test instanceof ShootRequestDTO) {
             ShootRequestDTO srq = (ShootRequestDTO) test;
             assertEquals(3, srq.getShootableUserIds().size());
         }
@@ -633,16 +630,15 @@ public class ActionServiceControllerTest {
         }
 
     }
+
     @Test
-    public void processRequest_MarshalIsCorrect()
-    {
+    public void processRequest_MarshalIsCorrect() {
         Game game = gameRepo.findOne(gameId);
         Marshal marshal = marshalRepo.findOne(game.getMarshal().getId());
 
         MarshalCard mc = new MarshalCard();
         ActionRequestDTO test = gls.createActionRequest(mc, gameId, marshal.getId());
-        if (test instanceof MoveMarshalRequestDTO)
-        {
+        if (test instanceof MoveMarshalRequestDTO) {
             MoveMarshalRequestDTO mmrq = (MoveMarshalRequestDTO) test;
             assertEquals(1, mmrq.getMovableWagonsLvlIds().size());
         }

@@ -347,8 +347,8 @@ public class GameServiceController extends GenericService {
         }
     }
 
-    //games/{gameId}/action - GET
-    @RequestMapping(value = CONTEXT + "/{gameId}/action")
+    //games/{gameId}/actions - GET
+    @RequestMapping(value = CONTEXT + "/{gameId}/actions")
     @ResponseStatus(HttpStatus.OK)
     public ActionRequestDTO getActionRequest(@PathVariable Long gameId)
     {
@@ -359,6 +359,6 @@ public class GameServiceController extends GenericService {
         int i = 0;
         return actionRequest;
     }
-    //games/{gameId}/action - POST
+    //games/{gameId}/actions - POST
 
 }

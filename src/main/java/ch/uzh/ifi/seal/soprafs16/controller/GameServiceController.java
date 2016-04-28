@@ -147,32 +147,6 @@ public class GameServiceController extends GenericService {
         return game;
     }
 
-//    //games/{game-id} - DELETE
-//    @RequestMapping(value = CONTEXT + "/{gameId}", method = RequestMethod.DELETE)
-//    @ResponseStatus(HttpStatus.OK)
-//    public Long deleteGame(@PathVariable Long gameId, @RequestParam("token") String userToken) {
-//        logger.debug("deleteGame: " + gameId);
-//        Game game = gameRepo.findOne(gameId);
-//        User user = userRepo.findByToken(userToken);
-//        if (game != null && user != null) {
-//            String ownerString = game.getOwner();
-//            if (user.getName().equals(game.getOwner())) {
-//                for (User u : game.getUsers()) {
-//                    u.setGame(null);
-//                    userRepo.save(u);
-//                }
-//                gameRepo.delete(game);
-//                return gameId;
-//            } else {
-//                logger.debug("deleteGame: game " + gameId + " - user is not owner of game");
-//                return null;
-//            }
-//        } else {
-//            logger.debug("deleteGame: game " + gameId + " - user or game is null");
-//            return null;
-//        }
-//    }
-
     //games/{game-id}/start - POST
     @RequestMapping(value = CONTEXT + "/{gameId}/start", method = RequestMethod.POST)
     @ResponseStatus(HttpStatus.OK)
@@ -353,11 +327,8 @@ public class GameServiceController extends GenericService {
     public ActionRequestDTO getActionRequest(@PathVariable Long gameId)
     {
         Game game = gameRepo.findOne(gameId);
-        int size = game.getActions().size();
-        ActionRequestDTO actionRequest = game.getActions().get(size-1);
-        actionRepo.save(actionRequest);
-        int i = 0;
-        return actionRequest;
+        Long id = game.getActions().get(game.getActions().size()-1).getId();
+        return actionRepo.findOne(id);
     }
     //games/{gameId}/actions - POST
 

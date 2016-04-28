@@ -97,17 +97,12 @@ public class GameLogicService extends GenericService {
     //endregion
 
     public void update(Long id) {
-       //if (!gameRepo.exists(id)) return;
-
         Game game = gameRepo.findOne(id);
 
         Hibernate.initialize(game.getUsers());
-        int currentPlayer = game.getCurrentPlayer();
-        List<User> users = game.getUsers();
-
         setPhase(game);
 
-        if(game.getStatus() == GameStatus.FINISHED) return;
+        if (game.getStatus() == GameStatus.FINISHED) return;
 
         if (game.getCurrentPhase() == PhaseType.PLANNING) {
             if (game.getActionRequestCounter() > 0) {
@@ -128,7 +123,7 @@ public class GameLogicService extends GenericService {
 
     private void setPhase(Game game) {
         if (game.getCurrentPhase() == PhaseType.EXECUTION && game.getCommonDeck().size() == 0) {
-            if(!endRound(game)) game.setCurrentPhase(PhaseType.PLANNING);
+            if (!endRound(game)) game.setCurrentPhase(PhaseType.PLANNING);
         } else if (game.getCurrentPhase() == PhaseType.PLANNING && game.getActionRequestCounter() == calculatePlanningARcounter(game)) {
             game.setCurrentPhase(PhaseType.EXECUTION);
         }
@@ -143,8 +138,9 @@ public class GameLogicService extends GenericService {
         ac.setDeck(hiddenDeck);
         hiddenDeck.getCards().add(ac);
 
-        for(int i = 0; i < game.getUsers().size(); i++){
-            if(game.getUsers().get(i).getId().equals(ac.getPlayedByUserId())) game.setCurrentPlayer(i);
+        for (int i = 0; i < game.getUsers().size(); i++) {
+            if (game.getUsers().get(i).getId().equals(ac.getPlayedByUserId()))
+                game.setCurrentPlayer(i);
         }
 
         cardRepo.save(ac);
@@ -200,7 +196,7 @@ public class GameLogicService extends GenericService {
                 || (game.getCurrentTurnType() instanceof SpeedupTurn && game.getActionRequestCounter() == (game.getCurrentTurn() + 2) * playerCounter)) {
             game.setCurrentTurn(game.getCurrentTurn() + 1);
             if (game.getCurrentTurn() < ((RoundCard) (game.getRoundCardDeck().get(
-                    (game.getCurrentRound())))).getPattern().size()
+                    game.getCurrentRound()))).getPattern().size()
                     && game.getCurrentTurnType() instanceof ReverseTurn) {
                 game.setCurrentPlayer(game.getRoundStarter() + 1); // correction
             }
@@ -224,26 +220,23 @@ public class GameLogicService extends GenericService {
         }
     }
 
-    private void createDOPCRequestDTO(Game game, int currentplayer) {
+    private void createDOPCRequestDTO(Game game) {
         logger.debug("DOPCrequest created");
+        int currentplayer = game.getCurrentPlayer();
         DrawOrPlayCardRequestDTO doprq = new DrawOrPlayCardRequestDTO();
         int size = game.getUsers().get(currentplayer).getHandDeck().size();
-        for(int i = 0; i<size; i++)
-        {
-            if(game.getUsers().get(currentplayer).getHandDeck().get(i).getClass() != BulletCard.class)
-            {
+        for (int i = 0; i < size; i++) {
+            if (game.getUsers().get(currentplayer).getHandDeck().get(i).getClass() != BulletCard.class) {
                 doprq.getPlayableCardsId().add(game.getUsers().get(currentplayer).getHandDeck().get(i).getId());
             }
         }
 
-        game.getActions().add(doprq);
         doprq.setSpielId(game.getId());
-        Card c = new Card();
-        c.setDeck(game.getCommonDeck());
-        cardRepo.save(c);
-        game.getCommonDeck().add(c);
-        deckRepo.save(game.getCommonDeck());
+        doprq.setUserId(game.getUsers().get(currentplayer).getId());
+        doprq = actionRepo.save(doprq);
+        game.getActions().add(doprq);
 
+        gameRepo.save(game);
     }
 
     private void resetPlayerDecks(Game game) {
@@ -267,7 +260,7 @@ public class GameLogicService extends GenericService {
 
             for (int i = 0; i < 6; i++) {
                 HandCard hc = (HandCard) hiddenDeck.remove((int) (Math.random() * hiddenDeck.size()));
-                hc = (HandCard)cardRepo.findOne(hc.getId());
+                hc = (HandCard) cardRepo.findOne(hc.getId());
                 hc.setDeck(handDeck);
                 handDeck.add(hc);
 
@@ -290,14 +283,7 @@ public class GameLogicService extends GenericService {
         }
     }
 
-    private void createDOPCRequestDTO(Game game) {
-        // TODO
-        // This is a function that simulates an actionResponse
-        // will be changed to an actual createDOPCrequestdto function
-    }
-
-    public ActionRequestDTO createActionRequest(ActionCard actioncard, Long gameId, Long userId)
-    {
+    public ActionRequestDTO createActionRequest(ActionCard actioncard, Long gameId, Long userId) {
         ActionRequestHelper arh = new ActionRequestHelper();
         return arh.execute(actioncard, gameId, userId);
     }
@@ -350,7 +336,7 @@ public class GameLogicService extends GenericService {
 
             deckRepo.save(neutralBulletsDeck);
 
-            if(wl.getWagonLevelAfter() != null){
+            if (wl.getWagonLevelAfter() != null) {
                 WagonLevel wlAfter = wagonLevelRepo.findOne(wl.getWagonLevelAfter().getId());
                 wl.setMarshal(null);
                 marshal.setWagonLevel(wlAfter);
@@ -404,7 +390,7 @@ public class GameLogicService extends GenericService {
             WagonLevel locTop = wagonLevelRepo.findOne(game.getWagons().get(0).getTopLevel().getId());
             WagonLevel locBottom = wagonLevelRepo.findOne(game.getWagons().get(0).getBottomLevel().getId());
 
-            for(User u: locTop.getUsers()){
+            for (User u : locTop.getUsers()) {
                 Item bag = new Item();
                 bag.setValue(250);
                 bag.setUser(u);
@@ -416,7 +402,7 @@ public class GameLogicService extends GenericService {
                 userRepo.save(u);
             }
 
-            for(User u: locBottom.getUsers()){
+            for (User u : locBottom.getUsers()) {
                 Item bag = new Item();
                 bag.setValue(250);
                 bag.setUser(u);
@@ -551,64 +537,50 @@ public class GameLogicService extends GenericService {
         }
     }
 
-    private class ActionRequestHelper
-    {
-        private ActionRequestDTO execute(ActionCard ac, Long gameId, Long userId)
-        {
-            if (ac instanceof CollectCard)
-            {
+    private class ActionRequestHelper {
+        private ActionRequestDTO execute(ActionCard ac, Long gameId, Long userId) {
+            if (ac instanceof CollectCard) {
                 return generateCollectRequest(gameId, userId);
             }
-            if (ac instanceof PunchCard)
-            {
+            if (ac instanceof PunchCard) {
                 return generatePunchRequest(gameId, userId);
             }
-            if (ac instanceof MoveCard)
-            {
+            if (ac instanceof MoveCard) {
                 return generateMoveRequest(gameId, userId);
             }
-            if (ac instanceof ShootCard)
-            {
+            if (ac instanceof ShootCard) {
                 return generateShootRequest(gameId, userId);
             }
 
-            if (ac instanceof MarshalCard)
-            {
-                return generateMoveMarshalRequest(gameId,userId);
+            if (ac instanceof MarshalCard) {
+                return generateMoveMarshalRequest(gameId, userId);
             }
             return null;
 
         }
 
-        public ShootRequestDTO generateShootRequest(Long gameId,Long userId )
-        {
+        public ShootRequestDTO generateShootRequest(Long gameId, Long userId) {
             Game game = gameRepo.findOne(gameId);
             User user = userRepo.findOne(userId);
             ShootRequestDTO srq = new ShootRequestDTO();
             List<User> userList = new ArrayList<User>();
             srq.setShootableUserIds(new ArrayList<Long>());
-            if(user.getWagonLevel().getLevelType() == LevelType.TOP)
-            {
+            if (user.getWagonLevel().getLevelType() == LevelType.TOP) {
                 getShootableUsersBeforeR(user, userList, user.getWagonLevel());
                 getShootableUsersAfterR(user, userList, user.getWagonLevel());
             }
-            if(user.getWagonLevel().getLevelType() == LevelType.BOTTOM)
-            {
+            if (user.getWagonLevel().getLevelType() == LevelType.BOTTOM) {
                 getShootableUsersBeforeB(user, userList, user.getWagonLevel());
                 getShootableUsersAfterB(user, userList, user.getWagonLevel());
             }
-            if(userList.size()>= 2)
-            {
-                for(int i = 0; i < userList.size(); i++)
-                {
-                    if(userList.get(i).getCharacter() instanceof Belle)
-                    {
+            if (userList.size() >= 2) {
+                for (int i = 0; i < userList.size(); i++) {
+                    if (userList.get(i).getCharacter() instanceof Belle) {
                         userList.remove(i);
                     }
                 }
             }
-            for(int i = 0; i<userList.size(); i++)
-            {
+            for (int i = 0; i < userList.size(); i++) {
                 srq.getShootableUserIds().add(userList.get(i).getId());
             }
             srq.setSpielId(game.getId());
@@ -620,78 +592,64 @@ public class GameLogicService extends GenericService {
             return srq;
         }
 
-        public void getShootableUsersBeforeR(User user, List<User> shootable, WagonLevel wagonLevel)
-        {
-            if( wagonLevel.getWagonLevelBefore() != null)
-            {
+        public void getShootableUsersBeforeR(User user, List<User> shootable, WagonLevel wagonLevel) {
+            if (wagonLevel.getWagonLevelBefore() != null) {
                 int size = wagonLevel.getWagonLevelBefore().getUsers().size();
-                for(int i = 0; i< size; i++)
-                {
+                for (int i = 0; i < size; i++) {
                     shootable.add(wagonLevel.getWagonLevelBefore().getUsers().get(i));
                 }
-                if (shootable.size() == 0){
+                if (shootable.size() == 0) {
                     getShootableUsersBeforeR(user, shootable, wagonLevel.getWagonLevelBefore());
 
                 }
-                if (user.getCharacter() instanceof Django)
-                {
+                if (user.getCharacter() instanceof Django) {
                     getShootableUsersBeforeR(user, shootable, wagonLevel.getWagonLevelBefore());
                 }
             }
         }
-        public void getShootableUsersAfterR(User user, List<User> shootable, WagonLevel wagonLevel)
-        {
-            if(wagonLevel.getWagonLevelAfter() != null)
-            {
+
+        public void getShootableUsersAfterR(User user, List<User> shootable, WagonLevel wagonLevel) {
+            if (wagonLevel.getWagonLevelAfter() != null) {
                 int size = wagonLevel.getWagonLevelAfter().getUsers().size();
-                for(int i = 0; i < size; i++)
-                {
+                for (int i = 0; i < size; i++) {
                     shootable.add(wagonLevel.getWagonLevelAfter().getUsers().get(i));
                 }
-                if (shootable.size() == 0){
+                if (shootable.size() == 0) {
                     getShootableUsersAfterR(user, shootable, wagonLevel.getWagonLevelAfter());
 
                 }
-                if (user.getCharacter() instanceof  Django)
-                {
+                if (user.getCharacter() instanceof Django) {
                     getShootableUsersAfterR(user, shootable, wagonLevel.getWagonLevelAfter());
                 }
             }
         }
 
-        public void getShootableUsersBeforeB(User user, List<User> shootable, WagonLevel wagonLevel)
-        {
-            if (wagonLevel.getWagonLevelBefore()!= null)
-            {
+        public void getShootableUsersBeforeB(User user, List<User> shootable, WagonLevel wagonLevel) {
+            if (wagonLevel.getWagonLevelBefore() != null) {
                 int size = wagonLevel.getWagonLevelBefore().getUsers().size();
-                for(int i = 0; i < size; i++)
-                {
+                for (int i = 0; i < size; i++) {
                     shootable.add(wagonLevel.getWagonLevelBefore().getUsers().get(i));
                 }
-                if (user.getCharacter() instanceof Django && shootable.isEmpty())
-                {
+                if (user.getCharacter() instanceof Django && shootable.isEmpty()) {
                     getShootableUsersBeforeB(user, shootable, wagonLevel.getWagonLevelBefore());
                 }
             }
 
         }
 
-        public void getShootableUsersAfterB(User user, List<User> shootable, WagonLevel wagonLevel)
-        {
-            if(wagonLevel.getWagonLevelAfter() != null)
-            {
+        public void getShootableUsersAfterB(User user, List<User> shootable, WagonLevel wagonLevel) {
+            if (wagonLevel.getWagonLevelAfter() != null) {
                 int size = wagonLevel.getWagonLevelAfter().getUsers().size();
-                for (int i = 0; i<size; i++)
-                {
+                for (int i = 0; i < size; i++) {
                     shootable.add(wagonLevel.getWagonLevelAfter().getUsers().get(i));
                 }
-                if(shootable.isEmpty() && user.getCharacter() instanceof Django)
-                {
+                if (shootable.isEmpty() && user.getCharacter() instanceof Django) {
                     getShootableUsersAfterB(user, shootable, wagonLevel.getWagonLevelAfter());
                 }
             }
         }
-//region collectRequest
+
+        //region collectRequest
         public CollectItemRequestDTO generateCollectRequest(Long gameId, Long userId) {
             Game game = gameRepo.findOne(gameId);
             User user = userRepo.findOne(userId);
@@ -723,17 +681,16 @@ public class GameLogicService extends GenericService {
             gameRepo.save(game);
             return crq;
         }
-//endregion collectrequest
-        public MoveRequestDTO generateMoveRequest(Long gameId, Long userId)
-        {
+
+        //endregion collectrequest
+        public MoveRequestDTO generateMoveRequest(Long gameId, Long userId) {
             User user = userRepo.findOne(userId);
             Game game = gameRepo.findOne(gameId);
             MoveRequestDTO mrq = new MoveRequestDTO();
             List<Long> movable = new ArrayList<Long>();
             mrq.setMovableWagonsLvlIds(new ArrayList<Long>());
 
-            if(user.getWagonLevel().getLevelType() == LevelType.TOP)
-            {
+            if (user.getWagonLevel().getLevelType() == LevelType.TOP) {
                 getMovableBeforeR(user, movable, user.getWagonLevel());
                 getMovableAfterR(user, movable, user.getWagonLevel());
 
@@ -741,26 +698,20 @@ public class GameLogicService extends GenericService {
                     for (int i = 0; i < 3; i++) {
                         mrq.getMovableWagonsLvlIds().add(movable.get(i));
                     }
-                }
-                else
-                {
-                    for (int i = 0; i<movable.size();i++)
-                    {
+                } else {
+                    for (int i = 0; i < movable.size(); i++) {
                         mrq.getMovableWagonsLvlIds().add(movable.get(i));
                     }
                 }
-
             }
 
-            if(user.getWagonLevel().getLevelType() == LevelType.BOTTOM)
-            {
-                if(user.getWagonLevel().getWagonLevelBefore() != null) {
+            if (user.getWagonLevel().getLevelType() == LevelType.BOTTOM) {
+                if (user.getWagonLevel().getWagonLevelBefore() != null) {
                     mrq.getMovableWagonsLvlIds().add(user.getWagonLevel().getWagonLevelBefore().getId());
                 }
-                if(user.getWagonLevel().getWagonLevelAfter() != null) {
+                if (user.getWagonLevel().getWagonLevelAfter() != null) {
                     mrq.getMovableWagonsLvlIds().add(user.getWagonLevel().getWagonLevelAfter().getId());
                 }
-
             }
 
             mrq.setSpielId(game.getId());
@@ -773,50 +724,37 @@ public class GameLogicService extends GenericService {
             return mrq;
         }
 
-        public void getMovableBeforeR(User user, List<Long> movable, WagonLevel wagonLevel)
-        {
-            if( wagonLevel.getWagonLevelBefore() != null)
-            {
+        public void getMovableBeforeR(User user, List<Long> movable, WagonLevel wagonLevel) {
+            if (wagonLevel.getWagonLevelBefore() != null) {
                 movable.add(wagonLevel.getWagonLevelBefore().getId());
                 getMovableBeforeR(user, movable, wagonLevel.getWagonLevelBefore());
             }
         }
-        public void getMovableAfterR(User user, List<Long> movable, WagonLevel wagonLevel)
-        {
 
-            if( wagonLevel.getWagonLevelBefore() != null)
-            {
+        public void getMovableAfterR(User user, List<Long> movable, WagonLevel wagonLevel) {
+
+            if (wagonLevel.getWagonLevelBefore() != null) {
                 movable.add(wagonLevel.getWagonLevelBefore().getId());
                 getMovableAfterR(user, movable, wagonLevel.getWagonLevelBefore());
             }
         }
 
-
-        public void getMovableBeforeB(User user, List<Long> movable, WagonLevel wagonLevel)
-        {
-
-            if( wagonLevel.getWagonLevelBefore() != null)
-            {
+        public void getMovableBeforeB(User user, List<Long> movable, WagonLevel wagonLevel) {
+            if (wagonLevel.getWagonLevelBefore() != null) {
                 movable.add(wagonLevel.getWagonLevelBefore().getId());
                 getMovableBeforeB(user, movable, wagonLevel.getWagonLevelBefore());
             }
-
-
         }
 
-        public void getMovableAfterB(User user, List<Long> movable, WagonLevel wagonLevel)
-        {
-
-            if( wagonLevel.getWagonLevelBefore() != null)
-            {
+        public void getMovableAfterB(User user, List<Long> movable, WagonLevel wagonLevel) {
+            if (wagonLevel.getWagonLevelBefore() != null) {
                 movable.add(wagonLevel.getWagonLevelBefore().getId());
                 getMovableAfterB(user, movable, wagonLevel.getWagonLevelBefore());
             }
 
         }
 
-        public PunchRequestDTO generatePunchRequest(Long gameId, Long userId)
-        {
+        public PunchRequestDTO generatePunchRequest(Long gameId, Long userId) {
             User user = userRepo.findOne(userId);
             Game game = gameRepo.findOne(gameId);
 
@@ -824,62 +762,49 @@ public class GameLogicService extends GenericService {
             List<User> userList = new ArrayList<User>();
             prq.setPunchableUserIds(new ArrayList<Long>());
 
-            for(int i = 0; i<user.getWagonLevel().getUsers().size(); i++ ) {
+            for (int i = 0; i < user.getWagonLevel().getUsers().size(); i++) {
                 userList.add(user.getWagonLevel().getUsers().get(i));
             }
-            if(userList.size() > 1)
-            {
-                for(int i = 0; i < userList.size(); i++)
-                {
-                    if(userList.get(i).getId() == user.getId())
-                    {
+            if (userList.size() > 1) {
+                for (int i = 0; i < userList.size(); i++) {
+                    if (userList.get(i).getId() == user.getId()) {
                         userList.remove(i);
                     }
                 }
             }
-            if(userList.size() >= 2)
-            {
-                for(int i = 0; i < userList.size(); i++)
-                {
-                    if(userList.get(i).getCharacter()instanceof  Belle)
-                    {
+            if (userList.size() >= 2) {
+                for (int i = 0; i < userList.size(); i++) {
+                    if (userList.get(i).getCharacter() instanceof Belle) {
                         userList.remove(i);
                     }
                 }
             }
-            for(int i = 0; i<userList.size(); i++)
-            {
-                prq.getHasBag().add(i,Boolean.FALSE);
+            for (int i = 0; i < userList.size(); i++) {
+                prq.getHasBag().add(i, Boolean.FALSE);
                 prq.getHasCase().add(i, Boolean.FALSE);
                 prq.getHasGem().add(i, Boolean.FALSE);
                 prq.getPunchableUserIds().add(userList.get(i).getId());
 
-                if(userList.get(i).getItems().size() > 0)
-                {
-                    for(int j = 0; j < userList.get(i).getItems().size(); j++)
-                    {
-                        if(userList.get(i).getItems().get(j).getItemType() == ItemType.GEM)
-                        {
+                if (userList.get(i).getItems().size() > 0) {
+                    for (int j = 0; j < userList.get(i).getItems().size(); j++) {
+                        if (userList.get(i).getItems().get(j).getItemType() == ItemType.GEM) {
                             prq.getHasGem().set(i, Boolean.TRUE);
                         }
 
-                        if(userList.get(i).getItems().get(j).getItemType() == ItemType.BAG)
-                        {
+                        if (userList.get(i).getItems().get(j).getItemType() == ItemType.BAG) {
                             prq.getHasBag().set(i, Boolean.TRUE);
                         }
 
-                        if(userList.get(i).getItems().get(j).getItemType() == ItemType.CASE) {
+                        if (userList.get(i).getItems().get(j).getItemType() == ItemType.CASE) {
                             prq.getHasCase().set(i, Boolean.TRUE);
                         }
                     }
                 }
             }
-            if(user.getWagonLevel().getWagonLevelBefore() != null)
-            {
+            if (user.getWagonLevel().getWagonLevelBefore() != null) {
                 prq.getMovable().add(user.getWagonLevel().getWagonLevelBefore().getId());
             }
-            if(user.getWagonLevel().getWagonLevelAfter() != null)
-            {
+            if (user.getWagonLevel().getWagonLevelAfter() != null) {
                 prq.getMovable().add(user.getWagonLevel().getWagonLevelAfter().getId());
             }
 
@@ -891,17 +816,14 @@ public class GameLogicService extends GenericService {
             return prq;
         }
 
-        public MoveMarshalRequestDTO generateMoveMarshalRequest(Long gameId, Long marshalId)
-        {
+        public MoveMarshalRequestDTO generateMoveMarshalRequest(Long gameId, Long marshalId) {
             Game game = gameRepo.findOne(gameId);
             MoveMarshalRequestDTO mmrq = new MoveMarshalRequestDTO();
 
-            if (game.getMarshal().getWagonLevel().getWagonLevelBefore() != null)
-            {
+            if (game.getMarshal().getWagonLevel().getWagonLevelBefore() != null) {
                 mmrq.getMovableWagonsLvlIds().add(game.getMarshal().getWagonLevel().getWagonLevelBefore().getId());
             }
-            if (game.getMarshal().getWagonLevel().getWagonLevelAfter() != null)
-            {
+            if (game.getMarshal().getWagonLevel().getWagonLevelAfter() != null) {
                 mmrq.getMovableWagonsLvlIds().add(game.getMarshal().getWagonLevel().getWagonLevelAfter().getId());
             }
 
@@ -910,7 +832,6 @@ public class GameLogicService extends GenericService {
             gameRepo.save(game);
             return mmrq;
         }
-
 
 
     }

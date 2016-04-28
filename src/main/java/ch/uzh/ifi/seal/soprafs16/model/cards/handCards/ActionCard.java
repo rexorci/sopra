@@ -10,6 +10,10 @@ import java.io.Serializable;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 
+import ch.uzh.ifi.seal.soprafs16.model.Game;
+import ch.uzh.ifi.seal.soprafs16.model.User;
+import ch.uzh.ifi.seal.soprafs16.model.action.ActionRequestDTO;
+
 @Entity
 @JsonTypeName("actionCard")
 @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.PROPERTY, property = "type")
@@ -28,6 +32,8 @@ public abstract class ActionCard extends HandCard implements Serializable {
      */
     private static final long serialVersionUID = 1L;
 
+    public abstract ActionRequestDTO generateActionRequest(Game game, User user);
+    public abstract ActionRequestDTO generateMarshalRequest(Game game);
     @Column
     private Long playedByUserId;
 

@@ -22,6 +22,8 @@ import ch.uzh.ifi.seal.soprafs16.model.cards.handCards.ActionCard;
 import ch.uzh.ifi.seal.soprafs16.model.cards.handCards.BulletCard;
 import ch.uzh.ifi.seal.soprafs16.model.cards.roundCards.RoundCard;
 import ch.uzh.ifi.seal.soprafs16.model.turns.Turn;
+import ch.uzh.ifi.seal.soprafs16.model.action.ActionRequestDTO;
+import ch.uzh.ifi.seal.soprafs16.model.cards.handCards.BulletCard;
 
 @Entity
 public class Game implements Serializable {

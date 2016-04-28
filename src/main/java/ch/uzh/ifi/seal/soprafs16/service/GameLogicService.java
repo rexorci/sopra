@@ -21,11 +21,24 @@ import ch.uzh.ifi.seal.soprafs16.model.Item;
 import ch.uzh.ifi.seal.soprafs16.model.Marshal;
 import ch.uzh.ifi.seal.soprafs16.model.User;
 import ch.uzh.ifi.seal.soprafs16.model.WagonLevel;
+import ch.uzh.ifi.seal.soprafs16.model.action.ActionRequestDTO;
+import ch.uzh.ifi.seal.soprafs16.model.action.actionRequest.CollectItemRequestDTO;
+import ch.uzh.ifi.seal.soprafs16.model.action.actionRequest.DrawOrPlayCardRequestDTO;
+import ch.uzh.ifi.seal.soprafs16.model.action.actionRequest.MoveMarshalRequestDTO;
+import ch.uzh.ifi.seal.soprafs16.model.action.actionRequest.MoveRequestDTO;
+import ch.uzh.ifi.seal.soprafs16.model.action.actionRequest.PunchRequestDTO;
+import ch.uzh.ifi.seal.soprafs16.model.action.actionRequest.ShootRequestDTO;
+import ch.uzh.ifi.seal.soprafs16.model.cards.Card;
 import ch.uzh.ifi.seal.soprafs16.model.cards.GameDeck;
 import ch.uzh.ifi.seal.soprafs16.model.cards.PlayerDeck;
 import ch.uzh.ifi.seal.soprafs16.model.cards.handCards.ActionCard;
 import ch.uzh.ifi.seal.soprafs16.model.cards.handCards.BulletCard;
+import ch.uzh.ifi.seal.soprafs16.model.cards.handCards.CollectCard;
 import ch.uzh.ifi.seal.soprafs16.model.cards.handCards.HandCard;
+import ch.uzh.ifi.seal.soprafs16.model.cards.handCards.MarshalCard;
+import ch.uzh.ifi.seal.soprafs16.model.cards.handCards.MoveCard;
+import ch.uzh.ifi.seal.soprafs16.model.cards.handCards.PunchCard;
+import ch.uzh.ifi.seal.soprafs16.model.cards.handCards.ShootCard;
 import ch.uzh.ifi.seal.soprafs16.model.cards.roundCards.AngryMarshalCard;
 import ch.uzh.ifi.seal.soprafs16.model.cards.roundCards.BrakingCard;
 import ch.uzh.ifi.seal.soprafs16.model.cards.roundCards.GetItAllCard;
@@ -36,6 +49,7 @@ import ch.uzh.ifi.seal.soprafs16.model.cards.roundCards.PickPocketingCard;
 import ch.uzh.ifi.seal.soprafs16.model.cards.roundCards.PivotablePoleCard;
 import ch.uzh.ifi.seal.soprafs16.model.cards.roundCards.RoundCard;
 import ch.uzh.ifi.seal.soprafs16.model.characters.Doc;
+import ch.uzh.ifi.seal.soprafs16.model.repositories.ActionRepository;
 import ch.uzh.ifi.seal.soprafs16.model.repositories.CardRepository;
 import ch.uzh.ifi.seal.soprafs16.model.repositories.CharacterRepository;
 import ch.uzh.ifi.seal.soprafs16.model.repositories.DeckRepository;
@@ -76,6 +90,8 @@ public class GameLogicService extends GenericService {
     private CardRepository cardRepo;
     @Autowired
     private DeckRepository deckRepo;
+    @Autowired
+    private ActionRepository actionRepo;
     //endregion
 
     public void update(Long id) {
@@ -206,6 +222,28 @@ public class GameLogicService extends GenericService {
         }
     }
 
+    private void createDOPCRequestDTO(Game game, int currentplayer) {
+        logger.debug("DOPCrequest created");
+        DrawOrPlayCardRequestDTO doprq = new DrawOrPlayCardRequestDTO();
+        int size = game.getUsers().get(currentplayer).getHandDeck().size();
+        for(int i = 0; i<size; i++)
+        {
+            if(game.getUsers().get(currentplayer).getHandDeck().get(i).getClass() != BulletCard.class)
+            {
+                doprq.getPlayableCardsId().add(game.getUsers().get(currentplayer).getHandDeck().get(i).getId());
+            }
+        }
+
+        game.getActions().add(doprq);
+        doprq.setSpielId(game.getId());
+        Card c = new Card();
+        c.setDeck(game.getCommonDeck());
+        cardRepo.save(c);
+        game.getCommonDeck().add(c);
+        deckRepo.save(game.getCommonDeck());
+
+    }
+
     private void resetPlayerDecks(Game game) {
         Hibernate.initialize(game.getUsers());
         List<User> users = game.getUsers();
@@ -254,6 +292,12 @@ public class GameLogicService extends GenericService {
         // TODO
         // This is a function that simulates an actionResponse
         // will be changed to an actual createDOPCrequestdto function
+    }
+
+    public ActionRequestDTO createActionRequest(ActionCard actioncard, Long gameId, Long userId)
+    {
+        ActionRequestHelper arh = new ActionRequestHelper();
+        return arh.execute(actioncard, gameId, userId);
     }
 
     private int mod(int a, int b) {
@@ -493,6 +537,372 @@ public class GameLogicService extends GenericService {
             return null;
         }
     }
+
+    private class ActionRequestHelper
+    {
+        private ActionRequestDTO execute(ActionCard ac, Long gameId, Long userId)
+        {
+            if (ac instanceof CollectCard)
+            {
+                return generateCollectRequest(gameId, userId);
+            }
+            if (ac instanceof PunchCard)
+            {
+                return generatePunchRequest(gameId, userId);
+            }
+            if (ac instanceof MoveCard)
+            {
+                return generateMoveRequest(gameId, userId);
+            }
+            if (ac instanceof ShootCard)
+            {
+                return generateShootRequest(gameId, userId);
+            }
+
+            if (ac instanceof MarshalCard)
+            {
+                return generateMoveMarshalRequest(gameId,userId);
+            }
+            return null;
+
+        }
+
+        public ShootRequestDTO generateShootRequest(Long gameId,Long userId )
+        {
+            Game game = gameRepo.findOne(gameId);
+            User user = userRepo.findOne(userId);
+            ShootRequestDTO srq = new ShootRequestDTO();
+            List<User> userList = new ArrayList<User>();
+            srq.setShootableUserIds(new ArrayList<Long>());
+            if(user.getWagonLevel().getLevelType() == LevelType.TOP)
+            {
+                getShootableUsersBeforeR(user, userList, user.getWagonLevel());
+                getShootableUsersAfterR(user, userList, user.getWagonLevel());
+            }
+            if(user.getWagonLevel().getLevelType() == LevelType.BOTTOM)
+            {
+                getShootableUsersBeforeB(user, userList, user.getWagonLevel());
+                getShootableUsersAfterB(user, userList, user.getWagonLevel());
+            }
+            if(userList.size()>= 2)
+            {
+                for(int i = 0; i < userList.size(); i++)
+                {
+                    if(userList.get(i).getCharacterType() =="Belle")
+                    {
+                        userList.remove(i);
+                    }
+                }
+            }
+            for(int i = 0; i<userList.size(); i++)
+            {
+                srq.getShootableUserIds().add(userList.get(i).getId());
+            }
+            srq.setSpielId(game.getId());
+            srq.setUserId(user.getId());
+            game.getActions().add(srq);
+            actionRepo.save(srq);
+            userRepo.save(user);
+            gameRepo.save(game);
+            return srq;
+        }
+
+        public void getShootableUsersBeforeR(User user, List<User> shootable, WagonLevel wagonLevel)
+        {
+            if( wagonLevel.getWagonLevelBefore() != null)
+            {
+                int size = wagonLevel.getWagonLevelBefore().getUsers().size();
+                for(int i = 0; i< size; i++)
+                {
+                    shootable.add(wagonLevel.getWagonLevelBefore().getUsers().get(i));
+                }
+                if (shootable.size() == 0){
+                    getShootableUsersBeforeR(user, shootable, wagonLevel.getWagonLevelBefore());
+
+                }
+                if (user.getCharacterType() == "Django")
+                {
+                    getShootableUsersBeforeR(user, shootable, wagonLevel.getWagonLevelBefore());
+                }
+            }
+        }
+        public void getShootableUsersAfterR(User user, List<User> shootable, WagonLevel wagonLevel)
+        {
+            if(wagonLevel.getWagonLevelAfter() != null)
+            {
+                int size = wagonLevel.getWagonLevelAfter().getUsers().size();
+                for(int i = 0; i < size; i++)
+                {
+                    shootable.add(wagonLevel.getWagonLevelAfter().getUsers().get(i));
+                }
+                if (shootable.size() == 0){
+                    getShootableUsersAfterR(user, shootable, wagonLevel.getWagonLevelAfter());
+
+                }
+                if (user.getCharacterType() == "Django")
+                {
+                    getShootableUsersAfterR(user, shootable, wagonLevel.getWagonLevelAfter());
+                }
+            }
+        }
+
+        public void getShootableUsersBeforeB(User user, List<User> shootable, WagonLevel wagonLevel)
+        {
+            if (wagonLevel.getWagonLevelBefore()!= null)
+            {
+                int size = wagonLevel.getWagonLevelBefore().getUsers().size();
+                for(int i = 0; i < size; i++)
+                {
+                    shootable.add(wagonLevel.getWagonLevelBefore().getUsers().get(i));
+                }
+                if (user.getCharacterType() =="Django" && shootable.isEmpty())
+                {
+                    getShootableUsersBeforeB(user, shootable, wagonLevel.getWagonLevelBefore());
+                }
+            }
+
+        }
+
+        public void getShootableUsersAfterB(User user, List<User> shootable, WagonLevel wagonLevel)
+        {
+            if(wagonLevel.getWagonLevelAfter() != null)
+            {
+                int size = wagonLevel.getWagonLevelAfter().getUsers().size();
+                for (int i = 0; i<size; i++)
+                {
+                    shootable.add(wagonLevel.getWagonLevelAfter().getUsers().get(i));
+                }
+                if(shootable.isEmpty() && user.getCharacterType() =="Django")
+                {
+                    getShootableUsersAfterB(user, shootable, wagonLevel.getWagonLevelAfter());
+                }
+            }
+        }
+//region collectRequest
+        public CollectItemRequestDTO generateCollectRequest(Long gameId, Long userId) {
+            Game game = gameRepo.findOne(gameId);
+            User user = userRepo.findOne(userId);
+            CollectItemRequestDTO crq = new CollectItemRequestDTO();
+            crq.setHasBag(Boolean.FALSE);
+            crq.setHasCase(Boolean.FALSE);
+            crq.setHasGem(Boolean.FALSE);
+            if (user.getWagonLevel().getItems().size() > 0) {
+                for (int i = 0; i < user.getWagonLevel().getItems().size(); i++) {
+                    if (user.getWagonLevel().getItems().get(i).getItemType() == ItemType.GEM) {
+                        crq.setHasGem(Boolean.TRUE);
+                    }
+                    if (user.getWagonLevel().getItems().get(i).getItemType() == ItemType.BAG) {
+                        crq.setHasBag(Boolean.TRUE);
+                    }
+                    if (user.getWagonLevel().getItems().get(i).getItemType() == ItemType.CASE) {
+                        crq.setHasCase(Boolean.TRUE);
+                    }
+                }
+            }
+            crq.setSpielId(game.getId());
+            crq.setUserId(user.getId());
+            game.getActions().add(crq);
+
+            crq.setGame(game);
+
+            actionRepo.save(crq);
+            userRepo.save(user);
+            gameRepo.save(game);
+            return crq;
+        }
+//endregion collectrequest
+        public MoveRequestDTO generateMoveRequest(Long gameId, Long userId)
+        {
+            User user = userRepo.findOne(userId);
+            Game game = gameRepo.findOne(gameId);
+            MoveRequestDTO mrq = new MoveRequestDTO();
+            List<Long> movable = new ArrayList<Long>();
+            mrq.setMovableWagonsLvlIds(new ArrayList<Long>());
+
+            if(user.getWagonLevel().getLevelType() == LevelType.TOP)
+            {
+                getMovableBeforeR(user, movable, user.getWagonLevel());
+                getMovableAfterR(user, movable, user.getWagonLevel());
+
+                if (movable.size() > 3) {
+                    for (int i = 0; i < 3; i++) {
+                        mrq.getMovableWagonsLvlIds().add(movable.get(i));
+                    }
+                }
+                else
+                {
+                    for (int i = 0; i<movable.size();i++)
+                    {
+                        mrq.getMovableWagonsLvlIds().add(movable.get(i));
+                    }
+                }
+
+            }
+
+            if(user.getWagonLevel().getLevelType() == LevelType.BOTTOM)
+            {
+                if(user.getWagonLevel().getWagonLevelBefore() != null) {
+                    mrq.getMovableWagonsLvlIds().add(user.getWagonLevel().getWagonLevelBefore().getId());
+                }
+                if(user.getWagonLevel().getWagonLevelAfter() != null) {
+                    mrq.getMovableWagonsLvlIds().add(user.getWagonLevel().getWagonLevelAfter().getId());
+                }
+
+            }
+
+            mrq.setSpielId(game.getId());
+            mrq.setUserId(user.getId());
+            game.getActions().add(mrq);
+            actionRepo.save(mrq);
+            userRepo.save(user);
+            gameRepo.save(game);
+
+            return mrq;
+        }
+
+        public void getMovableBeforeR(User user, List<Long> movable, WagonLevel wagonLevel)
+        {
+            if( wagonLevel.getWagonLevelBefore() != null)
+            {
+                movable.add(wagonLevel.getWagonLevelBefore().getId());
+                getMovableBeforeR(user, movable, wagonLevel.getWagonLevelBefore());
+            }
+        }
+        public void getMovableAfterR(User user, List<Long> movable, WagonLevel wagonLevel)
+        {
+
+            if( wagonLevel.getWagonLevelBefore() != null)
+            {
+                movable.add(wagonLevel.getWagonLevelBefore().getId());
+                getMovableAfterR(user, movable, wagonLevel.getWagonLevelBefore());
+            }
+        }
+
+
+        public void getMovableBeforeB(User user, List<Long> movable, WagonLevel wagonLevel)
+        {
+
+            if( wagonLevel.getWagonLevelBefore() != null)
+            {
+                movable.add(wagonLevel.getWagonLevelBefore().getId());
+                getMovableBeforeB(user, movable, wagonLevel.getWagonLevelBefore());
+            }
+
+
+        }
+
+        public void getMovableAfterB(User user, List<Long> movable, WagonLevel wagonLevel)
+        {
+
+            if( wagonLevel.getWagonLevelBefore() != null)
+            {
+                movable.add(wagonLevel.getWagonLevelBefore().getId());
+                getMovableAfterB(user, movable, wagonLevel.getWagonLevelBefore());
+            }
+
+        }
+
+        public PunchRequestDTO generatePunchRequest(Long gameId, Long userId)
+        {
+            User user = userRepo.findOne(userId);
+            Game game = gameRepo.findOne(gameId);
+
+            PunchRequestDTO prq = new PunchRequestDTO();
+            List<User> userList = new ArrayList<User>();
+            prq.setPunchableUserIds(new ArrayList<Long>());
+
+            for(int i = 0; i<user.getWagonLevel().getUsers().size(); i++ ) {
+                userList.add(user.getWagonLevel().getUsers().get(i));
+            }
+            if(userList.size() > 1)
+            {
+                for(int i = 0; i < userList.size(); i++)
+                {
+                    if(userList.get(i).getId() == user.getId())
+                    {
+                        userList.remove(i);
+                    }
+                }
+            }
+            if(userList.size() >= 2)
+            {
+                for(int i = 0; i < userList.size(); i++)
+                {
+                    if(userList.get(i).getCharacterType()== ("Belle"))
+                    {
+                        userList.remove(i);
+                    }
+                }
+            }
+            for(int i = 0; i<userList.size(); i++)
+            {
+                prq.getHasBag().add(i,Boolean.FALSE);
+                prq.getHasCase().add(i, Boolean.FALSE);
+                prq.getHasGem().add(i, Boolean.FALSE);
+                prq.getPunchableUserIds().add(userList.get(i).getId());
+
+                if(userList.get(i).getItems().size() > 0)
+                {
+                    for(int j = 0; j < userList.get(i).getItems().size(); j++)
+                    {
+                        if(userList.get(i).getItems().get(j).getItemType() == ItemType.GEM)
+                        {
+                            prq.getHasGem().set(i, Boolean.TRUE);
+                        }
+
+                        if(userList.get(i).getItems().get(j).getItemType() == ItemType.BAG)
+                        {
+                            prq.getHasBag().set(i, Boolean.TRUE);
+                        }
+
+                        if(userList.get(i).getItems().get(j).getItemType() == ItemType.CASE) {
+                            prq.getHasCase().set(i, Boolean.TRUE);
+                        }
+                    }
+                }
+            }
+            if(user.getWagonLevel().getWagonLevelBefore() != null)
+            {
+                prq.getMovable().add(user.getWagonLevel().getWagonLevelBefore().getId());
+            }
+            if(user.getWagonLevel().getWagonLevelAfter() != null)
+            {
+                prq.getMovable().add(user.getWagonLevel().getWagonLevelAfter().getId());
+            }
+
+            prq.setSpielId(game.getId());
+            prq.setUserId(user.getId());
+            game.getActions().add(prq);
+            userRepo.save(user);
+            gameRepo.save(game);
+            return prq;
+        }
+
+        public MoveMarshalRequestDTO generateMoveMarshalRequest(Long gameId, Long marshalId)
+        {
+            Game game = gameRepo.findOne(gameId);
+            MoveMarshalRequestDTO mmrq = new MoveMarshalRequestDTO();
+
+            if (game.getMarshal().getWagonLevel().getWagonLevelBefore() != null)
+            {
+                mmrq.getMovableWagonsLvlIds().add(game.getMarshal().getWagonLevel().getWagonLevelBefore().getId());
+            }
+            if (game.getMarshal().getWagonLevel().getWagonLevelAfter() != null)
+            {
+                mmrq.getMovableWagonsLvlIds().add(game.getMarshal().getWagonLevel().getWagonLevelAfter().getId());
+            }
+
+            mmrq.setSpielId(game.getId());
+            game.getActions().add(mmrq);
+            gameRepo.save(game);
+            return mmrq;
+        }
+
+
+
+    }
+
+}
 
 
 }

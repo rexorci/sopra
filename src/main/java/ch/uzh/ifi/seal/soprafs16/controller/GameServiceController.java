@@ -67,6 +67,8 @@ public class GameServiceController extends GenericService {
     @Autowired
     private DeckRepository deckRepo;
     @Autowired
+    private ActionRepository actionRepo;
+    @Autowired
     private TurnRepository turnRepo;
     @Autowired
     private GameService gameService;
@@ -343,58 +345,18 @@ public class GameServiceController extends GenericService {
         }
     }
 
-    /*
-     logger.debug("deleteGame: " + gameId);
-//        Game game = gameRepo.findOne(gameId);
-//        User user = userRepo.findByToken(userToken);
-//        if (game != null && user != null) {
-//            String ownerString = game.getOwner();
-//            if (user.getName().equals(game.getOwner())) {
-//                for (User u : game.getUsers()) {
-//                    u.setGame(null);
-//                    userRepo.save(u);
-//                }
-//                gameRepo.delete(game);
-//                return gameId;
-//            } else {
-//                logger.debug("deleteGame: game " + gameId + " - user is not owner of game");
-//                return null;
-//            }
-//        } else {
-//            logger.debug("deleteGame: game " + gameId + " - user or game is null");
-//            return null;
-//        }
-     */
-
-//    //games/{game-id}/switchLevel - POST
-//    @RequestMapping(value = CONTEXT + "/{gameId}/switchLevel", method = RequestMethod.POST)
-//    @ResponseStatus(HttpStatus.OK)
-//    public Game prototypeSwitchLevel(@PathVariable Long gameId, @RequestParam("token") String userToken) {
-//        Game game = gameRepo.findOne(gameId);
-//        User user = userRepo.findByToken(userToken);
-//        if (game != null && user != null && game.getStatus() == GameStatus.RUNNING) {
-//            WagonLevel wagonLevelNew;
-//            if (user.getWagonLevel().getLevelType().equals(LevelType.BOTTOM)) {
-//                wagonLevelNew = user.getWagonLevel().getWagon().getTopLevel();
-//            } else {
-//                wagonLevelNew = user.getWagonLevel().getWagon().getBottomLevel();
-//            }
-//
-//            user.getWagonLevel().getUsers().remove(user);
-//            gameRepo.save(game);//this save is mandatory!
-//
-//            wagonLevelNew.getUsers().add(user);
-//            user.setWagonLevel(wagonLevelNew);
-//            gameRepo.save(game);
-//            userRepo.save(user);
-//            return game;
-//        } else {
-//            logger.error("Error switching level");
-//            return null;
-//        }
-//    }
-
     //games/{gameId}/action - GET
+    @RequestMapping(value = CONTEXT + "/{gameId}/action")
+    @ResponseStatus(HttpStatus.OK)
+    public ActionRequestDTO getActionRequest(@PathVariable Long gameId)
+    {
+        Game game = gameRepo.findOne(gameId);
+        int size = game.getActions().size();
+        ActionRequestDTO actionRequest = game.getActions().get(size-1);
+        actionRepo.save(actionRequest);
+        int i = 0;
+        return actionRequest;
+    }
     //games/{gameId}/action - POST
 
 }

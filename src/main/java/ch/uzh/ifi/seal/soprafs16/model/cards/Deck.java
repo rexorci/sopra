@@ -8,6 +8,7 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.OneToMany;
+import javax.persistence.OrderColumn;
 
 @Entity
 public class Deck<T extends Card> implements Serializable {
@@ -22,6 +23,7 @@ public class Deck<T extends Card> implements Serializable {
     private Long id;
 
     @OneToMany(targetEntity = Card.class, mappedBy = "deck")
+    @OrderColumn
     private List<T> cards;
 
     public Deck(){

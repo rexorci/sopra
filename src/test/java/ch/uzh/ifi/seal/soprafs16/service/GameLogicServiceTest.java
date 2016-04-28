@@ -469,7 +469,7 @@ public class GameLogicServiceTest {
         assertTrue(u.getHandDeck().removeById(bc.getId()) || u.getHiddenDeck().removeById(bc.getId()));
     }
 
-    @Test
+   /* @Test
     public void execute_BrakingCardMovesUsersOnRoof() {
         User u = userRepo.findOne(tester.getUsers().get(0).getId());
         Game game = gameRepo.findOne(gameId);
@@ -522,7 +522,7 @@ public class GameLogicServiceTest {
 
         u = userRepo.findOne(u.getId());
         assertEquals(newWl.getWagonLevelBefore().getId(), u.getWagonLevel().getId());
-    }
+    }*/
 
     @Test
     public void execute_GetItAllCaseIsPlaced() {
@@ -705,7 +705,7 @@ public class GameLogicServiceTest {
         u = userRepo.findOne(u.getId());
         assertFalse(u.removeItemById(item.getId()));
     }
-
+/*
     @Test
     public void execute_PassengerRebellionBanditsInsideGetBulletCard() {
         Game game = gameRepo.findOne(gameId);
@@ -763,8 +763,8 @@ public class GameLogicServiceTest {
             i++;
         }
     }
-
-    @Test
+*/
+   /* @Test
     public void execute_PickPocketingGrantsLoneBanditPurse() {
         Game game = gameRepo.findOne(gameId);
 
@@ -837,7 +837,7 @@ public class GameLogicServiceTest {
             wagonLevelRepo.save(newWl);
             execute_PickPocketingGrantsLoneBanditPurse();
         }
-    }
+    }*/
 
     @Test
     public void execute_PivotablePoleMovesBanditsOnTopToCaboose() {

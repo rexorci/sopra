@@ -94,6 +94,8 @@ public class GameLogicService extends GenericService {
     private DeckRepository deckRepo;
     @Autowired
     private ActionRepository actionRepo;
+    @Autowired
+    private ActionResponseService ars;
     //endregion
 
     public void update(Long id) {
@@ -151,11 +153,6 @@ public class GameLogicService extends GenericService {
 
         ActionRequestHelper actionRequestHelper = new ActionRequestHelper();
         ActionRequestDTO ardto = actionRequestHelper.execute(ac, game.getId(), user.getId());
-
-        // If card was ChangeLevel
-        if(ardto == null){
-            update(game.getId());
-        }
     }
 
     private int calculatePlanningARcounter(Game game) {
@@ -570,6 +567,8 @@ public class GameLogicService extends GenericService {
                 return generateMoveMarshalRequest(gameId, userId);
             }
             if (ac instanceof ChangeLevelCard){
+                User user = userRepo.findOne(userId);
+                ars.changeLevel(user);
                 return null;
             }
             return null;
@@ -599,6 +598,10 @@ public class GameLogicService extends GenericService {
             }
             for (int i = 0; i < userList.size(); i++) {
                 srq.getShootableUserIds().add(userList.get(i).getId());
+            }
+
+            if(srq.getShootableUserIds().isEmpty()){
+                return null;
             }
             srq.setSpielId(game.getId());
             srq.setUserId(user.getId());
@@ -733,6 +736,10 @@ public class GameLogicService extends GenericService {
                 }
             }
 
+            if(mrq.getMovableWagonsLvlIds().isEmpty()){
+                return null;
+            }
+
             mrq.setSpielId(game.getId());
             mrq.setUserId(user.getId());
             mrq = actionRepo.save(mrq);
@@ -827,6 +834,10 @@ public class GameLogicService extends GenericService {
             }
             if (user.getWagonLevel().getWagonLevelAfter() != null) {
                 prq.getMovable().add(user.getWagonLevel().getWagonLevelAfter().getId());
+            }
+
+            if(prq.getPunchableUserIds().isEmpty()){
+                return null;
             }
 
             prq.setSpielId(game.getId());

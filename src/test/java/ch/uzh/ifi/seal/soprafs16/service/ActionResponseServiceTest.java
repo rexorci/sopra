@@ -40,6 +40,7 @@ import ch.uzh.ifi.seal.soprafs16.model.cards.handCards.BulletCard;
 import ch.uzh.ifi.seal.soprafs16.model.cards.handCards.HandCard;
 import ch.uzh.ifi.seal.soprafs16.model.characters.Character;
 import ch.uzh.ifi.seal.soprafs16.model.characters.Cheyenne;
+import ch.uzh.ifi.seal.soprafs16.model.characters.Django;
 import ch.uzh.ifi.seal.soprafs16.model.characters.Ghost;
 import ch.uzh.ifi.seal.soprafs16.model.characters.Tuco;
 import ch.uzh.ifi.seal.soprafs16.model.repositories.CardRepository;
@@ -401,12 +402,23 @@ public class ActionResponseServiceTest {
     }
 
 
-   /* @Test
-    public void processResponse_DjangoShooter_VictimIsMoved(){
+    @Test
+    public void processResponse_TucoShooter_VictimIsMoved(){
         Game game = gameRepo.findOne(gameId);
         User user = userRepo.findOne(game.getUsers().get(0).getId());
+        user.setCharacter(new Tuco());
 
         User victim = userRepo.findOne(game.getUsers().get(1).getId());
+        WagonLevel wl = wagonLevelRepo.findOne(victim.getWagonLevel().getId());
+        WagonLevel newWl = wagonLevelRepo.findOne(game.getWagons().get(2).getBottomLevel().getId());
+
+        wl.getUsers().remove(victim);
+        wagonLevelRepo.save(wl);
+
+        victim.setWagonLevel(newWl);
+        newWl.getUsers().add(victim);
+        userRepo.save(victim);
+        wagonLevelRepo.save(newWl);
 
         Hibernate.initialize(user.getBulletsDeck());
         Hibernate.initialize(victim.getHiddenDeck());
@@ -427,7 +439,8 @@ public class ActionResponseServiceTest {
 
         assertEquals(bulletCounter - 1, user.getBulletsDeck().size());
         assertEquals(victimHiddenDeckSize + 1, victim.getHiddenDeck().getCards().size());
+        assertEquals(game.getWagons().get(1).getBottomLevel().getId(), victim.getWagonLevel().getId());
         assertEquals(victim.getHiddenDeck().getId(), bc.getDeck().getId());
-    }*/
+    }
 
 }

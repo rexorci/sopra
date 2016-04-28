@@ -79,7 +79,7 @@ public class GameServiceController extends GenericService {
     @RequestMapping(value = CONTEXT)
     @ResponseStatus(HttpStatus.OK)
     public List<Game> listGames() {
-        logger.debug("listGames");
+        System.out.println("listGames");
         List<Game> result = new ArrayList<>();
         gameRepo.findAll().forEach(result::add);
         return result;
@@ -89,7 +89,7 @@ public class GameServiceController extends GenericService {
     @RequestMapping(value = CONTEXT, params = {"status"})
     @ResponseStatus(HttpStatus.OK)
     public List<Game> listGamesFiltered(@RequestParam("status") String statusFilter) {
-        logger.debug("listGamesFiltered");
+        System.out.println("listGamesFiltered");
         List<Game> result = new ArrayList<>();
         for (Game game : gameRepo.findAll()) {
             if (game.getStatus().toString().equals(statusFilter)) {
@@ -103,7 +103,7 @@ public class GameServiceController extends GenericService {
     @RequestMapping(value = CONTEXT, method = RequestMethod.POST)
     @ResponseStatus(HttpStatus.OK)
     public Long addGame(@RequestBody Game game, @RequestParam("token") String userToken) {
-        logger.debug("addGame: " + game);
+        System.out.println("addGame: " + game);
 
         User owner = userRepo.findByToken(userToken);
 
@@ -133,7 +133,7 @@ public class GameServiceController extends GenericService {
     @RequestMapping(value = CONTEXT + "/{gameId}")
     @ResponseStatus(HttpStatus.OK)
     public Game getGame(@PathVariable Long gameId) {
-        logger.debug("getGame: " + gameId);
+        System.out.println("getGame: " + gameId);
 
         Game game = gameRepo.findOne(gameId);
 
@@ -144,7 +144,7 @@ public class GameServiceController extends GenericService {
     @RequestMapping(value = CONTEXT + "/{gameId}/start", method = RequestMethod.POST)
     @ResponseStatus(HttpStatus.OK)
     public void startGame(@PathVariable Long gameId, @RequestParam("token") String userToken) {
-        logger.debug("startGame: " + gameId);
+        System.out.println("startGame: " + gameId);
 
         Game game = gameRepo.findOne(gameId);
         User owner = userRepo.findByToken(userToken);
@@ -160,7 +160,7 @@ public class GameServiceController extends GenericService {
     @RequestMapping(value = CONTEXT + "/{gameId}/startDemo", method = RequestMethod.POST)
     @ResponseStatus(HttpStatus.OK)
     public void startDemo(@PathVariable Long gameId, @RequestParam("token") String userToken) {
-        logger.debug("startGameDemo: " + gameId);
+        System.out.println("startGameDemo: " + gameId);
 
         Game game = gameRepo.findOne(gameId);
         User owner = userRepo.findByToken(userToken);
@@ -176,7 +176,7 @@ public class GameServiceController extends GenericService {
     @RequestMapping(value = CONTEXT + "/{gameId}/stop", method = RequestMethod.POST)
     @ResponseStatus(HttpStatus.OK)
     public void stopGame(@PathVariable Long gameId, @RequestParam("token") String userToken) {
-        logger.debug("stopGame: " + gameId);
+        System.out.println("stopGame: " + gameId);
 
         Game game = gameRepo.findOne(gameId);
         User owner = userRepo.findByToken(userToken);
@@ -185,7 +185,7 @@ public class GameServiceController extends GenericService {
             game.setStatus(GameStatus.FINISHED);
             gameRepo.save(game);
         }else{
-            logger.debug("stopGame: owner or game is null, gameId: " + gameId);
+            System.out.println("stopGame: owner or game is null, gameId: " + gameId);
         }
     }
 
@@ -193,7 +193,7 @@ public class GameServiceController extends GenericService {
     @RequestMapping(value = CONTEXT + "/{gameId}/users", method = RequestMethod.POST)
     @ResponseStatus(HttpStatus.OK)
     public Long addPlayer(@PathVariable Long gameId, @RequestParam("token") String userToken) {
-        logger.debug("addUser: " + userToken);
+        System.out.println("addUser: " + userToken);
 
         Game game = gameRepo.findOne(gameId);
         User user = userRepo.findByToken(userToken);
@@ -207,12 +207,12 @@ public class GameServiceController extends GenericService {
             }
             game.getUsers().add(user);
             user.setGame(game);
-            logger.debug("Game: " + game.getName() + " - user added: " + user.getUsername());
+            System.out.println("Game: " + game.getName() + " - user added: " + user.getUsername());
             gameRepo.save(game);
             userRepo.save(user);
             return (long) (game.getUsers().size() - 1);
         } else {
-            logger.error("Error adding user with token: " + userToken);
+            System.err.println("Error adding user with token: " + userToken);
             return null;
         }
     }
@@ -258,7 +258,7 @@ public class GameServiceController extends GenericService {
     @RequestMapping(value = CONTEXT + "/{gameId}/users", method = RequestMethod.DELETE)
     @ResponseStatus(HttpStatus.OK)
     public Long removePlayer(@PathVariable Long gameId, @RequestParam("token") String userToken) {
-        logger.debug("addUser: " + userToken);
+        System.out.println("addUser: " + userToken);
 
         Game game = gameRepo.findOne(gameId);
         User user = userRepo.findByToken(userToken);
@@ -281,7 +281,7 @@ public class GameServiceController extends GenericService {
             }
             return gameId;
         } else {
-            logger.error("Error removing user with token: " + userToken);
+            System.err.println("Error removing user with token: " + userToken);
             return null;
         }
     }
@@ -290,11 +290,11 @@ public class GameServiceController extends GenericService {
     @RequestMapping(value = CONTEXT + "/{gameId}/actions", method = RequestMethod.POST)
     @ResponseStatus(HttpStatus.OK)
     public Long processResponse(@PathVariable Long gameId, @RequestParam("token") String userToken, @RequestBody ActionResponseDTO actionResponseDTO) {
-        logger.debug("Post Action: " + gameId);
+        System.out.println("Post Action: " + gameId);
         try {
             Game game = gameRepo.findOne(gameId);
             if(!userToken.equals(game.getUsers().get(game.getCurrentPlayer()).getToken())){
-                logger.error("Authentication error with token: " + userToken);
+                System.err.println("Authentication error with token: " + userToken);
                 return (long) -1;
             }
             if (actionResponseDTO != null) {
@@ -303,12 +303,12 @@ public class GameServiceController extends GenericService {
                 gameLogicService.update(gameId);
                 return gameId;
             } else {
-                logger.error("Actionresponse is null");
+                System.err.println("Actionresponse is null");
                 return (long) -1;
             }
 
         } catch (Exception ex) {
-            logger.error("Error adding Actionresponse");
+            System.err.println("Error adding Actionresponse");
             ex.printStackTrace();
             return (long) -1;
         }

@@ -217,10 +217,10 @@ public class ActionResponseService {
             bc.setDeck(hiddenDeck);
 
             // Character Skill Tuco
-            if (user.getCharacter().getClass().equals(Tuco.class)) {
+            if (user.getCharacter() instanceof Tuco) {
                 WagonLevel wl = wagonLevelRepo.findOne(victim.getWagonLevel().getId());
-                WagonLevel wlNew = new WagonLevel();
-                if (user.getWagonLevel().getWagon().getId() < victim.getWagonLevel().getWagon().getId()) {
+                WagonLevel wlNew;
+                if (user.getWagonLevel().getId() < victim.getWagonLevel().getId()) {
                     wlNew = wagonLevelRepo.findOne(wl.getWagonLevelAfter().getId());
                 } else {
                     wlNew = wagonLevelRepo.findOne(wl.getWagonLevelBefore().getId());

@@ -130,6 +130,7 @@ public class GameLogicService extends GenericService {
     }
 
     private void processCommonDeck(Game game) {
+        System.out.println("processCommonDeck");
         GameDeck<ActionCard> commonDeck = (GameDeck<ActionCard>) deckRepo.findOne(game.getCommonDeck().getId());
         ActionCard ac = (ActionCard) cardRepo.findOne(commonDeck.remove(0).getId());
         User user = userRepo.findOne(ac.getPlayedByUserId());
@@ -143,9 +144,12 @@ public class GameLogicService extends GenericService {
                 game.setCurrentPlayer(i);
         }
 
-        cardRepo.save(ac);
+        ac = cardRepo.save(ac);
         deckRepo.save(hiddenDeck);
         deckRepo.save(commonDeck);
+
+        ActionRequestHelper actionRequestHelper = new ActionRequestHelper();
+        actionRequestHelper.execute(ac, game.getId(), user.getId());
     }
 
     private int calculatePlanningARcounter(Game game) {
@@ -159,8 +163,6 @@ public class GameLogicService extends GenericService {
             }
         }
 
-
-        logger.debug("calcPlanningARcounter: " + sum);
         return sum;
     }
 

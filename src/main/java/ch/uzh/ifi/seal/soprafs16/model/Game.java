@@ -1,5 +1,7 @@
 package ch.uzh.ifi.seal.soprafs16.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import java.io.Serializable;
 import java.util.List;
 
@@ -191,6 +193,7 @@ public class Game implements Serializable {
         return actions;
     }
 
+    @JsonIgnore
     public Turn getCurrentTurnType(){
         if(roundCardDeck != null) {
             return ((RoundCard)roundCardDeck.getCards().get(currentRound)).getPattern().get(currentTurn);

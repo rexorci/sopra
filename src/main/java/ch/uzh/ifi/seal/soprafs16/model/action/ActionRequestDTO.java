@@ -25,15 +25,15 @@ import ch.uzh.ifi.seal.soprafs16.model.action.actionRequest.ShootRequestDTO;
  * Created by Timon Willi on 17.04.2016.
  */
 @Entity
-@JsonTypeName("ActionRequestDTO")
-@JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.PROPERTY, property = "@class")
+@JsonTypeName("actionRequestDTO")
+@JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.PROPERTY, property = "type")
 @JsonSubTypes({
-        @JsonSubTypes.Type(CollectItemRequestDTO.class),
-        @JsonSubTypes.Type(MoveMarshalRequestDTO.class),
-        @JsonSubTypes.Type(MoveRequestDTO.class),
-        @JsonSubTypes.Type(PunchRequestDTO.class),
-        @JsonSubTypes.Type(ShootRequestDTO.class),
-        @JsonSubTypes.Type(DrawOrPlayCardRequestDTO.class)
+        @JsonSubTypes.Type(value = CollectItemRequestDTO.class, name = "collectItemRequestDTO"),
+        @JsonSubTypes.Type(value = MoveMarshalRequestDTO.class, name = "moveMarshalRequestDTO"),
+        @JsonSubTypes.Type(value = MoveRequestDTO.class, name = "moveRequestDTO"),
+        @JsonSubTypes.Type(value = PunchRequestDTO.class, name = "punchRequestDTO"),
+        @JsonSubTypes.Type(value = ShootRequestDTO.class, name = "shootRequestDTO"),
+        @JsonSubTypes.Type(value = DrawOrPlayCardRequestDTO.class, name = "drawOrPlayCardRequestDTO")
 })
 public class ActionRequestDTO extends ActionDTO implements Serializable {
 

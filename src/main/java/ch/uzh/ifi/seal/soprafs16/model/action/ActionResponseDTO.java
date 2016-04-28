@@ -2,6 +2,7 @@ package ch.uzh.ifi.seal.soprafs16.model.action;
 
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
+import com.fasterxml.jackson.annotation.JsonTypeName;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 
 import java.io.Serializable;
@@ -21,15 +22,16 @@ import ch.uzh.ifi.seal.soprafs16.model.action.actionResponse.ShootResponseDTO;
  * Created by Timon Willi on 17.04.2016.
  */
 @Entity
-@JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.PROPERTY, property = "@class")
+@JsonTypeName("actionResponseDTO")
+@JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.PROPERTY, property = "type")
 @JsonSubTypes({
-        @JsonSubTypes.Type(CollectItemResponseDTO.class),
-        @JsonSubTypes.Type(MoveMarshalResponseDTO.class),
-        @JsonSubTypes.Type(MoveResponseDTO.class),
-        @JsonSubTypes.Type(PunchResponseDTO.class),
-        @JsonSubTypes.Type(ShootResponseDTO.class),
-        @JsonSubTypes.Type(DrawCardResponseDTO.class),
-        @JsonSubTypes.Type(PlayCardResponseDTO.class)
+        @JsonSubTypes.Type(value = CollectItemResponseDTO.class, name = "collectItemResponseDTO"),
+        @JsonSubTypes.Type(value = MoveMarshalResponseDTO.class, name = "moveMarshalResponseDTO"),
+        @JsonSubTypes.Type(value = MoveResponseDTO.class, name = "moveResponseDTO"),
+        @JsonSubTypes.Type(value = PunchResponseDTO.class, name = "punchResponseDTO"),
+        @JsonSubTypes.Type(value = ShootResponseDTO.class, name = "shootResponseDTO"),
+        @JsonSubTypes.Type(value = DrawCardResponseDTO.class, name = "drawCardResponseDTO"),
+        @JsonSubTypes.Type(value = PlayCardResponseDTO.class, name = "playCardResponseDTO")
 })
 @JsonDeserialize
 public class ActionResponseDTO extends ActionDTO implements Serializable {

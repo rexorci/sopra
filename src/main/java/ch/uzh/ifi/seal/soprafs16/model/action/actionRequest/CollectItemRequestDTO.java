@@ -1,5 +1,6 @@
 package ch.uzh.ifi.seal.soprafs16.model.action.actionRequest;
 
+import com.fasterxml.jackson.annotation.JsonTypeName;
 import com.sun.org.apache.xpath.internal.operations.Bool;
 
 import java.io.Serializable;
@@ -16,6 +17,7 @@ import ch.uzh.ifi.seal.soprafs16.model.action.ActionRequestDTO;
  * Created by Timon Willi on 17.04.2016.
  */
 @Entity
+@JsonTypeName("collectItemRequestDTO")
 public class CollectItemRequestDTO extends ActionRequestDTO implements Serializable {
 
     private static final long serialVersionUID = 1L;

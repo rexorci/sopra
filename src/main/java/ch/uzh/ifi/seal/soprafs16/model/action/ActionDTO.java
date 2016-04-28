@@ -15,8 +15,8 @@ import javax.persistence.Id;
  * Created by Timon Willi on 17.04.2016.
  */
 @Entity
-@JsonTypeName("ActionDTO")
-@JsonTypeInfo(use = JsonTypeInfo.Id.MINIMAL_CLASS, include = JsonTypeInfo.As.PROPERTY, property = "@class")
+@JsonTypeName("actionDTO")
+@JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.PROPERTY, property = "type")
 @JsonSubTypes({
         @JsonSubTypes.Type(ActionRequestDTO.class),
         @JsonSubTypes.Type(ActionResponseDTO.class)

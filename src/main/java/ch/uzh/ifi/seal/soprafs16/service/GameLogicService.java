@@ -152,10 +152,10 @@ public class GameLogicService extends GenericService {
         int sum = 0;
         RoundCard r = (RoundCard) game.getRoundCardDeck().get(game.getCurrentRound());
         for (Turn t : r.getPattern()) {
-            sum += 4;
+            sum += game.getUsers().size();
             // SpeedUp turn requires 2 action requests per user
             if (t instanceof SpeedupTurn) {
-                sum += 4;
+                sum += game.getUsers().size();
             }
         }
 
@@ -171,6 +171,7 @@ public class GameLogicService extends GenericService {
             finishGame(game);
             return true;
         } else {
+            System.out.println("round " + game.getCurrentRound() + " end");
             executeRoundAction(game);
             resetPlayerDecks(game);
             game.setRoundStarter((game.getRoundStarter() + 1) % game.getUsers().size());

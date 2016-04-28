@@ -531,7 +531,7 @@ public class GameLogicService extends GenericService {
                         bags.add(wagonLevel.getItems().get(i));
                     }
                 }
-                return bags.size() > 0 ? bags.get((int) (Math.random() * bags.size())) : null;
+                return !bags.isEmpty() ? bags.get((int) (Math.random() * bags.size())) : null;
             }
             return null;
         }
@@ -585,6 +585,8 @@ public class GameLogicService extends GenericService {
             }
             srq.setSpielId(game.getId());
             srq.setUserId(user.getId());
+            srq = actionRepo.save(srq);
+
             game.getActions().add(srq);
             actionRepo.save(srq);
             userRepo.save(user);
@@ -614,7 +616,7 @@ public class GameLogicService extends GenericService {
                 for (int i = 0; i < size; i++) {
                     shootable.add(wagonLevel.getWagonLevelAfter().getUsers().get(i));
                 }
-                if (shootable.size() == 0) {
+                if (shootable.isEmpty()) {
                     getShootableUsersAfterR(user, shootable, wagonLevel.getWagonLevelAfter());
 
                 }
@@ -657,7 +659,7 @@ public class GameLogicService extends GenericService {
             crq.setHasBag(Boolean.FALSE);
             crq.setHasCase(Boolean.FALSE);
             crq.setHasGem(Boolean.FALSE);
-            if (user.getWagonLevel().getItems().size() > 0) {
+            if (!user.getWagonLevel().getItems().isEmpty()) {
                 for (int i = 0; i < user.getWagonLevel().getItems().size(); i++) {
                     if (user.getWagonLevel().getItems().get(i).getItemType() == ItemType.GEM) {
                         crq.setHasGem(Boolean.TRUE);
@@ -672,11 +674,10 @@ public class GameLogicService extends GenericService {
             }
             crq.setSpielId(game.getId());
             crq.setUserId(user.getId());
-            game.getActions().add(crq);
-
             crq.setGame(game);
+            crq = actionRepo.save(crq);
 
-            actionRepo.save(crq);
+            game.getActions().add(crq);
             userRepo.save(user);
             gameRepo.save(game);
             return crq;
@@ -688,7 +689,7 @@ public class GameLogicService extends GenericService {
             Game game = gameRepo.findOne(gameId);
             MoveRequestDTO mrq = new MoveRequestDTO();
             List<Long> movable = new ArrayList<Long>();
-            mrq.setMovableWagonsLvlIds(new ArrayList<Long>());
+            mrq.setMovableWagonsLvlIds(new ArrayList<>());
 
             if (user.getWagonLevel().getLevelType() == LevelType.TOP) {
                 getMovableBeforeR(user, movable, user.getWagonLevel());
@@ -716,8 +717,8 @@ public class GameLogicService extends GenericService {
 
             mrq.setSpielId(game.getId());
             mrq.setUserId(user.getId());
+            mrq = actionRepo.save(mrq);
             game.getActions().add(mrq);
-            actionRepo.save(mrq);
             userRepo.save(user);
             gameRepo.save(game);
 
@@ -785,18 +786,19 @@ public class GameLogicService extends GenericService {
                 prq.getHasGem().add(i, Boolean.FALSE);
                 prq.getPunchableUserIds().add(userList.get(i).getId());
 
-                if (userList.get(i).getItems().size() > 0) {
+                if (!userList.get(i).getItems().isEmpty()) {
                     for (int j = 0; j < userList.get(i).getItems().size(); j++) {
-                        if (userList.get(i).getItems().get(j).getItemType() == ItemType.GEM) {
-                            prq.getHasGem().set(i, Boolean.TRUE);
-                        }
+                        switch(userList.get(i).getItems().get(j).getItemType()){
+                            case GEM:
+                                prq.getHasGem().set(i, Boolean.TRUE);
+                                break;
+                            case BAG:
+                                prq.getHasBag().set(i, Boolean.TRUE);
+                                break;
+                            case CASE:
+                                prq.getHasCase().set(i, Boolean.TRUE);
+                                break;
 
-                        if (userList.get(i).getItems().get(j).getItemType() == ItemType.BAG) {
-                            prq.getHasBag().set(i, Boolean.TRUE);
-                        }
-
-                        if (userList.get(i).getItems().get(j).getItemType() == ItemType.CASE) {
-                            prq.getHasCase().set(i, Boolean.TRUE);
                         }
                     }
                 }
@@ -810,13 +812,14 @@ public class GameLogicService extends GenericService {
 
             prq.setSpielId(game.getId());
             prq.setUserId(user.getId());
+            prq = actionRepo.save(prq);
             game.getActions().add(prq);
             userRepo.save(user);
             gameRepo.save(game);
             return prq;
         }
 
-        public MoveMarshalRequestDTO generateMoveMarshalRequest(Long gameId, Long marshalId) {
+        public MoveMarshalRequestDTO generateMoveMarshalRequest(Long gameId, Long userId) {
             Game game = gameRepo.findOne(gameId);
             MoveMarshalRequestDTO mmrq = new MoveMarshalRequestDTO();
 
@@ -828,6 +831,8 @@ public class GameLogicService extends GenericService {
             }
 
             mmrq.setSpielId(game.getId());
+            mmrq.setUserId(userId);
+            mmrq = actionRepo.save(mmrq);
             game.getActions().add(mmrq);
             gameRepo.save(game);
             return mmrq;

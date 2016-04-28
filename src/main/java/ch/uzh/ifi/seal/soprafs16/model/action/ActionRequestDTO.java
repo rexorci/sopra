@@ -26,7 +26,7 @@ import ch.uzh.ifi.seal.soprafs16.model.action.actionRequest.ShootRequestDTO;
  */
 @Entity
 @JsonTypeName("ActionRequestDTO")
-@JsonTypeInfo(use = JsonTypeInfo.Id.MINIMAL_CLASS, include = JsonTypeInfo.As.PROPERTY, property = "@class")
+@JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.PROPERTY, property = "@class")
 @JsonSubTypes({
         @JsonSubTypes.Type(CollectItemRequestDTO.class),
         @JsonSubTypes.Type(MoveMarshalRequestDTO.class),
@@ -52,9 +52,6 @@ public class ActionRequestDTO extends ActionDTO implements Serializable {
     @ManyToOne
     @JsonIgnore
     private Game game;
-
-//    private long gameId;
-    //private long userId;
 
     public Game getGame() {
         return game;

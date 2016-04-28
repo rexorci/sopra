@@ -33,7 +33,6 @@ import ch.uzh.ifi.seal.soprafs16.model.action.actionResponse.ShootResponseDTO;
         @JsonSubTypes.Type(value = DrawCardResponseDTO.class, name = "drawCardResponseDTO"),
         @JsonSubTypes.Type(value = PlayCardResponseDTO.class, name = "playCardResponseDTO")
 })
-@JsonDeserialize
 public class ActionResponseDTO extends ActionDTO implements Serializable {
 
     private static final long serialVersionUID = 1L;

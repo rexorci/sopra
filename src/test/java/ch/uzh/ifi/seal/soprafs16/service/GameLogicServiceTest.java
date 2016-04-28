@@ -4,6 +4,7 @@ import ch.uzh.ifi.seal.soprafs16.model.cards.roundCards.AngryMarshalCard;
 import ch.uzh.ifi.seal.soprafs16.model.characters.*;
 import ch.uzh.ifi.seal.soprafs16.model.characters.Character;
 import ch.uzh.ifi.seal.soprafs16.model.turns.*;
+
 import org.hibernate.Hibernate;
 import org.junit.Before;
 import org.junit.Test;
@@ -708,10 +709,10 @@ public class GameLogicServiceTest {
 
 
         // On initialize, every user is inside a wagon
-        BulletCard bc0 = (BulletCard)cardRepo.findOne(game.getNeutralBulletsDeck().get(0).getId());
-        BulletCard bc1 = (BulletCard)cardRepo.findOne(game.getNeutralBulletsDeck().get(1).getId());
-        BulletCard bc2 = (BulletCard)cardRepo.findOne(game.getNeutralBulletsDeck().get(2).getId());
-        BulletCard bc3 = (BulletCard)cardRepo.findOne(game.getNeutralBulletsDeck().get(3).getId());
+        BulletCard bc0 = (BulletCard) cardRepo.findOne(game.getNeutralBulletsDeck().get(0).getId());
+        BulletCard bc1 = (BulletCard) cardRepo.findOne(game.getNeutralBulletsDeck().get(1).getId());
+        BulletCard bc2 = (BulletCard) cardRepo.findOne(game.getNeutralBulletsDeck().get(2).getId());
+        BulletCard bc3 = (BulletCard) cardRepo.findOne(game.getNeutralBulletsDeck().get(3).getId());
 
         BulletCard[] bcs = {bc0, bc1, bc2, bc3};
         gls.update(gameId);
@@ -724,7 +725,7 @@ public class GameLogicServiceTest {
         }
 
         int i = 0;
-        for(User u: game.getUsers()) {
+        for (User u : game.getUsers()) {
             u = userRepo.findOne(u.getId());
             assertTrue(u.getHiddenDeck().removeById(bcs[i].getId()) || u.getHandDeck().removeById(bcs[i].getId()));
             i++;
@@ -788,11 +789,10 @@ public class GameLogicServiceTest {
         }
 
         u = userRepo.findOne(u.getId());
-        if(wagonContainedBag){
+        if (wagonContainedBag) {
             assertTrue(u.getItems().size() == itemCounter + 1);
             assertEquals(ItemType.BAG, u.getItems().get(u.getItems().size() - 1).getItemType());
-        }
-        else{
+        } else {
             assertTrue(u.getItems().size() == itemCounter);
             Item bag = new Item();
             bag.setItemType(ItemType.BAG);
@@ -865,29 +865,62 @@ public class GameLogicServiceTest {
         assertTrue(game.getWagons().get(game.getWagons().size() - 1).getTopLevel().removeUserById(u.getId()));
     }
 
+    @Test
+    public void checkMarshal_movesPlayerOnTop() {
+        Game game = gameRepo.findOne(gameId);
+        User u = userRepo.findOne(game.getUsers().get(0).getId());
+
+        WagonLevel wl = u.getWagonLevel();
+        wl.getUsers().remove(u);
+        wagonLevelRepo.save(wl);
+
+        WagonLevel marshalWl = game.getMarshal().getWagonLevel();
+        marshalWl.getUsers().add(u);
+        u.setWagonLevel(marshalWl);
+
+        userRepo.save(u);
+        wagonLevelRepo.save(marshalWl);
+
+        int hiddenDeckCounter = u.getHiddenDeck().size();
+
+        ars.checkMarshal(gameRepo.findOne(game.getId()));
+
+        u = userRepo.findOne(u.getId());
+        marshalWl = wagonLevelRepo.findOne(marshalWl.getId());
+        wl = wagonLevelRepo.findOne(wl.getId());
+
+        assertEquals(hiddenDeckCounter + 1, u.getHiddenDeck().size());
+        assertEquals(marshalWl.getWagon().getTopLevel().getId(), u.getWagonLevel().getId());
+        assertTrue(marshalWl.getUsers().isEmpty());
+        assertFalse(wl.removeUserById(u.getId()));
+    }
+
+    @Test
+    public void changeLevel_works() {
+        Game game = gameRepo.findOne(gameId);
+        User u = userRepo.findOne(game.getUsers().get(0).getId());
+
+        Long wlId = u.getWagonLevel().getId();
+        Long wlChanged = u.getWagonLevel().getWagon().getTopLevel().getId();
+
+        ars.changeLevel(u);
+
+        u = userRepo.findOne(u.getId());
+        assertEquals(wlChanged, u.getWagonLevel().getId());
+
+        ars.changeLevel(u);
+
+        u = userRepo.findOne(u.getId());
+        assertEquals(wlId, u.getWagonLevel().getId());
+    }
+
 
     private boolean containsBag(List<Item> items) {
-        for(Item item: items){
-            if(item.getItemType().equals(ItemType.BAG)) return true;
+        for (Item item : items) {
+            if (item.getItemType().equals(ItemType.BAG)) return true;
         }
         return false;
     }
-
-  /*  @Test
-    public void gls_GameFinishesCorrectly(){
-        tester.setCurrentRound(4);
-        tester.setCurrentPhase(PhaseType.EXECUTION);
-        tester.setCurrentTurn(2);
-        tester.getCommonDeck().getCards().add(new ActionCard() {
-            @Override
-            public ActionRequestDTO generateActionRequest(Game game, User user) {
-                return null;
-            }
-        });
-        gls.update(tester.getId());
-        gameRepo.save(tester);
-    }*/
-
 
     /*
     * HELPER FUNCTIONS

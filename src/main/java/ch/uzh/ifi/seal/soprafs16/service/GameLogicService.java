@@ -303,6 +303,17 @@ public class GameLogicService extends GenericService {
             }
 
             deckRepo.save(neutralBulletsDeck);
+
+            if(wl.getWagonLevelAfter() != null){
+                WagonLevel wlAfter = wagonLevelRepo.findOne(wl.getWagonLevelAfter().getId());
+                wl.setMarshal(null);
+                marshal.setWagonLevel(wlAfter);
+                wlAfter.setMarshal(marshal);
+
+                marshalRepo.save(marshal);
+                wagonLevelRepo.save(wl);
+                wagonLevelRepo.save(wlAfter);
+            }
         }
 
         private void execute(BrakingCard bc, Long gameId) {

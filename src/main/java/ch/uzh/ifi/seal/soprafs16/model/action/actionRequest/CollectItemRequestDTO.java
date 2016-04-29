@@ -21,29 +21,12 @@ public class CollectItemRequestDTO extends ActionRequestDTO implements Serializa
 
     private static final long serialVersionUID = 1L;
 
-    @ElementCollection
-    private List<Long> collectableItemIds;
-
     @Column
     private Boolean hasCase;
     @Column
     private Boolean hasGem;
-
     @Column
     private Boolean hasBag;
-
-    public CollectItemRequestDTO()
-    {
-        this.collectableItemIds = new ArrayList<Long>();
-    }
-
-    public List<Long> getCollectableItemIds() {
-        return collectableItemIds;
-    }
-
-    public void setCollectableItemIds(List<Long> collectableItemIds) {
-        this.collectableItemIds = collectableItemIds;
-    }
 
     public Boolean getHasCase() {
         return hasCase;

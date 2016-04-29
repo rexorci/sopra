@@ -793,8 +793,10 @@ public class GameLogicService extends GenericService {
             List<User> userList = new ArrayList<User>();
             prq.setPunchableUserIds(new ArrayList<Long>());
 
-            for (int i = 0; i < user.getWagonLevel().getUsers().size(); i++) {
-                userList.add(user.getWagonLevel().getUsers().get(i));
+            for (User u: user.getWagonLevel().getUsers()) {
+                if(!u.getId().equals(user.getId())){
+                    userList.add(u);
+                }
             }
             if (userList.size() > 1) {
                 for (int i = 0; i < userList.size(); i++) {

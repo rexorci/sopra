@@ -1,5 +1,8 @@
 package ch.uzh.ifi.seal.soprafs16.model.cards;
 
+import org.hibernate.annotations.IndexColumn;
+import org.hibernate.annotations.OrderBy;
+
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
@@ -23,7 +26,7 @@ public class Deck<T extends Card> implements Serializable {
     private Long id;
 
     @OneToMany(targetEntity = Card.class, mappedBy = "deck")
-    @OrderColumn(name = "pos")
+    @OrderBy(clause = "pos ASC")
     private List<T> cards;
 
     public Deck(){

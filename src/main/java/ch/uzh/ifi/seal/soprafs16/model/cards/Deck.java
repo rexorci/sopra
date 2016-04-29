@@ -23,7 +23,6 @@ public class Deck<T extends Card> implements Serializable {
     private Long id;
 
     @OneToMany(targetEntity = Card.class, mappedBy = "deck")
-    @OrderColumn(name = "cards_index")
     private List<T> cards;
 
     public Deck(){

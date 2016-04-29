@@ -193,8 +193,7 @@ public class GameLogicService extends GenericService {
     }
 
     private void executeRoundAction(Game game) {
-        logger.debug("executeRoundAction");
-        RoundCard rc = (RoundCard) cardRepo.findOne(game.getRoundCardDeck().get(game.getCurrentRound()).getId());
+        RoundCard rc = (RoundCard) cardRepo.findOne(game.getRoundCardDeck().get(game.getCurrentRound()-1).getId());
         RoundEndActionHelper reaHelper = new RoundEndActionHelper();
         reaHelper.execute(rc, game.getId());
     }
@@ -270,8 +269,6 @@ public class GameLogicService extends GenericService {
                 hiddenDeck.add(hc);
 
                 cardRepo.save(hc);
-                deckRepo.save(handDeck);
-                deckRepo.save(hiddenDeck);
             }
 
             for (int i = 0; i < 6; i++) {
@@ -281,8 +278,6 @@ public class GameLogicService extends GenericService {
                 handDeck.add(hc);
 
                 cardRepo.save(hc);
-                deckRepo.save(hiddenDeck);
-                deckRepo.save(handDeck);
             }
 
             // Character Skill Doc
@@ -293,9 +288,10 @@ public class GameLogicService extends GenericService {
                 handDeck.add(hc);
 
                 cardRepo.save(hc);
-                deckRepo.save(hiddenDeck);
-                deckRepo.save(handDeck);
             }
+
+            deckRepo.save(handDeck);
+            deckRepo.save(hiddenDeck);
         }
     }
 

@@ -216,7 +216,8 @@ public class GameLogicServiceTest {
 
     @Test
     public void gls_nextPlayerIsCorrect() {
-        for (int i = 0; i < 5; i++) {
+        int i = 0;
+        //for (int i = 0; i < 5; i++) {
             // 4 responses for Normal Turn
             tester = gameRepo.findOne(gameId);
             assertEquals((0 + i) % 4, (long) tester.getCurrentPlayer());
@@ -281,7 +282,7 @@ public class GameLogicServiceTest {
             }
 
             gls.update(tester.getId());
-        }
+        //}
     }
 
     private void simulatePlayCardResponse() {
@@ -297,7 +298,8 @@ public class GameLogicServiceTest {
     @Test
     public void gls_TurnIsCorrect() {
         // P1 Request
-        for (int i = 0; i < 5; i++) {
+        int i = 0;
+        //for (int i = 0; i < 5; i++) {
             tester = gameRepo.findOne(gameId);
             assertEquals(0, (long) tester.getCurrentTurn());
 
@@ -371,7 +373,7 @@ public class GameLogicServiceTest {
                 commonDeck = (GameDeck<ActionCard>)deckRepo.findOne(commonDeck.getId());
             }
             gls.update(tester.getId());
-        }
+     //   }
     }
 
     @Test
@@ -393,7 +395,9 @@ public class GameLogicServiceTest {
         tester = gameRepo.findOne(gameId);
         assertEquals(0, (long) tester.getCurrentRound());
         // simulate 16 ActionResponses (first round)
-        for (int y = 0; y < 5; y++) {
+        //for (int y = 0; y < 5; y++) {
+
+        int y = 0;
             for (int i = 0; i < 16; i++) {
                 simulatePlayCardResponse();
             }
@@ -409,7 +413,7 @@ public class GameLogicServiceTest {
             }
             gls.update(tester.getId());
             // last update call for ActionCard - Actions
-        }
+       // }
     }
 
     @Test

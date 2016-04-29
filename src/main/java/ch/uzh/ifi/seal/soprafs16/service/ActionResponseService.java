@@ -111,6 +111,7 @@ public class ActionResponseService {
         commonDeck.add(ac);
         ac.setDeck(commonDeck);
         ac.setPlayedByUserId(user.getId());
+        ac.setPlayedHidden(false);
 
         // TunnelTurn and Ghost character skill
         if(game.getCurrentTurnType() instanceof TunnelTurn ||

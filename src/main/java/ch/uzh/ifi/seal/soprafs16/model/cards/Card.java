@@ -36,7 +36,6 @@ public class Card implements Serializable {
 
     @ManyToOne
     @JsonIgnore
-    @JoinColumn(nullable = false)
     private Deck deck;
 
     public Long getId() {

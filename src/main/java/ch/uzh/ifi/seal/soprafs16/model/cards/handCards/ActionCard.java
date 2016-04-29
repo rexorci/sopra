@@ -1,6 +1,7 @@
 
 package ch.uzh.ifi.seal.soprafs16.model.cards.handCards;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.annotation.JsonTypeName;
@@ -40,6 +41,10 @@ public abstract class ActionCard extends HandCard implements Serializable {
     @Column
     private boolean playedHidden;
 
+    @Column
+    @JsonIgnore
+    private int pos;
+
     public Long getPlayedByUserId() {
         return playedByUserId;
     }
@@ -56,4 +61,11 @@ public abstract class ActionCard extends HandCard implements Serializable {
         this.playedHidden = playedHidden;
     }
 
+    public int getPos() {
+        return pos;
+    }
+
+    public void setPos(int pos) {
+        this.pos = pos;
+    }
 }

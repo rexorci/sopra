@@ -110,6 +110,7 @@ public class ActionResponseService {
         GameDeck<ActionCard> commonDeck = game.getCommonDeck();
         commonDeck.add(ac);
         ac.setDeck(commonDeck);
+        ac.setPos(game.getActionRequestCounter());
         ac.setPlayedByUserId(user.getId());
         ac.setPlayedHidden(false);
 

@@ -240,6 +240,7 @@ public class GameService {
                     if (!IntStream.of(randomChosenHandCards).anyMatch(x -> x == finalI)) {
                         hiddenDeck.getCards().add(allActionCards.get(i));
                         allActionCards.get(i).setDeck(hiddenDeck);
+                        allActionCards.get(i).setPlayedByUserId(user.getId());
                     }
                 }
             }

@@ -172,6 +172,7 @@ public class GameServiceController extends GenericService {
 
             gameService.startGame(gameId);
             gameService.createDemoGame(gameId);
+            gameLogicService.update(gameId);
         }
     }
 

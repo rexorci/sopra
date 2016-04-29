@@ -696,6 +696,10 @@ public class GameLogicService extends GenericService {
                     }
                 }
             }
+
+            if(!crq.getHasBag() && !crq.getHasCase() && !crq.getHasGem()){
+                return null;
+            }
             crq.setSpielId(game.getId());
             crq.setUserId(user.getId());
             crq.setGame(game);

@@ -17,12 +17,14 @@ import java.util.List;
 
 import ch.uzh.ifi.seal.soprafs16.GameConstants;
 import ch.uzh.ifi.seal.soprafs16.constant.GameStatus;
+import ch.uzh.ifi.seal.soprafs16.constant.PhaseType;
 import ch.uzh.ifi.seal.soprafs16.model.Game;
 import ch.uzh.ifi.seal.soprafs16.model.User;
 import ch.uzh.ifi.seal.soprafs16.model.action.ActionRequestDTO;
 import ch.uzh.ifi.seal.soprafs16.model.action.ActionResponseDTO;
 import ch.uzh.ifi.seal.soprafs16.model.characters.Character;
 import ch.uzh.ifi.seal.soprafs16.model.repositories.ActionRepository;
+import ch.uzh.ifi.seal.soprafs16.model.repositories.ActionResponseRepository;
 import ch.uzh.ifi.seal.soprafs16.model.repositories.CardRepository;
 import ch.uzh.ifi.seal.soprafs16.model.repositories.CharacterRepository;
 import ch.uzh.ifi.seal.soprafs16.model.repositories.DeckRepository;
@@ -65,6 +67,8 @@ public class GameServiceController extends GenericService {
     private ActionRepository actionRepo;
     @Autowired
     private TurnRepository turnRepo;
+    @Autowired
+    private ActionResponseRepository actionResponseRepo;
     @Autowired
     private GameService gameService;
     @Autowired
@@ -294,7 +298,7 @@ public class GameServiceController extends GenericService {
                 return (long) -1;
             }
             if (actionResponseDTO != null) {
-                //actionResponseDTO = actionResponseRepo.save(actionResponseDTO);
+                actionResponseDTO = actionResponseRepo.save(actionResponseDTO);
                 actionResponseService.processResponse(actionResponseDTO);
                 gameLogicService.update(gameId);
                 return gameId;
@@ -316,9 +320,7 @@ public class GameServiceController extends GenericService {
     public ActionRequestDTO getActionRequest(@PathVariable Long gameId)
     {
         Game game = gameRepo.findOne(gameId);
-        Long id = game.getActions().get(game.getActions().size()-1).getId();
+        Long id = game.getActions().get(game.getActions().size() - 1).getId();
         return actionRepo.findOne(id);
-    }
-    //games/{gameId}/actions - POST
-
+    }//games/{gameId}/actions - POST
 }

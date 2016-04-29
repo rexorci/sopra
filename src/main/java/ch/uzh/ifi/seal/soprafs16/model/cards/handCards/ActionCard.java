@@ -38,7 +38,7 @@ public abstract class ActionCard extends HandCard implements Serializable {
     private Long playedByUserId;
 
     @Column
-    private Boolean  playedHidden;
+    private boolean playedHidden;
 
     public Long getPlayedByUserId() {
         return playedByUserId;
@@ -48,11 +48,11 @@ public abstract class ActionCard extends HandCard implements Serializable {
         this.playedByUserId = playedByUserId;
     }
 
-    public Boolean isPlayedHidden() {
+    public boolean isPlayedHidden() {
         return playedHidden;
     }
 
-    public void setPlayedHidden(Boolean playedHidden) {
+    public void setPlayedHidden(boolean playedHidden) {
         this.playedHidden = playedHidden;
     }
 

@@ -135,27 +135,32 @@ public class GameLogicService extends GenericService {
     private void processCommonDeck(Game game) {
         System.out.println("processCommonDeck");
         GameDeck<ActionCard> commonDeck = (GameDeck<ActionCard>) deckRepo.findOne(game.getCommonDeck().getId());
-        ActionCard ac = (ActionCard) cardRepo.findOne(commonDeck.remove(0).getId());
-        User user = userRepo.findOne(ac.getPlayedByUserId());
-        PlayerDeck<HandCard> hiddenDeck = (PlayerDeck<HandCard>) deckRepo.findOne(user.getHiddenDeck().getId());
-        ac.setPlayedByUserId(user.getId());
-        ac.setDeck(hiddenDeck);
-        hiddenDeck.getCards().add(ac);
-
-        for (int i = 0; i < game.getUsers().size(); i++) {
-            if (game.getUsers().get(i).getId().equals(ac.getPlayedByUserId()))
-                game.setCurrentPlayer(i);
-        }
-
-        ac = cardRepo.save(ac);
-        deckRepo.save(hiddenDeck);
-        deckRepo.save(commonDeck);
-
-        ActionRequestHelper actionRequestHelper = new ActionRequestHelper();
-        ActionRequestDTO ardto = actionRequestHelper.execute(ac, game.getId(), user.getId());
-
-        if(ardto == null){
+        // If no cards were played that round (highly unlikely)
+        if (commonDeck.size() == 0) {
             update(game.getId());
+        } else {
+            ActionCard ac = (ActionCard) cardRepo.findOne(commonDeck.remove(0).getId());
+            User user = userRepo.findOne(ac.getPlayedByUserId());
+            PlayerDeck<HandCard> hiddenDeck = (PlayerDeck<HandCard>) deckRepo.findOne(user.getHiddenDeck().getId());
+            ac.setPlayedByUserId(user.getId());
+            ac.setDeck(hiddenDeck);
+            hiddenDeck.getCards().add(ac);
+
+            for (int i = 0; i < game.getUsers().size(); i++) {
+                if (game.getUsers().get(i).getId().equals(ac.getPlayedByUserId()))
+                    game.setCurrentPlayer(i);
+            }
+
+            ac = cardRepo.save(ac);
+            deckRepo.save(hiddenDeck);
+            deckRepo.save(commonDeck);
+
+            ActionRequestHelper actionRequestHelper = new ActionRequestHelper();
+            ActionRequestDTO ardto = actionRequestHelper.execute(ac, game.getId(), user.getId());
+
+            if (ardto == null) {
+                update(game.getId());
+            }
         }
     }
 
@@ -177,6 +182,7 @@ public class GameLogicService extends GenericService {
         // Next round is triggered
         game.setCurrentRound(game.getCurrentRound() + 1);
         if (game.getCurrentRound().equals(GameConstants.ROUNDS)) {
+            executeRoundAction(game);
             finishGame(game);
             return true;
         } else {

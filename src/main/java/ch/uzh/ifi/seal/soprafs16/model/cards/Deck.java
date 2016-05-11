@@ -1,6 +1,5 @@
 package ch.uzh.ifi.seal.soprafs16.model.cards;
 
-import org.hibernate.annotations.IndexColumn;
 import org.hibernate.annotations.OrderBy;
 
 import java.io.Serializable;
@@ -11,7 +10,6 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.OneToMany;
-import javax.persistence.OrderColumn;
 
 @Entity
 public class Deck<T extends Card> implements Serializable {

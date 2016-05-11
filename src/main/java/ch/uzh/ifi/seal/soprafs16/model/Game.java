@@ -53,6 +53,7 @@ public class Game implements Serializable {
     @OneToMany(mappedBy = "game")
     private List<Wagon> wagons;
 
+    @JsonIgnore
     @OneToOne
     private Marshal marshal;
 
@@ -62,6 +63,7 @@ public class Game implements Serializable {
     @Column
     private Integer currentTurn;
 
+    @JsonIgnore
     @Column
     private String roundPattern;
 
@@ -71,6 +73,7 @@ public class Game implements Serializable {
     @Column
     private int roundStarter;
 
+    @JsonIgnore
     @Column
     private Integer actionRequestCounter;
 
@@ -83,6 +86,7 @@ public class Game implements Serializable {
     @OneToOne
     private GameDeck<RoundCard> roundCardDeck;
 
+    @JsonIgnore
     @OneToOne
     private GameDeck<BulletCard> neutralBulletsDeck;
 

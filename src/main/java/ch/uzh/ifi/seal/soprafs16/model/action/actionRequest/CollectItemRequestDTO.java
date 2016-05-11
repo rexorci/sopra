@@ -3,11 +3,8 @@ package ch.uzh.ifi.seal.soprafs16.model.action.actionRequest;
 import com.fasterxml.jackson.annotation.JsonTypeName;
 
 import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.List;
 
 import javax.persistence.Column;
-import javax.persistence.ElementCollection;
 import javax.persistence.Entity;
 
 import ch.uzh.ifi.seal.soprafs16.model.action.ActionRequestDTO;

@@ -10,7 +10,6 @@ import java.io.Serializable;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
-import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 
 import ch.uzh.ifi.seal.soprafs16.model.cards.handCards.HandCard;

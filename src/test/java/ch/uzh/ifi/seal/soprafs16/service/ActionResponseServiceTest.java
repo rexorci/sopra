@@ -40,7 +40,6 @@ import ch.uzh.ifi.seal.soprafs16.model.cards.handCards.BulletCard;
 import ch.uzh.ifi.seal.soprafs16.model.cards.handCards.HandCard;
 import ch.uzh.ifi.seal.soprafs16.model.characters.Character;
 import ch.uzh.ifi.seal.soprafs16.model.characters.Cheyenne;
-import ch.uzh.ifi.seal.soprafs16.model.characters.Django;
 import ch.uzh.ifi.seal.soprafs16.model.characters.Ghost;
 import ch.uzh.ifi.seal.soprafs16.model.characters.Tuco;
 import ch.uzh.ifi.seal.soprafs16.model.repositories.CardRepository;

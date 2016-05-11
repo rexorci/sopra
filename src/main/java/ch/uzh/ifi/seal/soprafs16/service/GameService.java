@@ -96,13 +96,13 @@ public class GameService {
      * @param gameId
      * @return
      */
-    public Long startGame(Long gameId) {
+    public Long startGame(Long gameId)
+    {
         try {
             Game game = gameRepo.findOne(gameId);
 
             boolean initSuccessful = true;
 
-            game.setStatus(GameStatus.RUNNING);
             game.setWagons(new ArrayList<Wagon>());
 
             initSuccessful = initGameWagons(game) && initSuccessful;
@@ -119,6 +119,7 @@ public class GameService {
             game.setActionRequestCounter(0);
             game.setRoundPattern(((RoundCard) (game.getRoundCardDeck().getCards().get(0))).getStringPattern());
 
+            game.setStatus(GameStatus.RUNNING);
             gameRepo.save(game);
 
             if (initSuccessful) {
@@ -130,7 +131,6 @@ public class GameService {
             return (long) -1;
         }
     }
-
     private boolean initGameWagons(Game game) {
         try {
             int maxWagons; //Locomotive is also a wagon, so 4 Wagons means 3 carriages and 1 locomotive

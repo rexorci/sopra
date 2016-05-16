@@ -21,9 +21,6 @@ import ch.uzh.ifi.seal.soprafs16.model.cards.handCards.HandCard;
 @Entity
 public class User implements Serializable {
 
-    /**
-     *
-     */
     private static final long serialVersionUID = 1L;
 
     @Id
@@ -54,11 +51,6 @@ public class User implements Serializable {
     @OneToMany
     private List<Item> items;
 
-    // @Column
-    // private String characterType;
-
-    //@OneToOne
-    //@JsonIgnore
     @OneToOne(targetEntity = ch.uzh.ifi.seal.soprafs16.model.characters.Character.class)
     private ch.uzh.ifi.seal.soprafs16.model.characters.Character character;
 
@@ -141,20 +133,7 @@ public class User implements Serializable {
 
     public void setCharacter(ch.uzh.ifi.seal.soprafs16.model.characters.Character character) {
         this.character = character;
-//        if (character != null) {
-//            this.characterType = character.getClass().getSimpleName();
-//        } else {
-//            this.characterType = null;
-//        }
     }
-
-//    public String getCharacterType() {
-//        return characterType;
-//    }
-
-//    public void setCharacterType(String characterType) {
-//        this.characterType = characterType;
-//    }
 
     public PlayerDeck<HandCard> getHandDeck() {
         return handDeck;

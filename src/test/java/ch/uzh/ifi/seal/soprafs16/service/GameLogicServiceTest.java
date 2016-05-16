@@ -26,7 +26,6 @@ import ch.uzh.ifi.seal.soprafs16.constant.ItemType;
 import ch.uzh.ifi.seal.soprafs16.constant.PhaseType;
 import ch.uzh.ifi.seal.soprafs16.model.Game;
 import ch.uzh.ifi.seal.soprafs16.model.Item;
-import ch.uzh.ifi.seal.soprafs16.model.Marshal;
 import ch.uzh.ifi.seal.soprafs16.model.User;
 import ch.uzh.ifi.seal.soprafs16.model.UserAuthenticationWrapper;
 import ch.uzh.ifi.seal.soprafs16.model.WagonLevel;
@@ -36,7 +35,6 @@ import ch.uzh.ifi.seal.soprafs16.model.cards.handCards.ActionCard;
 import ch.uzh.ifi.seal.soprafs16.model.cards.handCards.BulletCard;
 import ch.uzh.ifi.seal.soprafs16.model.cards.roundCards.AngryMarshalCard;
 import ch.uzh.ifi.seal.soprafs16.model.cards.roundCards.BrakingCard;
-import ch.uzh.ifi.seal.soprafs16.model.cards.roundCards.GetItAllCard;
 import ch.uzh.ifi.seal.soprafs16.model.cards.roundCards.HostageCard;
 import ch.uzh.ifi.seal.soprafs16.model.cards.roundCards.MarshallsRevengeCard;
 import ch.uzh.ifi.seal.soprafs16.model.cards.roundCards.PivotablePoleCard;
@@ -469,7 +467,7 @@ public class GameLogicServiceTest {
         assertTrue(u.getHandDeck().removeById(bc.getId()) || u.getHiddenDeck().removeById(bc.getId()));
     }
 
-   /* @Test
+   @Test
     public void execute_BrakingCardMovesUsersOnRoof() {
         User u = userRepo.findOne(tester.getUsers().get(0).getId());
         Game game = gameRepo.findOne(gameId);
@@ -522,9 +520,9 @@ public class GameLogicServiceTest {
 
         u = userRepo.findOne(u.getId());
         assertEquals(newWl.getWagonLevelBefore().getId(), u.getWagonLevel().getId());
-    }*/
+    }
 
-    @Test
+ /*   @Test
     public void execute_GetItAllCaseIsPlaced() {
         Game game = gameRepo.findOne(gameId);
         Marshal marshal = marshalRepo.findOne(game.getMarshal().getId());
@@ -579,7 +577,7 @@ public class GameLogicServiceTest {
         newWl = wagonLevelRepo.findOne(newWl.getId());
         assertEquals(ItemType.CASE, newWl.getItems().get(newWl.getItems().size() - 1).getItemType());
     }
-
+*/
     @Test
     public void execute_HostageCardUsersInLocGetBag() {
         Game game = gameRepo.findOne(gameId);
@@ -946,6 +944,71 @@ public class GameLogicServiceTest {
         assertEquals(wlId, u.getWagonLevel().getId());
     }
 
+    @Test
+    public void evaluateGunslingerBonus_assignsIfOnlyOneMax(){
+        Game game = gameRepo.findOne(gameId);
+        game.setCurrentRound(4);
+        game.setCurrentPhase(PhaseType.EXECUTION);
+
+        User gunslinger = userRepo.findOne(game.getUsers().get(0).getId());
+        gunslinger.getBulletsDeck().remove(0);
+        userRepo.save(gunslinger);
+
+        int items = gunslinger.getItems().size();
+        gls.update(gameId);
+
+        gunslinger = userRepo.findOne(gunslinger.getId());
+        assertEquals(items + 1, gunslinger.getItems().size());
+        assertEquals(1000, gunslinger.getItems().get(gunslinger.getItems().size() - 1).getValue());
+    }
+
+    @Test
+    public void evaluateGunslingerBonus_doesNotAssignIfNotMax(){
+        Game game = gameRepo.findOne(gameId);
+        game.setCurrentRound(4);
+        game.setCurrentPhase(PhaseType.EXECUTION);
+
+        User gunslinger = userRepo.findOne(game.getUsers().get(0).getId());
+        gunslinger.getBulletsDeck().remove(0);
+        userRepo.save(gunslinger);
+
+        User notGunslinger = userRepo.findOne(game.getUsers().get(1).getId());
+        int items = notGunslinger.getItems().size();
+
+        gls.update(gameId);
+        notGunslinger = userRepo.findOne(notGunslinger.getId());
+
+        assertEquals(items, notGunslinger.getItems().size());
+    }
+
+    @Test
+    public void evaluateGunslingerBonus_doesAssignMultipleBonuses(){
+        Game game = gameRepo.findOne(gameId);
+        game.setCurrentRound(4);
+        game.setCurrentPhase(PhaseType.EXECUTION);
+
+        User gunslinger1 = userRepo.findOne(game.getUsers().get(0).getId());
+        gunslinger1.getBulletsDeck().remove(0);
+        userRepo.save(gunslinger1);
+        int items1 = gunslinger1.getItems().size();
+
+        User gunslinger2 = userRepo.findOne(game.getUsers().get(0).getId());
+        gunslinger2.getBulletsDeck().remove(0);
+        userRepo.save(gunslinger2);
+        int items2 = gunslinger1.getItems().size();
+
+        gls.update(gameId);
+
+        gunslinger1 = userRepo.findOne(gunslinger1.getId());
+        gunslinger2 = userRepo.findOne(gunslinger1.getId());
+
+        assertEquals(items1 + 1, gunslinger1.getItems().size());
+        assertEquals(items2 + 1, gunslinger2.getItems().size());
+    }
+
+    /*
+    * HELPER FUNCTIONS
+     */
 
     private boolean containsBag(List<Item> items) {
         for (Item item : items) {
@@ -954,9 +1017,6 @@ public class GameLogicServiceTest {
         return false;
     }
 
-    /*
-    * HELPER FUNCTIONS
-     */
     private void simulateRound(Game game) {
         for (int i = 0; i < 4; i++) {
             simulateTurn(game);

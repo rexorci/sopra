@@ -181,8 +181,10 @@ public class GameLogicService extends GenericService {
     private boolean endRound(Game game) {
         // Next round is triggered
         game.setCurrentRound(game.getCurrentRound() + 1);
+        // Last round is over
         if (game.getCurrentRound().equals(GameConstants.ROUNDS)) {
             executeRoundAction(game);
+            evaluateGunslingerBonus(game);
             finishGame(game);
             return true;
         } else {
@@ -195,6 +197,34 @@ public class GameLogicService extends GenericService {
             game.setCurrentPhase(PhaseType.PLANNING);
             game.setActionRequestCounter(0);
             return false;
+        }
+    }
+
+    private void evaluateGunslingerBonus(Game game) {
+        List<User> max = new ArrayList<>();
+        max.add(game.getUsers().get(0));
+
+        for(int i = 1; i < game.getUsers().size(); i++){
+            User u = game.getUsers().get(i);
+            if(u.getBulletsDeck().size() <= max.get(0).getBulletsDeck().size()){
+                if(u.getBulletsDeck().size() < max.get(0).getBulletsDeck().size()){
+                    max.clear();
+                }
+                max.add(u);
+            }
+        }
+
+        for(User u: max) {
+            Item bag = new Item();
+            bag.setItemType(ItemType.BAG);
+            bag.setUser(u);
+            bag.setValue(1000);
+            bag.setWagonLevel(null);
+            itemRepo.save(bag);
+
+            User user = userRepo.findOne(u.getId());
+            user.getItems().add(bag);
+            userRepo.save(user);
         }
     }
 
